@@ -153,6 +153,8 @@ namespace WindowsApplication1
         const int VCI_PCIE9221 = 24;
 
         IDictionary carSelected = null;
+
+        Flash flash = new Flash();
         /// <summary>
         /// 
         /// </summary>
@@ -169,7 +171,7 @@ namespace WindowsApplication1
         [DllImport("controlcan.dll")]
         static extern UInt32 VCI_ReadBoardInfo(UInt32 DeviceType, UInt32 DeviceInd, ref VCI_BOARD_INFO pInfo);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_ReadErrInfo(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_ERR_INFO pErrInfo);
+        public static extern UInt32 VCI_ReadErrInfo(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_ERR_INFO pErrInfo);
         [DllImport("controlcan.dll")]
         static extern UInt32 VCI_ReadCANStatus(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_STATUS pCANStatus);
 
@@ -189,22 +191,22 @@ namespace WindowsApplication1
         static extern UInt32 VCI_ResetCAN(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd);
 
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_Transmit(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_OBJ pSend, UInt32 Len);
+        public static extern UInt32 VCI_Transmit(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_OBJ pSend, UInt32 Len);
 
         //[DllImport("controlcan.dll")]
         //static extern UInt32 VCI_Receive(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_OBJ pReceive, UInt32 Len, Int32 WaitTime);
         [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
         static extern UInt32 VCI_Receive(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, IntPtr pReceive, UInt32 Len, Int32 WaitTime);
 
-        static UInt32 m_devtype = 4;//USBCAN2
+        public static UInt32 m_devtype = 4;//USBCAN2
 
-        UInt32 m_bOpen = 0;
-        UInt32 m_devind = 0;
-        UInt32 m_canind = 0;
+        public static UInt32 m_bOpen = 0;
+        public static UInt32 m_devind = 0;
+        public static UInt32 m_canind = 0;
 
-        VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
+        public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
 
-        UInt32[] m_arrdevtype = new UInt32[20];
+        public UInt32[] m_arrdevtype = new UInt32[20];
 
         public Form1()
         {
@@ -621,29 +623,32 @@ namespace WindowsApplication1
 
         private void button_Flash_Click(object sender, EventArgs e)
         {
-            textBox_Data.Text = carSelected["SoftwareVersion"].ToString();
-            button_Send_Click(sender, e);
-            return;
+            //textBox_Data.Text = carSelected["SoftwareVersion"].ToString();
+            //button_Send_Click(sender, e);
+            //return;
+
+            flash.readVersion();
+            //new Can();
+
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
         {
             comboBox_Config.Items.Clear();
             System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            int confnum=config.GetSectionGroup("CanConfig").Sections.Count;
+            int confnum=config.GetSectionGroup("CarConfig").Sections.Count;
             //String[] carInfo=new String[confnum];
             for (int index = 0; index < confnum; index++)
             {
-                //carInfo[index]= config.GetSectionGroup("CanConfig").Sections.GetKey(index);
-                comboBox_Config.Items.Add(config.GetSectionGroup("CanConfig").Sections.GetKey(index));
+                //carInfo[index]= config.GetSectionGroup("CarConfig").Sections.GetKey(index);
+                comboBox_Config.Items.Add(config.GetSectionGroup("CarConfig").Sections.GetKey(index));
             }
         }
 
         private void comboBox_Config_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Flash flash = new Flash();
             String car = (String)comboBox_Config.SelectedItem;
-            carSelected = (IDictionary)ConfigurationManager.GetSection("CanConfig/"+car);
+            carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/"+car);
             flash.setCar(carSelected);
         }
 
