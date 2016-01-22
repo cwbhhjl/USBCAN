@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace WindowsApplication1
 {
@@ -16,6 +10,20 @@ namespace WindowsApplication1
 
         public int start()
         {
+            CanControl.canConnect();
+
+            enterExSession();
+
+            checkPreProg();
+
+            setDtcOff();
+
+            disableCommunication();
+
+            enterProgSession();
+
+            requestSeed();
+
             return 1;
         }
 
@@ -26,87 +34,113 @@ namespace WindowsApplication1
                 return "";
             }
             //VCI_ERR_INFO vei;UInt32 dd;vei.ArLost_ErrData = 0;vei.ErrCode = 0;vei.Passive_ErrData1 = 0;vei.Passive_ErrData2 = 0;vei.Passive_ErrData3 = 0;
-            sendData(carSelected["PhysicalID"].ToString(), carSelected["SoftwareVersion"].ToString());
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["SoftwareVersion"].ToString());
             //dd = Form1.VCI_ReadErrInfo(Form1.m_devtype,Form1.m_devind,Form1.m_canind,ref vei);
             
             return "1";
         }
 
-        unsafe private void sendData(String canID,String strData)
+        public void enterExSession()
         {
-            if (Form1.m_bOpen == 0)
+            if (carSelected == null)
+            {
                 return;
+            }
+           
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ExtendedSession"].ToString());  
+        }
+
+        public void checkPreProg()
+        {
+            if (carSelected == null)
+            {
+                return;
+            }
+
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["PreProgrammingCheck"].ToString());
+        }
+
+        public void setDtcOff()
+        {
+            if (carSelected == null)
+            {
+                return;
+            }
+
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["DtcSetOFF"].ToString());
+        }
+
+        public void disableCommunication()
+        {
+            if (carSelected == null)
+            {
+                return;
+            }
+
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["CommunicationDisable"].ToString());
+        }
+
+        public void enterProgSession()
+        {
+            if (carSelected == null)
+            {
+                return;
+            }
+
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ProgrammingSession"].ToString());
+        }
+
+        public void requestSeed()
+        {
+            if (carSelected == null)
+            {
+                return;
+            }
+
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["SeedRequest"].ToString());
+        }
+
+
+        unsafe private void sendSingleFrame(String canID,String strData)
+        {
+            if (CanControl.m_bOpen == 0)
+            {
+                return;
+            }
             
             VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[1];//sendobj.Init();
-            for (int j = 0; j < sendobj.Length; j++)
+                 
+            sendobj[0].SendType = 2;
+            sendobj[0].RemoteFlag = 0;
+            sendobj[0].ExternFlag = 0;
+            sendobj[0].ID = System.Convert.ToUInt32(canID, 16);
+            int len = (strData.Length + 1) / 3;
+            sendobj[0].DataLen = System.Convert.ToByte(len);
+
+            for (int n = -1;n<len-1;n++)
             {
-                sendobj[j].SendType = 2;
-                sendobj[j].RemoteFlag = 0;
-                sendobj[j].ExternFlag = 0;
-                sendobj[j].ID = System.Convert.ToUInt32("0x" + canID, 16);
-                int len = (strData.Length + 1) / 3;
-                sendobj[j].DataLen = System.Convert.ToByte(len);
-                int i = -1;
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[0] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[1] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[2] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[3] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[4] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[5] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[6] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
-
-                if (i++ < len - 1)
-                    fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
-                    {
-                        sendobjs[j].Data[7] = System.Convert.ToByte("0x" + strData.Substring(i * 3, 2), 16);
-                    }
+                fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
+                {
+                    sendobjs[0].Data[n+1] = System.Convert.ToByte("0x" + strData.Substring((n+1) * 3, 2), 16);
+                }
             }
 
-
-            uint res = Form1.VCI_Transmit(Form1.m_devtype, Form1.m_devind, Form1.m_canind, ref sendobj[0], 1);
-            if (res == 0)
-            {
-                MessageBox.Show("发送失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            }
+            CanControl.canSend(ref sendobj[0]);
+            Delay(30);
         }
 
         public void setCar(IDictionary carSelected)
         {
             this.carSelected = carSelected; 
-        } 
+        }
+
+        public static void Delay(int milliSecond)
+        {
+            int start = Environment.TickCount;
+            while (Math.Abs(Environment.TickCount - start) < milliSecond)
+            {
+                Application.DoEvents();
+            }
+        }
     }
 }

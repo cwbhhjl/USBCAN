@@ -651,7 +651,7 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ListBox listBox_Info;
-        private System.Windows.Forms.Timer timer_rec;
+        public System.Windows.Forms.Timer timer_rec;
         private System.Windows.Forms.ComboBox comboBox_devtype;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;
