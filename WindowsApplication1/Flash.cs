@@ -36,7 +36,7 @@ namespace WindowsApplication1
             //VCI_ERR_INFO vei;UInt32 dd;vei.ArLost_ErrData = 0;vei.ErrCode = 0;vei.Passive_ErrData1 = 0;vei.Passive_ErrData2 = 0;vei.Passive_ErrData3 = 0;
             sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["SoftwareVersion"].ToString());
             //dd = Form1.VCI_ReadErrInfo(Form1.m_devtype,Form1.m_devind,Form1.m_canind,ref vei);
-            
+
             return "1";
         }
 
@@ -46,8 +46,8 @@ namespace WindowsApplication1
             {
                 return;
             }
-           
-            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ExtendedSession"].ToString());  
+
+            sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ExtendedSession"].ToString());
         }
 
         public void checkPreProg()
@@ -101,15 +101,15 @@ namespace WindowsApplication1
         }
 
 
-        unsafe private void sendSingleFrame(String canID,String strData)
+        unsafe private void sendSingleFrame(String canID, String strData)
         {
             if (CanControl.m_bOpen == 0)
             {
                 return;
             }
-            
+
             VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[1];//sendobj.Init();
-                 
+
             sendobj[0].SendType = 2;
             sendobj[0].RemoteFlag = 0;
             sendobj[0].ExternFlag = 0;
@@ -117,11 +117,11 @@ namespace WindowsApplication1
             int len = (strData.Length + 1) / 3;
             sendobj[0].DataLen = System.Convert.ToByte(len);
 
-            for (int n = -1;n<len-1;n++)
+            for (int n = -1; n < len - 1; n++)
             {
                 fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
                 {
-                    sendobjs[0].Data[n+1] = System.Convert.ToByte("0x" + strData.Substring((n+1) * 3, 2), 16);
+                    sendobjs[0].Data[n + 1] = System.Convert.ToByte("0x" + strData.Substring((n + 1) * 3, 2), 16);
                 }
             }
 
@@ -131,7 +131,7 @@ namespace WindowsApplication1
 
         public void setCar(IDictionary carSelected)
         {
-            this.carSelected = carSelected; 
+            this.carSelected = carSelected;
         }
 
         public static void Delay(int milliSecond)
@@ -142,5 +142,6 @@ namespace WindowsApplication1
                 Application.DoEvents();
             }
         }
+
     }
 }

@@ -43,6 +43,7 @@ namespace WindowsApplication1
         const int VCI_PCIE9221 = 24;
 
         IDictionary carSelected = null;
+        Security sec;
 
         Flash flash = new Flash();
         /// <summary>
@@ -216,6 +217,10 @@ namespace WindowsApplication1
             if (m_bOpen==1)
             {
                 VCI_CloseDevice(m_devtype, m_devind);
+            }
+            if (CanControl.m_bOpen == 1)
+            {
+                CanControl.VCI_CloseDevice(m_devtype, m_devind);
             }
         }
 
@@ -514,7 +519,7 @@ namespace WindowsApplication1
             //textBox_Data.Text = carSelected["SoftwareVersion"].ToString();
             //button_Send_Click(sender, e);
             //return;
-            flash.start();
+            //flash.start();
             //new Can();
 
         }

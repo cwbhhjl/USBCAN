@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
-
 
 //1.ZLGCAN系列接口卡信息的数据类型。
 public struct VCI_BOARD_INFO
@@ -151,7 +148,7 @@ namespace WindowsApplication1
         [DllImport("controlcan.dll")]
         static extern UInt32 VCI_OpenDevice(UInt32 DeviceType, UInt32 DeviceInd, UInt32 Reserved);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_CloseDevice(UInt32 DeviceType, UInt32 DeviceInd);
+        public static extern UInt32 VCI_CloseDevice(UInt32 DeviceType, UInt32 DeviceInd);
         [DllImport("controlcan.dll")]
         static extern UInt32 VCI_InitCAN(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_INIT_CONFIG pInitConfig);
         [DllImport("controlcan.dll")]
@@ -195,6 +192,8 @@ namespace WindowsApplication1
         public UInt32[] m_arrdevtype = new UInt32[20];
 
         public VCI_ERR_INFO m_errorInfo;
+
+        static System.Threading.Timer recTimer= new System.Threading.Timer(new System.Threading.TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
 
         unsafe public CanControl()
         {
@@ -256,18 +255,62 @@ namespace WindowsApplication1
                 VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
                 VCI_StartCAN(m_devtype, m_devind, m_canind);
             }
-            //form.timer_rec.Enabled = m_bOpen == 1 ? true : false;
+            recTimer.Change(100, Timeout.Infinite);
         }
 
         public static void canSend(ref VCI_CAN_OBJ pSend)
         {
             uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref pSend, (uint)1);
-
             //UInt32 con_maxlen = 50;
             //IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (Int32)con_maxlen);
             //res = VCI_Receive(m_devtype, m_devind, m_canind, pt, con_maxlen, 100);
             //VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((UInt32)pt +  Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
             return;
+        }
+
+        unsafe public static void recTimer_Tick(Object state)
+        {
+            StreamWriter log = new StreamWriter(System.Environment.CurrentDirectory + "Can.log", true);
+            UInt32 res = new UInt32();
+            res = VCI_GetReceiveNum(m_devtype, m_devind, m_canind);
+            if (res == 0)
+                return;
+            UInt32 con_maxlen = 50;
+            IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (Int32)con_maxlen);
+
+            res = VCI_Receive(m_devtype, m_devind, m_canind, pt, con_maxlen, 100);
+
+            String str = "";
+            for (UInt32 i = 0; i < res; i++)
+            {
+                VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((UInt32)pt + i * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
+
+                str += "帧ID:0x" + System.Convert.ToString((Int32)obj.ID, 16);
+                str += "  帧格式:";
+                if (obj.RemoteFlag == 0)
+                    str += "数据帧 ";
+                else
+                    str += "远程帧 ";
+                if (obj.ExternFlag == 0)
+                    str += "标准帧 ";
+                else
+                    str += "扩展帧 ";
+
+                if (obj.RemoteFlag == 0)
+                {
+                    str += "数据: ";
+                    byte len = (byte)(obj.DataLen % 9);
+                    
+                    for (byte j = 0; j < len; j++)
+                    {
+                        str += " " + System.Convert.ToString(obj.Data[j], 16);
+                    }
+                }
+                str += Environment.NewLine;
+            }
+            Marshal.FreeHGlobal(pt);
+            log.WriteLine(str);
+            log.Close();
         }
 
         static void canReset()

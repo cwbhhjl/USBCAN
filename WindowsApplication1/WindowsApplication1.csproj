@@ -80,8 +80,10 @@
     <Compile Include="FormCan.Designer.cs">
       <DependentUpon>FormCan.cs</DependentUpon>
     </Compile>
+    <Compile Include="HexS19.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security.cs" />
     <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>
