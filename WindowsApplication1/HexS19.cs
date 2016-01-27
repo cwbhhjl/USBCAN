@@ -12,51 +12,50 @@ namespace WindowsApplication1
     {
         string driverPath = Environment.CurrentDirectory + "\\FlashDriver_S12GX_V1.0.s19";
         string[] line;
+        int lineNum = 0;
         ArrayList lineTmp = new ArrayList();
 
         public void readFile()
         {
+            string tmp;
             using (FileStream fs = File.OpenRead(driverPath))
             {
-                //byte[] b = new byte[1024];
-                //UTF8Encoding temp = new UTF8Encoding(true);
-                //while (fs.Read(b, 0, b.Length) > 0)
-                //{
-                //    filetmp += temp.GetString(b);
-                //}
-                StreamReader sr = new StreamReader(fs, UnicodeEncoding.Default);
+                StreamReader sr = new StreamReader(fs, Encoding.Default);
                 while(!sr.EndOfStream)
                 {
                     lineTmp.Add(sr.ReadLine());
-                    //filetmp+=sr.ReadLine();
                 }
+                sr.Close();
                 line = (string[])lineTmp.ToArray(typeof(string));
-                char[] loc = { '\r', '\n' };
-                //lineTmp = filetmp.Split(loc);
             }
+            for (int i = 0; i < lineTmp.Count; i++)
+            {
+                tmp = ((string)lineTmp[i]).Substring(0, 2);
+                if (tmp.Equals("S0") || tmp.Equals("S7") || tmp.Equals("S8") || tmp.Equals("S9"))
+                {
+                    lineTmp.Remove(lineTmp[i]);
+                    lineNum += 1;
+                    i--;
+                }
+                if(tmp.Equals("S1"))
+                {
+
+                }
+            }
+            int index = 0;
         }
 
-        //S19Line[] stringToHex(string[] tmp)
+        //S19Line[] stringToHex(string[] line)
         //{
-        //    for(int i=0;i<tmp.Length;i++)
+        //    for (int i = 0; i < line.Length; i++)
         //    {
-        //        switch (tmp[i].Substring(0, 2))
+        //        if(line[i].Substring(0,2).Equals("S1")|| line[i].Substring(0, 2).Equals("S2")|| line[i].Substring(0, 2).Equals("S3")|| line[i].Substring(0, 2).Equals("S5"))
         //        {
-        //            case "S0": break;
-        //            case "S1":tmp[i].Substring(2, 2);
-        //        }
-
-
-        //        for (int j=0;j<tmp[i].Length;j+=2)
-        //        {
-                    
+        //            lineNum += 1;
         //        }
         //    }
         //    int index = 0;
-        //    tmp[0].Substring(index, 2).Equals("S0")
-
-
-        //        Convert.ToByte("0x"+ tmp[0].Substring(index, 2));
+        //    Convert.ToByte("0x" + line[0].Substring(index, 2));
         //}
 
     }
