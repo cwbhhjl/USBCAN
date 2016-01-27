@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CanControl.cs" />
+    <Compile Include="CanLog.cs" />
     <Compile Include="Flash.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

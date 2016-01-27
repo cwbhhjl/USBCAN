@@ -134,10 +134,8 @@ namespace WindowsApplication1
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (CanControl.m_bOpen == 1)
-            {
-                CanControl.VCI_CloseDevice(CanControl.m_devtype, CanControl.m_devind);
-            }
+            CanControl.canClose();
+            //CanControl.canLog.makeLog();
         }
 
         private void buttonConnect_Click(object sender, EventArgs e)
@@ -432,8 +430,7 @@ namespace WindowsApplication1
             //button_Send_Click(sender, e);
             //return;
             //flash.start();
-            //new Can();
-
+            new HexS19().readFile();
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
@@ -478,7 +475,7 @@ namespace WindowsApplication1
                             byte[] buf=new byte[2048];
                             UTF8Encoding temp = new UTF8Encoding(true);
                             myStream.Read(buf, 0, buf.Length);
-                            String fileTemp = temp.GetString(buf);
+                            string fileTemp = temp.GetString(buf);
                         }
                     }
                 }

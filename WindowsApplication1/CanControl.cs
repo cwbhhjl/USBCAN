@@ -7,11 +7,11 @@ using System.Windows.Forms;
 //1.ZLGCAN系列接口卡信息的数据类型。
 public struct VCI_BOARD_INFO
 {
-    public UInt16 hw_Version;
-    public UInt16 fw_Version;
-    public UInt16 dr_Version;
-    public UInt16 in_Version;
-    public UInt16 irq_Num;
+    public ushort hw_Version;
+    public ushort fw_Version;
+    public ushort dr_Version;
+    public ushort in_Version;
+    public ushort irq_Num;
     public byte can_Num;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
     public byte[] str_Serial_Num;
@@ -36,7 +36,6 @@ unsafe public struct VCI_CAN_OBJ  //使用不安全代码
     public fixed byte Data[8];
 
     public fixed byte Reserved[3];
-
 }
 
 ////2.定义CAN信息帧的数据类型。
@@ -79,7 +78,7 @@ public struct VCI_CAN_STATUS
 //4.定义错误信息的数据类型。
 public struct VCI_ERR_INFO
 {
-    public UInt32 ErrCode;
+    public uint ErrCode;
     public byte Passive_ErrData1;
     public byte Passive_ErrData2;
     public byte Passive_ErrData3;
@@ -89,9 +88,9 @@ public struct VCI_ERR_INFO
 //5.定义初始化CAN的数据类型
 public struct VCI_INIT_CONFIG
 {
-    public UInt32 AccCode;
-    public UInt32 AccMask;
-    public UInt32 Reserved;
+    public uint AccCode;
+    public uint AccMask;
+    public uint Reserved;
     public byte Filter;
     public byte Timing0;
     public byte Timing1;
@@ -104,7 +103,7 @@ public struct CHGDESIPANDPORT
     public byte[] szpwd;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
     public byte[] szdesip;
-    public Int32 desport;
+    public int desport;
 
     public void Init()
     {
@@ -112,7 +111,6 @@ public struct CHGDESIPANDPORT
         szdesip = new byte[20];
     }
 }
-
 
 namespace WindowsApplication1
 {
@@ -146,54 +144,50 @@ namespace WindowsApplication1
         public const int VCI_PCIE9221 = 24;
 
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_OpenDevice(UInt32 DeviceType, UInt32 DeviceInd, UInt32 Reserved);
+        public static extern uint VCI_OpenDevice(uint DeviceType, uint DeviceInd, uint Reserved);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_CloseDevice(UInt32 DeviceType, UInt32 DeviceInd);
+        public static extern uint VCI_CloseDevice(uint DeviceType, uint DeviceInd);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_InitCAN(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_INIT_CONFIG pInitConfig);
+        public static extern uint VCI_InitCAN(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_INIT_CONFIG pInitConfig);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_ReadBoardInfo(UInt32 DeviceType, UInt32 DeviceInd, ref VCI_BOARD_INFO pInfo);
+        static extern uint VCI_ReadBoardInfo(uint DeviceType, uint DeviceInd, ref VCI_BOARD_INFO pInfo);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_ReadErrInfo(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_ERR_INFO pErrInfo);
+        public static extern uint VCI_ReadErrInfo(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_ERR_INFO pErrInfo);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_ReadCANStatus(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_STATUS pCANStatus);
-
+        static extern uint VCI_ReadCANStatus(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_STATUS pCANStatus);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_GetReference(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, UInt32 RefType, ref byte pData);
+        static extern uint VCI_GetReference(uint DeviceType, uint DeviceInd, uint CANInd, uint RefType, ref byte pData);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_SetReference(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, UInt32 RefType, ref byte pData);
-
+        static extern uint VCI_SetReference(uint DeviceType, uint DeviceInd, uint CANInd, uint RefType, ref byte pData);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_GetReceiveNum(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd);
+        public static extern uint VCI_GetReceiveNum(uint DeviceType, uint DeviceInd, uint CANInd);
         [DllImport("controlcan.dll")]
-        static extern UInt32 VCI_ClearBuffer(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd);
-
+        static extern uint VCI_ClearBuffer(uint DeviceType, uint DeviceInd, uint CANInd);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_StartCAN(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd);
+        public static extern uint VCI_StartCAN(uint DeviceType, uint DeviceInd, uint CANInd);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_ResetCAN(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd);
-
+        public static extern uint VCI_ResetCAN(uint DeviceType, uint DeviceInd, uint CANInd);
         [DllImport("controlcan.dll")]
-        public static extern UInt32 VCI_Transmit(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_OBJ pSend, UInt32 Len);
-
+        public static extern uint VCI_Transmit(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_OBJ pSend, uint Len);
         //[DllImport("controlcan.dll")]
         //static extern UInt32 VCI_Receive(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_OBJ pReceive, UInt32 Len, Int32 WaitTime);
         [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
-        public static extern UInt32 VCI_Receive(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, IntPtr pReceive, UInt32 Len, Int32 WaitTime);
+        public static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
 
-        public static UInt32 m_devtype = 4;//USBCAN2
-
-        public static UInt32 m_bOpen = 0;
-        public static UInt32 m_devind = 0;
-        public static UInt32 m_canind = 0;
+        public static uint m_devtype = 4;//USBCAN2
+        public static uint m_bOpen = 0;
+        public static uint m_devind = 0;
+        public static uint m_canind = 0;
 
         public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
 
-        public UInt32[] m_arrdevtype = new UInt32[20];
+        public uint[] m_arrdevtype = new uint[20];
 
         public VCI_ERR_INFO m_errorInfo;
 
-        static System.Threading.Timer recTimer= new System.Threading.Timer(new System.Threading.TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+        static System.Threading.Timer recTimer= new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+
+        //public static CanLog canLog = new CanLog();
 
         unsafe public CanControl()
         {
@@ -230,13 +224,9 @@ namespace WindowsApplication1
 
         public static void canConnect()
         {
-            if (m_bOpen == 1)
+            if (m_bOpen == 0)
             {
-                VCI_CloseDevice(m_devtype, m_devind);
-                m_bOpen = 0;
-            }
-            else
-            {
+
                 if (VCI_OpenDevice(m_devtype, m_devind, 0) == 0)
                 {
                     MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
@@ -247,70 +237,43 @@ namespace WindowsApplication1
                 m_bOpen = 1;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
                 config.AccCode = 0;
-                config.AccMask = 4294967295;
+                config.AccMask = 4294967295;//0xFFFFFFFF
                 config.Timing0 = 0;
                 config.Timing1 = 28;
                 config.Filter = 1;
                 config.Mode = 0;
                 VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
                 VCI_StartCAN(m_devtype, m_devind, m_canind);
+
             }
             recTimer.Change(100, Timeout.Infinite);
         }
 
-        public static void canSend(ref VCI_CAN_OBJ pSend)
+        public static uint canSend(ref VCI_CAN_OBJ pSend)
         {
-            uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref pSend, (uint)1);
-            //UInt32 con_maxlen = 50;
-            //IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (Int32)con_maxlen);
-            //res = VCI_Receive(m_devtype, m_devind, m_canind, pt, con_maxlen, 100);
-            //VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((UInt32)pt +  Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
-            return;
+            return VCI_Transmit(m_devtype, m_devind, m_canind, ref pSend, 1);
         }
 
-        unsafe public static void recTimer_Tick(Object state)
+        unsafe public static void recTimer_Tick(object state)
         {
-            StreamWriter log = new StreamWriter(System.Environment.CurrentDirectory + "Can.log", true);
-            UInt32 res = new UInt32();
+            //StreamWriter log = new StreamWriter(Environment.CurrentDirectory + "Can.log", true);
+            uint res = new uint();
             res = VCI_GetReceiveNum(m_devtype, m_devind, m_canind);
             if (res == 0)
+            {
                 return;
-            UInt32 con_maxlen = 50;
-            IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (Int32)con_maxlen);
+            }
+            uint con_maxlen = 50;
+            IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (int)con_maxlen);
 
             res = VCI_Receive(m_devtype, m_devind, m_canind, pt, con_maxlen, 100);
 
-            String str = "";
-            for (UInt32 i = 0; i < res; i++)
+            for (uint i = 0; i < res; i++)
             {
-                VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((UInt32)pt + i * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
-
-                str += "帧ID:0x" + System.Convert.ToString((Int32)obj.ID, 16);
-                str += "  帧格式:";
-                if (obj.RemoteFlag == 0)
-                    str += "数据帧 ";
-                else
-                    str += "远程帧 ";
-                if (obj.ExternFlag == 0)
-                    str += "标准帧 ";
-                else
-                    str += "扩展帧 ";
-
-                if (obj.RemoteFlag == 0)
-                {
-                    str += "数据: ";
-                    byte len = (byte)(obj.DataLen % 9);
-                    
-                    for (byte j = 0; j < len; j++)
-                    {
-                        str += " " + System.Convert.ToString(obj.Data[j], 16);
-                    }
-                }
-                str += Environment.NewLine;
+                VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((uint)pt + i * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
+                //canLog.recordLog(obj);
             }
             Marshal.FreeHGlobal(pt);
-            log.WriteLine(str);
-            log.Close();
         }
 
         static void canReset()
@@ -322,11 +285,12 @@ namespace WindowsApplication1
             VCI_ResetCAN(m_devtype, m_devind, m_canind);
         }
 
-        static void canClose()
+        public static void canClose()
         {
             if (m_bOpen == 1)
             {
                 VCI_CloseDevice(m_devtype, m_devind);
+                m_bOpen = 0;
             }
         }
     }
