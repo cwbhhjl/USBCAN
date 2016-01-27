@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WindowsApplication1
+﻿namespace WindowsApplication1
 {
     class Security
     {
         private const uint MASK_N330_BLACKBOX = 0x7FEAC5CBU;
         private const uint MASK_DEFAULT = 0xA5CEFDB6U;
-        String car;
+        string car;
 
-        public Security(String car)
+        public Security(string car)
         {
             this.car = car;
         }
@@ -46,7 +40,5 @@ namespace WindowsApplication1
         {
             return (seed ^ MASK_DEFAULT) + MASK_DEFAULT;
         }
-
-
     }
 }

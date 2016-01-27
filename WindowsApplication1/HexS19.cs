@@ -8,5 +8,6 @@ namespace WindowsApplication1
 {
     class HexS19
     {
+
     }
 }
