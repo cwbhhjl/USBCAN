@@ -23,13 +23,33 @@ namespace WindowsApplication1
             using (FileStream fs = File.OpenRead(driverPath))
             {
                 StreamReader sr = new StreamReader(fs, Encoding.Default);
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     strLineTmp.Add(sr.ReadLine());
                 }
-                sr.Close();
+                //sr.Close();
                 line = (string[])strLineTmp.ToArray(typeof(string));
             }
+            //FileStream fs = null;
+            //try
+            //{
+            //    fs = File.OpenRead(driverPath);
+            //    using (StreamReader sr = new StreamReader(fs, Encoding.Default))
+            //    {
+            //        while (!sr.EndOfStream)
+            //        {
+            //            strLineTmp.Add(sr.ReadLine());
+            //        }
+            //    }
+            //    line = (string[])strLineTmp.ToArray(typeof(string));
+            //}
+            //finally
+            //{
+            //    if(fs!=null)
+            //    {
+            //        fs.Dispose();
+            //    }
+            //}
             for (int i = 0; i < strLineTmp.Count; i++)
             {
                 byte checkSum = 0;
