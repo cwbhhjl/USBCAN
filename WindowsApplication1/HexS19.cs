@@ -10,12 +10,18 @@ namespace WindowsApplication1
 {
     class HexS19
     {
+        public const byte S1AddressLen = 4;
+        public const byte S2AddressLen = 6;
+        public const byte S3AddressLen = 8;
+        public const byte S5AddressLen = 4;
+        int indexLine = 0;
         string driverPath = Environment.CurrentDirectory + "\\FlashDriver_S12GX_V1.0.s19";
         string[] line;
         int lineNum = 0;
-        ArrayList lineTmp = new ArrayList();
+        ArrayList strLineTmp = new ArrayList();
+        ArrayList s19LineTmp = new ArrayList();
 
-        public void readFile()
+        public int readFile()
         {
             string tmp;
             using (FileStream fs = File.OpenRead(driverPath))
@@ -23,26 +29,51 @@ namespace WindowsApplication1
                 StreamReader sr = new StreamReader(fs, Encoding.Default);
                 while(!sr.EndOfStream)
                 {
-                    lineTmp.Add(sr.ReadLine());
+                    strLineTmp.Add(sr.ReadLine());
                 }
                 sr.Close();
-                line = (string[])lineTmp.ToArray(typeof(string));
+                line = (string[])strLineTmp.ToArray(typeof(string));
             }
-            for (int i = 0; i < lineTmp.Count; i++)
+            for (int i = 0; i < strLineTmp.Count; i++)
             {
-                tmp = ((string)lineTmp[i]).Substring(0, 2);
+                byte checkSum = 0;
+                tmp = ((string)strLineTmp[i]).Substring(indexLine, 2);
+                indexLine += 2;
                 if (tmp.Equals("S0") || tmp.Equals("S7") || tmp.Equals("S8") || tmp.Equals("S9"))
                 {
-                    lineTmp.Remove(lineTmp[i]);
-                    lineNum += 1;
+                    strLineTmp.Remove(strLineTmp[i]);
+                    //lineNum += 1;
                     i--;
                 }
                 if(tmp.Equals("S1"))
                 {
-
+                    s19LineTmp.Add(new S19Line());
+                    S19Line tmpS19 = ((S19Line)s19LineTmp[i]);
+                    tmpS19.num= Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2),16);
+                    checkSum += tmpS19.num;
+                    tmpS19.num = (byte)(tmpS19.num - S1AddressLen/2-1);
+                    indexLine += 2;
+                    tmpS19.lineAddress= Convert.ToUInt32(((string)strLineTmp[i]).Substring(indexLine, S1AddressLen), 16);
+                    indexLine += S1AddressLen;
+                    tmpS19.date = new byte[tmpS19.num];
+                    for(int j=0;j<tmpS19.date.Length;j++)
+                    {
+                        tmpS19.date[j] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        checkSum += tmpS19.date[j];
+                        indexLine += 2;
+                    }
+                    if((0xff-checkSum)==Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16))
+                    {
+                        tmpS19.sumCheck = checkSum;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
                 }
+                indexLine = 0;
             }
-            int index = 0;
+            return 1;
         }
 
         //S19Line[] stringToHex(string[] line)
@@ -62,7 +93,9 @@ namespace WindowsApplication1
 
     class S19Line
     {
-        uint lineAddress;
-        byte[] date;
+        public uint lineAddress;
+        public byte num;
+        public byte[] date;
+        public byte sumCheck;
     }
 }
