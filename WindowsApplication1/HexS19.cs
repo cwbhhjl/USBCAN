@@ -12,7 +12,7 @@ namespace WindowsApplication1
         public const byte S3AddressLen = 4;
         public const byte S5AddressLen = 2;
         int indexLine = 0;
-        string driverPath = Environment.CurrentDirectory + "\\FlashDriver_S12GX_V1.0.s19";
+        string driverPath = Environment.CurrentDirectory + "\\N330_1163_Project.abs.app.s19";//"\\FlashDriver_S12GX_V1.0.s19";
         string[] line;
         ArrayList strLineTmp = new ArrayList();
         ArrayList s19LineTmp = new ArrayList();
@@ -60,16 +60,25 @@ namespace WindowsApplication1
                     strLineTmp.Remove(strLineTmp[i]);
                     i--;
                 }
-                if(tmp.Equals("S1"))
+                if(tmp.Equals("S1")|| tmp.Equals("S2"))
                 {
+                    byte tmpAddressLen = 0;
                     s19LineTmp.Add(new S19Line());
                     S19Line tmpS19 = ((S19Line)s19LineTmp[i]);
                     tmpS19.num= Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
                     checkSum += tmpS19.num;
-                    tmpS19.num = (byte)(tmpS19.num - S1AddressLen-1);
+                    if(tmp.Equals("S1"))
+                    {
+                        tmpAddressLen = S1AddressLen;
+                    }
+                    if (tmp.Equals("S2"))
+                    {
+                        tmpAddressLen = S2AddressLen;
+                    }
+                    tmpS19.num = (byte)(tmpS19.num - tmpAddressLen - 1);
                     indexLine += 2;
-                    tmpS19.lineAddress = new byte[S1AddressLen];
-                    for(int a=0;a<S1AddressLen;a++)
+                    tmpS19.lineAddress = new byte[tmpAddressLen];
+                    for(int a=0;a< tmpAddressLen; a++)
                     {
                         tmpS19.lineAddress[a]= Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
                         indexLine += 2;
