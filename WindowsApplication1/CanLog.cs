@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsApplication1
 {
     public class CanLog
     {
-        StreamWriter log;
-        string logStr;
+        private StreamWriter log = null;
+        private string logStr;
 
         public CanLog()
         {
             logStr = "";
-            log = new StreamWriter(Environment.CurrentDirectory + "Can"+"-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + "-" + DateTime.Now.Second.ToString() + ".log", true);
+            //log = new StreamWriter(Environment.CurrentDirectory + "Can" + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + "-" + DateTime.Now.Second.ToString() + ".log", true);
         }
 
         unsafe public void recordLog(VCI_CAN_OBJ obj)
@@ -38,17 +34,20 @@ namespace WindowsApplication1
 
                 for (byte j = 0; j < len; j++)
                 {
-                    logStr += " " + System.Convert.ToString(obj.Data[j], 16);
+                    logStr += " " + Convert.ToString(obj.Data[j], 16);
                 }
             }
             logStr += Environment.NewLine;
-            
         }
 
         public void makeLog()
         {
-            log.WriteLine(logStr);
-            log.Close();
+            if (logStr != "")
+            {
+                log = new StreamWriter(Environment.CurrentDirectory + "Can" + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + "-" + DateTime.Now.Second.ToString() + ".log", true);
+                log.WriteLine(logStr);
+                log.Close();
+            }
         }
     }
 }

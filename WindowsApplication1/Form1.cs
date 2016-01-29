@@ -27,7 +27,7 @@ namespace WindowsApplication1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            comboBox1.SelectedIndex         =11;
+            comboBox1.SelectedIndex = 11;
             comboBox_DevIndex.SelectedIndex = 0;
             comboBox_CANIndex.SelectedIndex = 0;
             textBox_AccCode.Text = "00000000";
@@ -52,7 +52,7 @@ namespace WindowsApplication1
             //m_arrdevtype[0]=  VCI_PCI5121 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PCI9810");
-            m_arrdevtype[curindex] = CanControl.VCI_PCI9810 ;
+            m_arrdevtype[curindex] = CanControl.VCI_PCI9810;
             //comboBox_devtype.Items[1] = "VCI_PCI9810";
             //m_arrdevtype[1]=  VCI_PCI9810 ;
 
@@ -62,22 +62,22 @@ namespace WindowsApplication1
             //m_arrdevtype[2]=  VCI_USBCAN1 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_USBCAN2(II+)");
-            m_arrdevtype[curindex] = CanControl.VCI_USBCAN2 ;
+            m_arrdevtype[curindex] = CanControl.VCI_USBCAN2;
             //comboBox_devtype.Items[3] = "VCI_USBCAN2";
             //m_arrdevtype[3]=  VCI_USBCAN2 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_USBCAN2A");
-            m_arrdevtype[curindex] = CanControl.VCI_USBCAN2A ;
+            m_arrdevtype[curindex] = CanControl.VCI_USBCAN2A;
             //comboBox_devtype.Items[4] = "VCI_USBCAN2A";
             //m_arrdevtype[4]=  VCI_USBCAN2A ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PCI9820");
-            m_arrdevtype[curindex] = CanControl.VCI_PCI9820 ;
+            m_arrdevtype[curindex] = CanControl.VCI_PCI9820;
             //comboBox_devtype.Items[5] = "VCI_PCI9820";
             //m_arrdevtype[5]=  VCI_PCI9820 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PCI5110");
-            m_arrdevtype[curindex] = CanControl.VCI_PCI5110 ;
+            m_arrdevtype[curindex] = CanControl.VCI_PCI5110;
             //comboBox_devtype.Items[6] = "VCI_PCI5110";
             //m_arrdevtype[6]=  VCI_PCI5110 ;
 
@@ -85,42 +85,42 @@ namespace WindowsApplication1
             m_arrdevtype[curindex] = CanControl.VCI_CANLITE;
 
             curindex = comboBox_devtype.Items.Add("VCI_ISA9620");
-            m_arrdevtype[curindex] = CanControl.VCI_ISA9620 ;
+            m_arrdevtype[curindex] = CanControl.VCI_ISA9620;
             //comboBox_devtype.Items[7] = "VCI_ISA9620";
             //m_arrdevtype[7]=  VCI_ISA9620 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_ISA5420");
-            m_arrdevtype[curindex] = CanControl.VCI_ISA5420 ;
+            m_arrdevtype[curindex] = CanControl.VCI_ISA5420;
             //comboBox_devtype.Items[8] = "VCI_ISA5420";
             //m_arrdevtype[8]=  VCI_ISA5420 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PC104CAN");
-            m_arrdevtype[curindex] = CanControl.VCI_PC104CAN ;
+            m_arrdevtype[curindex] = CanControl.VCI_PC104CAN;
             //comboBox_devtype.Items[9] = "VCI_PC104CAN";
             //m_arrdevtype[9]=  VCI_PC104CAN ;
 
             curindex = comboBox_devtype.Items.Add("VCI_DNP9810");
-            m_arrdevtype[curindex] = CanControl.VCI_DNP9810 ;
+            m_arrdevtype[curindex] = CanControl.VCI_DNP9810;
             //comboBox_devtype.Items[10] = "VCI_DNP9810";
             //m_arrdevtype[10]=  VCI_DNP9810 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PCI9840");
-            m_arrdevtype[curindex] = CanControl.VCI_PCI9840 ;
+            m_arrdevtype[curindex] = CanControl.VCI_PCI9840;
             //comboBox_devtype.Items[11] = "VCI_PCI9840";
             //m_arrdevtype[11]=   VCI_PCI9840;
 
             curindex = comboBox_devtype.Items.Add("VCI_PC104CAN2");
-            m_arrdevtype[curindex] = CanControl.VCI_PC104CAN2 ;
+            m_arrdevtype[curindex] = CanControl.VCI_PC104CAN2;
             //comboBox_devtype.Items[12] = "VCI_PC104CAN2";
             //m_arrdevtype[12]=  VCI_PC104CAN2 ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PCI9820I");
-            m_arrdevtype[curindex] = CanControl.VCI_PCI9820I ;
+            m_arrdevtype[curindex] = CanControl.VCI_PCI9820I;
             //comboBox_devtype.Items[13] = "VCI_PCI9820I";
             //m_arrdevtype[13]=  VCI_PCI9820I ;
 
             curindex = comboBox_devtype.Items.Add("VCI_PEC9920");
-            m_arrdevtype[curindex] = CanControl.VCI_PEC9920 ;
+            m_arrdevtype[curindex] = CanControl.VCI_PEC9920;
 
             curindex = comboBox_devtype.Items.Add("VCI_PCIE9221");
             m_arrdevtype[curindex] = CanControl.VCI_PCIE9221;
@@ -141,7 +141,7 @@ namespace WindowsApplication1
 
         private void buttonConnect_Click(object sender, EventArgs e)
         {
-            if (CanControl.m_bOpen ==1)
+            if (CanControl.m_bOpen == 1)
             {
                 CanControl.VCI_CloseDevice(CanControl.m_devtype, CanControl.m_devind);
                 CanControl.m_bOpen = 0;
@@ -149,7 +149,7 @@ namespace WindowsApplication1
             else
             {
                 CanControl.m_devtype = m_arrdevtype[comboBox_devtype.SelectedIndex];
-                CanControl.m_devind =(uint)comboBox_DevIndex.SelectedIndex;
+                CanControl.m_devind = (uint)comboBox_DevIndex.SelectedIndex;
                 CanControl.m_canind = (uint)comboBox_CANIndex.SelectedIndex;
                 if (CanControl.VCI_OpenDevice(CanControl.m_devtype, CanControl.m_devind, 0) == 0)
                 {
@@ -159,8 +159,8 @@ namespace WindowsApplication1
                 }
 
                 CanControl.m_bOpen = 1;
-                VCI_INIT_CONFIG config=new VCI_INIT_CONFIG();
-                config.AccCode=System.Convert.ToUInt32("0x" + textBox_AccCode.Text,16);
+                VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
+                config.AccCode = System.Convert.ToUInt32("0x" + textBox_AccCode.Text, 16);
                 config.AccMask = System.Convert.ToUInt32("0x" + textBox_AccMask.Text, 16);
                 config.Timing0 = System.Convert.ToByte("0x" + textBox_Time0.Text, 16);
                 config.Timing1 = System.Convert.ToByte("0x" + textBox_Time1.Text, 16);
@@ -168,15 +168,15 @@ namespace WindowsApplication1
                 config.Mode = (byte)comboBox_Mode.SelectedIndex;
                 CanControl.VCI_InitCAN(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind, ref config);
             }
-            buttonConnect.Text = CanControl.m_bOpen ==1?"断开":"连接";
-            timer_rec.Enabled = CanControl.m_bOpen ==1?true:false;
+            buttonConnect.Text = CanControl.m_bOpen == 1 ? "断开" : "连接";
+            timer_rec.Enabled = CanControl.m_bOpen == 1 ? true : false;
         }
 
         unsafe private void timer_rec_Tick(object sender, EventArgs e)
         {
             uint res = new uint();
-            res=CanControl.VCI_GetReceiveNum(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind);
-            if(res==0)
+            res = CanControl.VCI_GetReceiveNum(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind);
+            if (res == 0)
                 return;
             //res = VCI_Receive(m_devtype, m_devind, m_canind, ref m_recobj[0],50, 100);
 
@@ -251,11 +251,11 @@ namespace WindowsApplication1
 
         unsafe private void button_Send_Click(object sender, EventArgs e)
         {
-            if(CanControl.m_bOpen ==0)
+            if (CanControl.m_bOpen == 0)
                 return;
             int num = int.Parse(textBox1.Text);
             VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[num];//sendobj.Init();
-            for (int j = 0; j < sendobj.Length;j++ )
+            for (int j = 0; j < sendobj.Length; j++)
             {
                 sendobj[j].SendType = (byte)comboBox_SendType.SelectedIndex;
                 sendobj[j].RemoteFlag = (byte)comboBox_FrameFormat.SelectedIndex;
@@ -313,11 +313,11 @@ namespace WindowsApplication1
                         sendobjs[j].Data[7] = System.Convert.ToByte("0x" + strdata.Substring(i * 3, 2), 16);
                     }
             }
-           
-            uint res=CanControl.VCI_Transmit(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind,ref sendobj[0],(uint)num);
-            if(res==0)
+
+            uint res = CanControl.VCI_Transmit(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind, ref sendobj[0], (uint)num);
+            if (res == 0)
             {
-                MessageBox.Show("发送失败", "错误",MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("发送失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -331,96 +331,96 @@ namespace WindowsApplication1
             int i = comboBox1.SelectedIndex;
             switch (i)
             {
-            case 0:
-                {
-                    textBox_Time0.Text = "bf";
-                    textBox_Time1.Text = "ff";
-                }
-                break;
-            case 1:
-                {
-                    textBox_Time0.Text = "31";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 2:
-                {
-                    textBox_Time0.Text = "18";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 3:
-                {
-                    textBox_Time0.Text = "87";
-                    textBox_Time1.Text = "ff";
-                }
-                break;
-            case 4:
-                {
-                    textBox_Time0.Text = "09";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 5:
-                {
-                    textBox_Time0.Text = "83";
-                    textBox_Time1.Text = "ff";
-                }
-                break;
-            case 6:
-                {
-                    textBox_Time0.Text = "04";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 7:
-                {
-                    textBox_Time0.Text = "03";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 8:
-                {
-                    textBox_Time0.Text = "81";
-                    textBox_Time1.Text = "fa";
-                }
-                break;
-            case 9:
-                {
-                    textBox_Time0.Text = "01";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 10:
-                {
-                    textBox_Time0.Text = "80";
-                    textBox_Time1.Text = "fa";
-                }
-                break;
-            case 11:
-                {
-                    textBox_Time0.Text = "00";
-                    textBox_Time1.Text = "1c";
-                }
-                break;
-            case 12:
-                {
-                    textBox_Time0.Text = "80";
-                    textBox_Time1.Text = "b6";
-                }
-                break;
-            case 13:
-                {
-                    textBox_Time0.Text = "00";
-                    textBox_Time1.Text = "16";
-                }
-                break;
-            case 14:
-                {
-                    textBox_Time0.Text = "00";
-                    textBox_Time1.Text = "14";
-                }
-                break;
+                case 0:
+                    {
+                        textBox_Time0.Text = "bf";
+                        textBox_Time1.Text = "ff";
+                    }
+                    break;
+                case 1:
+                    {
+                        textBox_Time0.Text = "31";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 2:
+                    {
+                        textBox_Time0.Text = "18";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 3:
+                    {
+                        textBox_Time0.Text = "87";
+                        textBox_Time1.Text = "ff";
+                    }
+                    break;
+                case 4:
+                    {
+                        textBox_Time0.Text = "09";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 5:
+                    {
+                        textBox_Time0.Text = "83";
+                        textBox_Time1.Text = "ff";
+                    }
+                    break;
+                case 6:
+                    {
+                        textBox_Time0.Text = "04";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 7:
+                    {
+                        textBox_Time0.Text = "03";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 8:
+                    {
+                        textBox_Time0.Text = "81";
+                        textBox_Time1.Text = "fa";
+                    }
+                    break;
+                case 9:
+                    {
+                        textBox_Time0.Text = "01";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 10:
+                    {
+                        textBox_Time0.Text = "80";
+                        textBox_Time1.Text = "fa";
+                    }
+                    break;
+                case 11:
+                    {
+                        textBox_Time0.Text = "00";
+                        textBox_Time1.Text = "1c";
+                    }
+                    break;
+                case 12:
+                    {
+                        textBox_Time0.Text = "80";
+                        textBox_Time1.Text = "b6";
+                    }
+                    break;
+                case 13:
+                    {
+                        textBox_Time0.Text = "00";
+                        textBox_Time1.Text = "16";
+                    }
+                    break;
+                case 14:
+                    {
+                        textBox_Time0.Text = "00";
+                        textBox_Time1.Text = "14";
+                    }
+                    break;
 
             }
         }
@@ -431,22 +431,22 @@ namespace WindowsApplication1
             //button_Send_Click(sender, e);
             //return;
             //flash.start();
-            if(s19.readFile(flash.DriverName)==1)
+            if (s19.readFile(flash.DriverName) == 1)
             {
-                
+
             }
             else
             {
                 MessageBox.Show("S19文件校验和验证失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-            
+
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
         {
             comboBox_Config.Items.Clear();
             System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            int confnum=config.GetSectionGroup("CarConfig").Sections.Count;
+            int confnum = config.GetSectionGroup("CarConfig").Sections.Count;
             //String[] carInfo=new String[confnum];
             for (int index = 0; index < confnum; index++)
             {
@@ -458,7 +458,7 @@ namespace WindowsApplication1
         private void comboBox_Config_SelectedIndexChanged(object sender, EventArgs e)
         {
             string car = (string)comboBox_Config.SelectedItem;
-            carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/"+car);
+            carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
             flash.setCar(carSelected);
         }
 
@@ -481,7 +481,7 @@ namespace WindowsApplication1
                         using (myStream)
                         {
                             // Insert code to read the stream here.
-                            byte[] buf=new byte[2048];
+                            byte[] buf = new byte[2048];
                             UTF8Encoding temp = new UTF8Encoding(true);
                             myStream.Read(buf, 0, buf.Length);
                             string fileTemp = temp.GetString(buf);

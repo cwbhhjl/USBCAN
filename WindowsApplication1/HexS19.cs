@@ -7,12 +7,12 @@ namespace WindowsApplication1
 {
     class HexS19
     {
-        public const byte S1AddressLen = 2;
-        public const byte S2AddressLen = 3;
-        public const byte S3AddressLen = 4;
-        public const byte S5AddressLen = 2;
+        private const byte S1AddressLen = 2;
+        private const byte S2AddressLen = 3;
+        private const byte S3AddressLen = 4;
+        private const byte S5AddressLen = 2;
 
-        S19Line[] s19Line;
+        private S19Line[] s19Line = null;
 
         public int readFile(string filePath)
         {
@@ -61,45 +61,40 @@ namespace WindowsApplication1
                     strLineTmp.Remove(strLineTmp[i]);
                     i--;
                 }
-                if(tmp.Equals("S1")|| tmp.Equals("S2")||tmp.Equals("S3"))
+                if (tmp.Equals("S1") || tmp.Equals("S2") || tmp.Equals("S3"))
                 {
                     byte tmpAddressLen = 0;
                     s19LineTmp.Add(new S19Line());
                     S19Line tmpS19 = ((S19Line)s19LineTmp[i]);
-                    tmpS19.num= Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                    tmpS19.num = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
                     checkSum += tmpS19.num;
-                    if(tmp.Equals("S1"))
+
+                    switch (tmp)
                     {
-                        tmpAddressLen = S1AddressLen;
-                    }
-                    if (tmp.Equals("S2"))
-                    {
-                        tmpAddressLen = S2AddressLen;
-                    }
-                    if (tmp.Equals("S3"))
-                    {
-                        tmpAddressLen = S3AddressLen;
+                        case "S1": tmpAddressLen = S1AddressLen; break;
+                        case "S2": tmpAddressLen = S3AddressLen; break;
+                        case "S3": tmpAddressLen = S3AddressLen; break;
                     }
 
                     tmpS19.num = (byte)(tmpS19.num - tmpAddressLen - 1);
                     indexLine += 2;
                     tmpS19.lineAddress = new byte[tmpAddressLen];
-                    for(int a=0;a< tmpAddressLen; a++)
+                    for (int a = 0; a < tmpAddressLen; a++)
                     {
-                        tmpS19.lineAddress[a]= Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        tmpS19.lineAddress[a] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
                         indexLine += 2;
                         checkSum += tmpS19.lineAddress[a];
                     }
                     tmpS19.date = new byte[tmpS19.num];
-                    for(int j=0;j<tmpS19.date.Length;j++)
+                    for (int j = 0; j < tmpS19.date.Length; j++)
                     {
                         tmpS19.date[j] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
                         checkSum += tmpS19.date[j];
                         indexLine += 2;
                     }
-                    if((0xff-checkSum)==Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16))
+                    if ((0xff - checkSum) == Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16))
                     {
-                        tmpS19.sumCheck = (byte)(0xff-checkSum);
+                        tmpS19.sumCheck = (byte)(0xff - checkSum);
                     }
                     else
                     {
@@ -112,6 +107,10 @@ namespace WindowsApplication1
             return 1;
         }
 
+        public S19Line[] getS19Line()
+        {
+            return s19Line;
+        }
     }
 
     class S19Line

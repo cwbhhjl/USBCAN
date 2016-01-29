@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -185,20 +184,20 @@ namespace WindowsApplication1
 
         public VCI_ERR_INFO m_errorInfo;
 
-        static System.Threading.Timer recTimer= new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+        static System.Threading.Timer recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
 
         //public static CanLog canLog = new CanLog();
 
         unsafe public CanControl()
         {
             VCI_OpenDevice(m_devtype, m_devind, 0);
-            
+
             VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
-            config.AccCode = 0;config.AccMask = 4294967295;config.Filter = 1;config.Timing1 = 28;config.Timing0 = 0;
+            config.AccCode = 0; config.AccMask = 4294967295; config.Filter = 1; config.Timing1 = 28; config.Timing0 = 0;
             config.Mode = 0;
             VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
             VCI_StartCAN(m_devtype, m_devind, m_canind);
-            VCI_CAN_OBJ[] vco=new VCI_CAN_OBJ[1];
+            VCI_CAN_OBJ[] vco = new VCI_CAN_OBJ[1];
             vco[0].ID = 0x00000001;
             vco[0].SendType = 0;
             vco[0].RemoteFlag = 0;
@@ -216,28 +215,26 @@ namespace WindowsApplication1
                 sendobjs[0].Data[6] = 0x66;
                 sendobjs[0].Data[7] = 0x66;
             }
-            VCI_ERR_INFO vei; UInt32 dd; vei.ArLost_ErrData = 0; vei.ErrCode = 0; vei.Passive_ErrData1 = 0; vei.Passive_ErrData2 = 0; vei.Passive_ErrData3 = 0;
-            uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref vco[0], (uint)1);
+            VCI_ERR_INFO vei; uint dd; vei.ArLost_ErrData = 0; vei.ErrCode = 0; vei.Passive_ErrData1 = 0; vei.Passive_ErrData2 = 0; vei.Passive_ErrData3 = 0;
+            uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref vco[0], 1);
             dd = VCI_ReadErrInfo(m_devtype, m_devind, m_canind, ref vei);
-            VCI_ERR_INFO ve=vei;
+            VCI_ERR_INFO ve = vei;
         }
 
         public static void canConnect()
         {
             if (m_bOpen == 0)
             {
-
                 if (VCI_OpenDevice(m_devtype, m_devind, 0) == 0)
                 {
                     MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
-
                 m_bOpen = 1;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
                 config.AccCode = 0;
-                config.AccMask = 4294967295;//0xFFFFFFFF
+                config.AccMask = 0xFFFFFFFF;
                 config.Timing0 = 0;
                 config.Timing1 = 28;
                 config.Filter = 1;
@@ -252,6 +249,59 @@ namespace WindowsApplication1
         public static uint canSend(ref VCI_CAN_OBJ pSend)
         {
             return VCI_Transmit(m_devtype, m_devind, m_canind, ref pSend, 1);
+        }
+
+        unsafe private void sendSingleFrame(string canID, string strData)
+        {
+            if (m_bOpen == 0)
+            {
+                return;
+            }
+
+            VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[1];//sendobj.Init();
+
+            sendobj[0].SendType = 0;//正常发送：0；自发自收：2
+            sendobj[0].RemoteFlag = 0;
+            sendobj[0].ExternFlag = 0;
+            sendobj[0].ID = Convert.ToUInt32(canID, 16);
+            int len = (strData.Length + 1) / 3;
+            sendobj[0].DataLen = System.Convert.ToByte(len);
+
+            for (int n = -1; n < len - 1; n++)
+            {
+                fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
+                {
+                    sendobjs[0].Data[n + 1] = Convert.ToByte("0x" + strData.Substring((n + 1) * 3, 2), 16);
+                }
+            }
+
+            canSend(ref sendobj[0]);
+            Flash.Delay(30);
+        }
+
+        unsafe private void sendSingleFrame(uint canID, byte[] date)
+        {
+            if (m_bOpen == 0)
+            {
+                return;
+            }
+
+            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();
+
+            sendobj.SendType = 0;
+            sendobj.RemoteFlag = 0;
+            sendobj.ExternFlag = 0;
+            sendobj.ID = canID;
+            int len = date.Length;
+            sendobj.DataLen = Convert.ToByte(len);
+
+            for (int n = 0; n < len; n++)
+            {
+                sendobj.Data[n] = date[n];
+            }
+
+            canSend(ref sendobj);
+            Flash.Delay(30);
         }
 
         unsafe public static void recTimer_Tick(object state)
@@ -291,6 +341,7 @@ namespace WindowsApplication1
             {
                 VCI_CloseDevice(m_devtype, m_devind);
                 m_bOpen = 0;
+                recTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
     }

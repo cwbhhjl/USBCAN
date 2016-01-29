@@ -4,7 +4,7 @@
     {
         private const uint MASK_N330_BLACKBOX = 0x7FEAC5CBU;
         private const uint MASK_DEFAULT = 0xA5CEFDB6U;
-        string car;
+        private string car;
 
         public Security(string car)
         {

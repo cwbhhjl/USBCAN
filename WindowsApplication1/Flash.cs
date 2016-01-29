@@ -14,7 +14,7 @@ namespace WindowsApplication1
         {
             get
             {
-                return Environment.CurrentDirectory+driverName;
+                return Environment.CurrentDirectory + driverName;
             }
 
             set
@@ -55,7 +55,7 @@ namespace WindowsApplication1
             return "1";
         }
 
-        public void enterExSession()
+        private void enterExSession()
         {
             if (carSelected == null)
             {
@@ -65,7 +65,7 @@ namespace WindowsApplication1
             sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ExtendedSession"].ToString());
         }
 
-        public void checkPreProg()
+        private void checkPreProg()
         {
             if (carSelected == null)
             {
@@ -75,7 +75,7 @@ namespace WindowsApplication1
             sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["PreProgrammingCheck"].ToString());
         }
 
-        public void setDtcOff()
+        private void setDtcOff()
         {
             if (carSelected == null)
             {
@@ -85,7 +85,7 @@ namespace WindowsApplication1
             sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["DtcSetOFF"].ToString());
         }
 
-        public void disableCommunication()
+        private void disableCommunication()
         {
             if (carSelected == null)
             {
@@ -95,7 +95,7 @@ namespace WindowsApplication1
             sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["CommunicationDisable"].ToString());
         }
 
-        public void enterProgSession()
+        private void enterProgSession()
         {
             if (carSelected == null)
             {
@@ -105,7 +105,7 @@ namespace WindowsApplication1
             sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ProgrammingSession"].ToString());
         }
 
-        public void requestSeed()
+        private void requestSeed()
         {
             if (carSelected == null)
             {
@@ -125,7 +125,7 @@ namespace WindowsApplication1
 
             VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[1];//sendobj.Init();
 
-            sendobj[0].SendType = 2;
+            sendobj[0].SendType = 0;//正常发送：0；自发自收：2
             sendobj[0].RemoteFlag = 0;
             sendobj[0].ExternFlag = 0;
             sendobj[0].ID = System.Convert.ToUInt32(canID, 16);
@@ -148,6 +148,7 @@ namespace WindowsApplication1
         {
             this.carSelected = carSelected;
         }
+
 
         public static void Delay(int milliSecond)
         {
