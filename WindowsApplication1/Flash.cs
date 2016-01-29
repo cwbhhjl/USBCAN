@@ -7,6 +7,7 @@ namespace WindowsApplication1
     class Flash
     {
         private IDictionary carSelected = null;
+        private Security sec = null;
 
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
 
@@ -21,6 +22,12 @@ namespace WindowsApplication1
             {
                 driverName = "\\" + value;
             }
+        }
+
+        public Flash(IDictionary carSelected)
+        {
+            this.carSelected = carSelected;
+            sec = new Security(carSelected);
         }
 
         public int start()
@@ -42,7 +49,7 @@ namespace WindowsApplication1
             return 1;
         }
 
-        public String readVersion()
+        public string readVersion()
         {
             if (carSelected == null)
             {
@@ -144,11 +151,10 @@ namespace WindowsApplication1
             Delay(30);
         }
 
-        public void setCar(IDictionary carSelected)
+        void sendFrames()
         {
-            this.carSelected = carSelected;
-        }
 
+        }
 
         public static void Delay(int milliSecond)
         {

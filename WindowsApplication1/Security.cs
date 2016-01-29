@@ -1,25 +1,31 @@
-﻿namespace WindowsApplication1
+﻿using System.Collections;
+
+namespace WindowsApplication1
 {
     class Security
     {
         private const uint MASK_N330_BLACKBOX = 0x7FEAC5CBU;
         private const uint MASK_DEFAULT = 0xA5CEFDB6U;
-        private string car;
+        private IDictionary carSelected = null;
 
-        public Security(string car)
+        public Security(IDictionary carSelected)
         {
-            this.car = car;
+            this.carSelected = carSelected;
         }
         public uint seedToKey(uint seed)
         {
-            if (car.Equals("N330_BlackBox"))
+            if (carSelected["SeedRequest"].ToString().Substring(6,2)=="09")
             {
                 return securityAlgorithm_090A(seed);
+            }
+            if (carSelected["SeedRequest"].ToString().Substring(6, 2) == "03")
+            {
+                return securityAlgorithm_0304(seed);
             }
             return 0;
         }
 
-        uint securityAlgorithm_090A(uint seed)
+        private uint securityAlgorithm_090A(uint seed)
         {
             for (int i = 0; i < 35; i++)
             {
@@ -36,7 +42,7 @@
             return seed;
         }
 
-        uint securityAlgorithm_0304(uint seed)
+        private uint securityAlgorithm_0304(uint seed)
         {
             return (seed ^ MASK_DEFAULT) + MASK_DEFAULT;
         }

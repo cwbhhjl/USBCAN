@@ -12,8 +12,7 @@ namespace WindowsApplication1
     public partial class Form1 : Form
     {
         IDictionary carSelected = null;
-        Security sec;
-        Flash flash = new Flash();
+        Flash flash;
         HexS19 s19 = new HexS19();
 
         public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
@@ -459,7 +458,7 @@ namespace WindowsApplication1
         {
             string car = (string)comboBox_Config.SelectedItem;
             carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
-            flash.setCar(carSelected);
+            flash = new Flash(carSelected);
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)
