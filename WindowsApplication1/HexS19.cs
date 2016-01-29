@@ -11,16 +11,17 @@ namespace WindowsApplication1
         public const byte S2AddressLen = 3;
         public const byte S3AddressLen = 4;
         public const byte S5AddressLen = 2;
-        int indexLine = 0;
-        string driverPath = Environment.CurrentDirectory + "\\N330_1163_Project.abs.app.s19";//"\\FlashDriver_S12GX_V1.0.s19";
-        string[] line;
-        ArrayList strLineTmp = new ArrayList();
-        ArrayList s19LineTmp = new ArrayList();
 
-        public int readFile()
+        S19Line[] s19Line;
+
+        public int readFile(string filePath)
         {
+            int indexLine = 0;
+            ArrayList s19LineTmp = new ArrayList();
+            ArrayList strLineTmp = new ArrayList();
             string tmp;
-            using (FileStream fs = File.OpenRead(driverPath))
+
+            using (FileStream fs = File.OpenRead(filePath))
             {
                 StreamReader sr = new StreamReader(fs, Encoding.Default);
                 while (!sr.EndOfStream)
@@ -28,7 +29,7 @@ namespace WindowsApplication1
                     strLineTmp.Add(sr.ReadLine());
                 }
                 //sr.Close();
-                line = (string[])strLineTmp.ToArray(typeof(string));
+                //line = (string[])strLineTmp.ToArray(typeof(string));
             }
             //FileStream fs = null;
             //try
@@ -60,7 +61,7 @@ namespace WindowsApplication1
                     strLineTmp.Remove(strLineTmp[i]);
                     i--;
                 }
-                if(tmp.Equals("S1")|| tmp.Equals("S2"))
+                if(tmp.Equals("S1")|| tmp.Equals("S2")||tmp.Equals("S3"))
                 {
                     byte tmpAddressLen = 0;
                     s19LineTmp.Add(new S19Line());
@@ -75,6 +76,11 @@ namespace WindowsApplication1
                     {
                         tmpAddressLen = S2AddressLen;
                     }
+                    if (tmp.Equals("S3"))
+                    {
+                        tmpAddressLen = S3AddressLen;
+                    }
+
                     tmpS19.num = (byte)(tmpS19.num - tmpAddressLen - 1);
                     indexLine += 2;
                     tmpS19.lineAddress = new byte[tmpAddressLen];
@@ -102,6 +108,7 @@ namespace WindowsApplication1
                 }
                 indexLine = 0;
             }
+            s19Line = (S19Line[])s19LineTmp.ToArray(typeof(S19Line));
             return 1;
         }
 

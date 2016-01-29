@@ -8,6 +8,21 @@ namespace WindowsApplication1
     {
         private IDictionary carSelected = null;
 
+        private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
+
+        public string DriverName
+        {
+            get
+            {
+                return Environment.CurrentDirectory+driverName;
+            }
+
+            set
+            {
+                driverName = "\\" + value;
+            }
+        }
+
         public int start()
         {
             CanControl.canConnect();

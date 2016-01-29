@@ -14,6 +14,7 @@ namespace WindowsApplication1
         IDictionary carSelected = null;
         Security sec;
         Flash flash = new Flash();
+        HexS19 s19 = new HexS19();
 
         public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
 
@@ -430,7 +431,15 @@ namespace WindowsApplication1
             //button_Send_Click(sender, e);
             //return;
             //flash.start();
-            new HexS19().readFile();
+            if(s19.readFile(flash.DriverName)==1)
+            {
+                
+            }
+            else
+            {
+                MessageBox.Show("S19文件校验和验证失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
