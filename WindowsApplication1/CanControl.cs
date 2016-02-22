@@ -304,6 +304,32 @@ namespace WindowsApplication1
             Flash.Delay(30);
         }
 
+        unsafe private void sendFrames(string canID,string strData)
+        {
+            if(strData.Length<=8)
+            {
+                sendSingleFrame(canID, strData);
+                return;
+            }
+            if (m_bOpen == 0)
+            {
+                return;
+            }
+            VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[1];//sendobj.Init();
+
+            sendobj[0].SendType = 0;//正常发送：0；自发自收：2
+            sendobj[0].RemoteFlag = 0;
+            sendobj[0].ExternFlag = 0;
+            sendobj[0].ID = Convert.ToUInt32(canID, 16);
+            int len = 8;
+            sendobj[0].DataLen = Convert.ToByte(len);
+            fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
+            {
+                sendobjs[0].Data[0]=(byte)(0x10|((strData.Length/0x100)&0xf));
+            }
+
+        }
+
         unsafe public static void recTimer_Tick(object state)
         {
             //StreamWriter log = new StreamWriter(Environment.CurrentDirectory + "Can.log", true);

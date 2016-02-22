@@ -12,7 +12,10 @@ namespace WindowsApplication1
         private const byte S3AddressLen = 4;
         private const byte S5AddressLen = 2;
 
+
+
         private S19Line[] s19Line = null;
+        S19Block[] s19Block = null;
 
         public int readFile(string filePath)
         {
@@ -81,7 +84,9 @@ namespace WindowsApplication1
                     tmpS19.lineAddress = new byte[tmpAddressLen];
                     for (int a = 0; a < tmpAddressLen; a++)
                     {
+             
                         tmpS19.lineAddress[a] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        tmpS19.lineAddressAll += (ushort)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
                         indexLine += 2;
                         checkSum += tmpS19.lineAddress[a];
                     }
@@ -111,13 +116,48 @@ namespace WindowsApplication1
         {
             return s19Line;
         }
+
+        public void lineToBlock()
+        {
+            ArrayList s19BlockTmp = new ArrayList();
+            ArrayList s19BlockData = new ArrayList();
+            if(s19Line==null)
+            {
+                return;
+            }
+            int blockNum = 1;
+            
+            s19BlockTmp.Add(new S19Block());
+
+            int lineNum = 0;
+            foreach (byte tmp in s19Line[lineNum].date)
+            {
+                s19BlockData.Add(tmp);
+            }
+            for (;lineNum<s19Line.Length&&s19Line[lineNum].lineAddressAll +s19Line[lineNum].num==s19Line[lineNum+1].lineAddressAll;lineNum++)
+            {
+                foreach(byte tmp in s19Line[lineNum+1].date)
+                {
+                    s19BlockData.Add(tmp);
+                }
+            }
+           ;
+        }
     }
 
     class S19Line
     {
         public byte[] lineAddress;
+        public ushort lineAddressAll;
         public byte num;
         public byte[] date;
         public byte sumCheck;
+    }
+
+    class S19Block
+    {
+        public byte[] startAddress;
+        public byte[] dataLength;
+        public byte[] data;
     }
 }

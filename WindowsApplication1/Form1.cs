@@ -432,7 +432,7 @@ namespace WindowsApplication1
             //flash.start();
             if (s19.readFile(flash.DriverName) == 1)
             {
-
+                s19.lineToBlock();
             }
             else
             {
