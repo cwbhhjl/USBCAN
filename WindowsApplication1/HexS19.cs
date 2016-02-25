@@ -121,25 +121,52 @@ namespace WindowsApplication1
         {
             ArrayList s19BlockTmp = new ArrayList();
             ArrayList s19BlockData = new ArrayList();
-            if(s19Line==null)
+            int blockNum = 0;
+            int lineNum = 0;
+
+
+            int currentBlockIndex = 0;
+            byte[] currentBlockAddress = s19Line[0].lineAddress;
+            uint currentBlockLength = 0;
+            byte[] currentBlockLengthByte = new byte[4];
+
+            if (s19Line == null)
             {
                 return;
             }
-            int blockNum = 1;
             
-            s19BlockTmp.Add(new S19Block());
-
-            int lineNum = 0;
-            foreach (byte tmp in s19Line[lineNum].date)
+            for ( ; lineNum<s19Line.Length;lineNum++)
             {
-                s19BlockData.Add(tmp);
-            }
-            for (;lineNum<s19Line.Length&&s19Line[lineNum].lineAddressAll +s19Line[lineNum].num==s19Line[lineNum+1].lineAddressAll;lineNum++)
-            {
-                foreach(byte tmp in s19Line[lineNum+1].date)
+                
+                if (lineNum + 1 >= s19Line.Length|| s19Line[lineNum].lineAddressAll + s19Line[lineNum].num != s19Line[lineNum + 1].lineAddressAll)
                 {
-                    s19BlockData.Add(tmp);
+                    for(int i = 0; i < 4; i++)
+                    {
+                        currentBlockLengthByte[3-i] = (byte)((currentBlockLength & (0xff*(uint)Math.Pow(0x100,i)))>>8*i);
+                    }
+
+                    //currentBlockLengthByte[3] = (byte)(currentBlockLength & 0xff);
+                    //currentBlockLengthByte[2] = (byte)((currentBlockLength & 0xff00)>>8);
+                    //currentBlockLengthByte[1] = (byte)((currentBlockLength & 0xff0000) >> 16);
+                    //currentBlockLengthByte[0] = (byte)((currentBlockLength & 0xff000000) >> 24);
+
+                    s19BlockTmp.Add(new S19Block(s19Line[currentBlockIndex].lineAddress, currentBlockLengthByte, (byte[])s19BlockData.ToArray(typeof(byte))));
+                    blockNum++;
+                    if(lineNum + 1 >= s19Line.Length)
+                    {
+                        break;
+                    }
                 }
+                else
+                {
+                    foreach (byte tmp in s19Line[lineNum].date)
+                    {
+                        s19BlockData.Add(tmp);
+                    }
+                    currentBlockLength += s19Line[lineNum].num;
+
+                }
+               
             }
            ;
         }
@@ -156,8 +183,14 @@ namespace WindowsApplication1
 
     class S19Block
     {
-        public byte[] startAddress;
-        public byte[] dataLength;
-        public byte[] data;
+        private byte[] startAddress;
+        private byte[] dataLength;
+        private byte[] data;
+        public S19Block(byte[] startAddress,byte[] dataLength,byte[] data)
+        {
+            this.startAddress = startAddress;
+            this.dataLength = dataLength;
+            this.data = data;
+        }
     }
 }
