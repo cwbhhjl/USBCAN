@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -178,18 +179,23 @@ namespace WindowsApplication1
         public static uint m_devind = 0;
         public static uint m_canind = 0;
 
-        public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
+        //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
+        static byte[] rev = new byte[8];
 
         public uint[] m_arrdevtype = new uint[20];
 
         public VCI_ERR_INFO m_errorInfo;
 
-        static System.Threading.Timer recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+        private IDictionary carSelected = null;
+
+        System.Threading.Timer recTimer = null;
 
         //public static CanLog canLog = new CanLog();
 
         unsafe public CanControl()
         {
+            recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+
             VCI_OpenDevice(m_devtype, m_devind, 0);
 
             VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
@@ -243,7 +249,7 @@ namespace WindowsApplication1
                 VCI_StartCAN(m_devtype, m_devind, m_canind);
 
             }
-            recTimer.Change(100, Timeout.Infinite);
+            //recTimer.Change(100, Timeout.Infinite);
         }
 
         public static uint canSend(ref VCI_CAN_OBJ pSend)
@@ -304,11 +310,11 @@ namespace WindowsApplication1
             Flash.Delay(30);
         }
 
-        unsafe private void sendFrames(string canID,string strData)
+        unsafe private void sendFrames(uint canID,byte[] data)
         {
-            if(strData.Length<=8)
+            if(data.Length<=8)
             {
-                sendSingleFrame(canID, strData);
+                sendSingleFrame(canID, data);
                 return;
             }
             if (m_bOpen == 0)
@@ -320,17 +326,46 @@ namespace WindowsApplication1
             sendobj[0].SendType = 0;//正常发送：0；自发自收：2
             sendobj[0].RemoteFlag = 0;
             sendobj[0].ExternFlag = 0;
-            sendobj[0].ID = Convert.ToUInt32(canID, 16);
+            //sendobj[0].ID = Convert.ToUInt32(canID, 16);
+            sendobj[0].ID = canID;
             int len = 8;
             sendobj[0].DataLen = Convert.ToByte(len);
             fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
             {
-                sendobjs[0].Data[0]=(byte)(0x10|((strData.Length/0x100)&0xf));
+                sendobjs[0].Data[0]=(byte)(0x10|((data.Length/0x100)&0xf));
+                sendobjs[0].Data[1] = (byte)((data.Length%0x100)&0xff);
+
+                int index = 0;
+                byte UDS_BS, UDS_ST;
+
+                for(; index < 6; index++)
+                {
+                    sendobjs[0].Data[index+2] = data[index];
+                }
+                sendSingleFrame(canID,data);
+                if (rev[0] == 0x30)
+                {
+                    UDS_BS = rev[1];
+                    UDS_ST = rev[2];
+
+                    for (; index < data.Length; index += 7)
+                    {
+                        Flash.Delay(UDS_ST);
+                        
+                    }
+
+                }
+                
+
             }
 
         }
 
-        unsafe public static void recTimer_Tick(object state)
+        public void setCar(IDictionary carSelected) {
+            this.carSelected = carSelected;
+        }
+
+        unsafe public void recTimer_Tick(object state)
         {
             //StreamWriter log = new StreamWriter(Environment.CurrentDirectory + "Can.log", true);
             uint res = new uint();
@@ -348,6 +383,17 @@ namespace WindowsApplication1
             {
                 VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((uint)pt + i * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
                 //canLog.recordLog(obj);
+                if(obj.ID!= Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16))
+                {
+                    //return;
+                }
+                else
+                {
+                    for (int j = 0; j < 8; j++)
+                    {
+                        rev[j] = obj.Data[j];
+                    }
+                }
             }
             Marshal.FreeHGlobal(pt);
         }
@@ -367,7 +413,7 @@ namespace WindowsApplication1
             {
                 VCI_CloseDevice(m_devtype, m_devind);
                 m_bOpen = 0;
-                recTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                //recTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
     }
