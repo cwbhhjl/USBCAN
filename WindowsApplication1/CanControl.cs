@@ -196,35 +196,35 @@ namespace WindowsApplication1
         {
             recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
 
-            VCI_OpenDevice(m_devtype, m_devind, 0);
+            //VCI_OpenDevice(m_devtype, m_devind, 0);
 
-            VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
-            config.AccCode = 0; config.AccMask = 4294967295; config.Filter = 1; config.Timing1 = 28; config.Timing0 = 0;
-            config.Mode = 0;
-            VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
-            VCI_StartCAN(m_devtype, m_devind, m_canind);
-            VCI_CAN_OBJ[] vco = new VCI_CAN_OBJ[1];
-            vco[0].ID = 0x00000001;
-            vco[0].SendType = 0;
-            vco[0].RemoteFlag = 0;
-            vco[0].ExternFlag = 0;
-            vco[0].DataLen = 1;
+            //VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
+            //config.AccCode = 0; config.AccMask = 4294967295; config.Filter = 1; config.Timing1 = 28; config.Timing0 = 0;
+            //config.Mode = 0;
+            //VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
+            //VCI_StartCAN(m_devtype, m_devind, m_canind);
+            //VCI_CAN_OBJ[] vco = new VCI_CAN_OBJ[1];
+            //vco[0].ID = 0x00000001;
+            //vco[0].SendType = 0;
+            //vco[0].RemoteFlag = 0;
+            //vco[0].ExternFlag = 0;
+            //vco[0].DataLen = 1;
             //vco[0].Data[0] = (byte)0x66;
-            fixed (VCI_CAN_OBJ* sendobjs = &vco[0])
-            {
-                sendobjs[0].Data[0] = 0x66;
-                sendobjs[0].Data[1] = 0x66;
-                sendobjs[0].Data[2] = 0x66;
-                sendobjs[0].Data[3] = 0x66;
-                sendobjs[0].Data[4] = 0x66;
-                sendobjs[0].Data[5] = 0x66;
-                sendobjs[0].Data[6] = 0x66;
-                sendobjs[0].Data[7] = 0x66;
-            }
-            VCI_ERR_INFO vei; uint dd; vei.ArLost_ErrData = 0; vei.ErrCode = 0; vei.Passive_ErrData1 = 0; vei.Passive_ErrData2 = 0; vei.Passive_ErrData3 = 0;
-            uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref vco[0], 1);
-            dd = VCI_ReadErrInfo(m_devtype, m_devind, m_canind, ref vei);
-            VCI_ERR_INFO ve = vei;
+            //fixed (VCI_CAN_OBJ* sendobjs = &vco[0])
+            //{
+            //    sendobjs[0].Data[0] = 0x66;
+            //    sendobjs[0].Data[1] = 0x66;
+            //    sendobjs[0].Data[2] = 0x66;
+            //    sendobjs[0].Data[3] = 0x66;
+            //    sendobjs[0].Data[4] = 0x66;
+            //    sendobjs[0].Data[5] = 0x66;
+            //    sendobjs[0].Data[6] = 0x66;
+            //    sendobjs[0].Data[7] = 0x66;
+            //}
+            //VCI_ERR_INFO vei; uint dd; vei.ArLost_ErrData = 0; vei.ErrCode = 0; vei.Passive_ErrData1 = 0; vei.Passive_ErrData2 = 0; vei.Passive_ErrData3 = 0;
+            //uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref vco[0], 1);
+            //dd = VCI_ReadErrInfo(m_devtype, m_devind, m_canind, ref vei);
+            //VCI_ERR_INFO ve = vei;
         }
 
         public static void canConnect()
@@ -321,48 +321,73 @@ namespace WindowsApplication1
             {
                 return;
             }
-            VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[1];//sendobj.Init();
+            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();//sendobj.Init();
 
-            sendobj[0].SendType = 0;//正常发送：0；自发自收：2
-            sendobj[0].RemoteFlag = 0;
-            sendobj[0].ExternFlag = 0;
+            sendobj.SendType = 0;//正常发送：0；自发自收：2
+            sendobj.RemoteFlag = 0;
+            sendobj.ExternFlag = 0;
             //sendobj[0].ID = Convert.ToUInt32(canID, 16);
-            sendobj[0].ID = canID;
+            sendobj.ID = canID;
             int len = 8;
-            sendobj[0].DataLen = Convert.ToByte(len);
-            fixed (VCI_CAN_OBJ* sendobjs = &sendobj[0])
+            sendobj.DataLen = Convert.ToByte(len);
+
+            sendobj.Data[0] = (byte)(0x10 | ((data.Length / 0x100) & 0xf));
+            sendobj.Data[1] = (byte)((data.Length % 0x100) & 0xff);
+
+            int index = 0;
+            byte BS, ST, SN = 0;
+            byte BSNumber = 0;
+
+            for (; index < 6; index++)
             {
-                sendobjs[0].Data[0]=(byte)(0x10|((data.Length/0x100)&0xf));
-                sendobjs[0].Data[1] = (byte)((data.Length%0x100)&0xff);
+                sendobj.Data[index + 2] = data[index];
+            }
+            canSend(ref sendobj);
+            if (rev[0] == 0x30)
+            {
+                BS = rev[1];
+                ST = rev[2];
 
-                int index = 0;
-                byte UDS_BS, UDS_ST;
-
-                for(; index < 6; index++)
+                for (; index < data.Length; index += 7)
                 {
-                    sendobjs[0].Data[index+2] = data[index];
-                }
-                sendSingleFrame(canID,data);
-                if (rev[0] == 0x30)
-                {
-                    UDS_BS = rev[1];
-                    UDS_ST = rev[2];
-
-                    for (; index < data.Length; index += 7)
+                    Flash.Delay(ST);
+                    SN += 1;
+                    if (SN == 0x10)
                     {
-                        Flash.Delay(UDS_ST);
-                        
+                        SN = 0;
                     }
-
+                    sendobj.Data[0] = (byte)(SN | 0x20);
+                    for (int i = 1; i < 8; i++, index++)
+                    {
+                        sendobj.Data[i] = data[index];
+                    }
+                    canSend(ref sendobj);
+                    BSNumber += 1;
+                    if (BSNumber == BS)
+                    {
+                        BSNumber = 0;
+                    }
+                    if (rev[0] == 0x30)
+                    {
+                        BS = rev[1];
+                        ST = rev[2];
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
-                
 
             }
+
+
+
 
         }
 
         public void setCar(IDictionary carSelected) {
             this.carSelected = carSelected;
+            recTimer.Change(10, Timeout.Infinite);
         }
 
         unsafe public void recTimer_Tick(object state)

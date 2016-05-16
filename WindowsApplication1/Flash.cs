@@ -34,6 +34,9 @@ namespace WindowsApplication1
         {
             CanControl.canConnect();
 
+            CanControl test = new CanControl();
+            test.setCar(carSelected);
+
             enterExSession();
 
             checkPreProg();

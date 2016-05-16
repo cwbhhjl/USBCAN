@@ -145,7 +145,12 @@ namespace WindowsApplication1
                     //currentBlockLengthByte[1] = (byte)((currentBlockLength & 0xff0000) >> 16);
                     //currentBlockLengthByte[0] = (byte)((currentBlockLength & 0xff000000) >> 24);
 
-                    s19BlockTmp.Add(new S19Block(s19Line[currentBlockIndex].lineAddress, currentBlockLengthByte, (byte[])s19BlockData.ToArray(typeof(byte))));
+                    s19BlockTmp.Add(
+                        new S19Block(
+                            s19Line[currentBlockIndex].lineAddress, 
+                            currentBlockLengthByte, 
+                            (byte[])s19BlockData.ToArray(typeof(byte))
+                            ));
                     if (lineNum + 1 >= s19Line.Length)
                     {
                         break;

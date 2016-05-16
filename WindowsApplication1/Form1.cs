@@ -429,7 +429,7 @@ namespace WindowsApplication1
             //textBox_Data.Text = carSelected["SoftwareVersion"].ToString();
             //button_Send_Click(sender, e);
             //return;
-            //flash.start();
+            flash.start();
             if (s19.readFile(flash.DriverName) == 1)
             {
                 s19.lineToBlock();
