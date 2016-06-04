@@ -204,6 +204,7 @@ namespace WindowsApplication1
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return -1;
                 }
+
                 isOpen = 1;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
                 config.AccCode = 0;

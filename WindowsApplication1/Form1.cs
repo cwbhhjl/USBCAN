@@ -15,10 +15,6 @@ namespace WindowsApplication1
         Flash flash;
         HexS19 s19 = new HexS19();
 
-        public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
-
-        public uint[] m_arrdevtype = new uint[20];
-
         public Form1()
         {
             InitializeComponent();
@@ -36,10 +32,7 @@ namespace WindowsApplication1
         }
 
         private void button_Flash_Click(object sender, EventArgs e)
-        {
-            //textBox_Data.Text = carSelected["SoftwareVersion"].ToString();
-            //button_Send_Click(sender, e);
-            //return;
+        {       
             flash.connect();
             if (s19.readFile(flash.DriverName) == 1)
             {
@@ -74,7 +67,7 @@ namespace WindowsApplication1
 
         private void button_LoadS19_Click(object sender, EventArgs e)
         {
-            Stream myStream = null;
+            FileStream myStream = null;
             OpenFileDialog openS19Dialog = new OpenFileDialog();
 
             openS19Dialog.InitialDirectory = System.Environment.CurrentDirectory;
@@ -86,16 +79,9 @@ namespace WindowsApplication1
             {
                 try
                 {
-                    if ((myStream = openS19Dialog.OpenFile()) != null)
+                    if ((myStream = (FileStream)openS19Dialog.OpenFile()) != null)
                     {
-                        using (myStream)
-                        {
-                            // Insert code to read the stream here.
-                            byte[] buf = new byte[2048];
-                            UTF8Encoding temp = new UTF8Encoding(true);
-                            myStream.Read(buf, 0, buf.Length);
-                            string fileTemp = temp.GetString(buf);
-                        }
+                        s19.readFile(myStream);
                     }
                 }
                 catch (Exception ex)
@@ -109,5 +95,6 @@ namespace WindowsApplication1
         {
 
         }
+
     }
 }
