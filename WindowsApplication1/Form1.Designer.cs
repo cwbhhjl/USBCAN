@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBox_devtype = new System.Windows.Forms.ComboBox();
             this.label14 = new System.Windows.Forms.Label();
@@ -72,7 +71,6 @@
             this.label12 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.listBox_Info = new System.Windows.Forms.ListBox();
-            this.timer_rec = new System.Windows.Forms.Timer(this.components);
             this.button_LoadS19 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -570,10 +568,6 @@
             this.listBox_Info.Size = new System.Drawing.Size(624, 172);
             this.listBox_Info.TabIndex = 0;
             // 
-            // timer_rec
-            // 
-            this.timer_rec.Tick += new System.EventHandler(this.timer_rec_Tick);
-            // 
             // button_LoadS19
             // 
             this.button_LoadS19.Location = new System.Drawing.Point(583, 127);
@@ -651,7 +645,6 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ListBox listBox_Info;
-        public System.Windows.Forms.Timer timer_rec;
         private System.Windows.Forms.ComboBox comboBox_devtype;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;

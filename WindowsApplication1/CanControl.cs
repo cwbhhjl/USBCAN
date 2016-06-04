@@ -174,10 +174,10 @@ namespace WindowsApplication1
         [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
         public static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
 
-        public static uint m_devtype = 4;//USBCAN2
-        public static uint m_bOpen = 0;
-        public static uint m_devind = 0;
-        public static uint m_canind = 0;
+        public static uint deviceType = 4;//USBCAN2
+        public static uint isOpen = 0;
+        public static uint deviceIndex = 0;
+        public static uint canIndex = 0;
 
         //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
         static byte[] rev = new byte[8];
@@ -186,58 +186,25 @@ namespace WindowsApplication1
 
         public VCI_ERR_INFO m_errorInfo;
 
-        private IDictionary carSelected = null;
+        public static uint res = new uint();
 
-        System.Threading.Timer recTimer = null;
+        private static IDictionary carSelected = null;
+
+        public static System.Threading.Timer recTimer = null;
 
         //public static CanLog canLog = new CanLog();
 
-        unsafe public CanControl()
+        public static int canConnect()
         {
-            recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
-
-            //VCI_OpenDevice(m_devtype, m_devind, 0);
-
-            //VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
-            //config.AccCode = 0; config.AccMask = 4294967295; config.Filter = 1; config.Timing1 = 28; config.Timing0 = 0;
-            //config.Mode = 0;
-            //VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
-            //VCI_StartCAN(m_devtype, m_devind, m_canind);
-            //VCI_CAN_OBJ[] vco = new VCI_CAN_OBJ[1];
-            //vco[0].ID = 0x00000001;
-            //vco[0].SendType = 0;
-            //vco[0].RemoteFlag = 0;
-            //vco[0].ExternFlag = 0;
-            //vco[0].DataLen = 1;
-            //vco[0].Data[0] = (byte)0x66;
-            //fixed (VCI_CAN_OBJ* sendobjs = &vco[0])
-            //{
-            //    sendobjs[0].Data[0] = 0x66;
-            //    sendobjs[0].Data[1] = 0x66;
-            //    sendobjs[0].Data[2] = 0x66;
-            //    sendobjs[0].Data[3] = 0x66;
-            //    sendobjs[0].Data[4] = 0x66;
-            //    sendobjs[0].Data[5] = 0x66;
-            //    sendobjs[0].Data[6] = 0x66;
-            //    sendobjs[0].Data[7] = 0x66;
-            //}
-            //VCI_ERR_INFO vei; uint dd; vei.ArLost_ErrData = 0; vei.ErrCode = 0; vei.Passive_ErrData1 = 0; vei.Passive_ErrData2 = 0; vei.Passive_ErrData3 = 0;
-            //uint res = VCI_Transmit(m_devtype, m_devind, m_canind, ref vco[0], 1);
-            //dd = VCI_ReadErrInfo(m_devtype, m_devind, m_canind, ref vei);
-            //VCI_ERR_INFO ve = vei;
-        }
-
-        public static void canConnect()
-        {
-            if (m_bOpen == 0)
+            if (isOpen == 0)
             {
-                if (VCI_OpenDevice(m_devtype, m_devind, 0) == 0)
+                if (VCI_OpenDevice(deviceType, deviceIndex, 0) == 0)
                 {
                     MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    return;
+                    return -1;
                 }
-                m_bOpen = 1;
+                isOpen = 1;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
                 config.AccCode = 0;
                 config.AccMask = 0xFFFFFFFF;
@@ -245,21 +212,24 @@ namespace WindowsApplication1
                 config.Timing1 = 28;
                 config.Filter = 1;
                 config.Mode = 0;
-                VCI_InitCAN(m_devtype, m_devind, m_canind, ref config);
-                VCI_StartCAN(m_devtype, m_devind, m_canind);
-
+                VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config);
+                VCI_StartCAN(deviceType, deviceIndex, canIndex);
+                
             }
-            //recTimer.Change(100, Timeout.Infinite);
+
+            recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+            recTimer.Change(20, Timeout.Infinite);
+            return 1;
         }
 
         public static uint canSend(ref VCI_CAN_OBJ pSend)
         {
-            return VCI_Transmit(m_devtype, m_devind, m_canind, ref pSend, 1);
+            return VCI_Transmit(deviceType, deviceIndex, canIndex, ref pSend, 1);
         }
 
         unsafe private void sendSingleFrame(string canID, string strData)
         {
-            if (m_bOpen == 0)
+            if (isOpen == 0)
             {
                 return;
             }
@@ -287,7 +257,7 @@ namespace WindowsApplication1
 
         unsafe private void sendSingleFrame(uint canID, byte[] date)
         {
-            if (m_bOpen == 0)
+            if (isOpen == 0)
             {
                 return;
             }
@@ -317,7 +287,7 @@ namespace WindowsApplication1
                 sendSingleFrame(canID, data);
                 return;
             }
-            if (m_bOpen == 0)
+            if (isOpen == 0)
             {
                 return;
             }
@@ -385,16 +355,15 @@ namespace WindowsApplication1
 
         }
 
-        public void setCar(IDictionary carSelected) {
-            this.carSelected = carSelected;
+        public void setCar(IDictionary carSelect) {
+            carSelected = carSelect;
             recTimer.Change(10, Timeout.Infinite);
         }
 
-        unsafe public void recTimer_Tick(object state)
+        unsafe public static void recTimer_Tick(object state)
         {
             //StreamWriter log = new StreamWriter(Environment.CurrentDirectory + "Can.log", true);
-            uint res = new uint();
-            res = VCI_GetReceiveNum(m_devtype, m_devind, m_canind);
+            res = VCI_GetReceiveNum(deviceType, deviceIndex, canIndex);
             if (res == 0)
             {
                 return;
@@ -402,7 +371,7 @@ namespace WindowsApplication1
             uint con_maxlen = 50;
             IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (int)con_maxlen);
 
-            res = VCI_Receive(m_devtype, m_devind, m_canind, pt, con_maxlen, 100);
+            res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, con_maxlen, 100);
 
             for (uint i = 0; i < res; i++)
             {
@@ -423,22 +392,53 @@ namespace WindowsApplication1
             Marshal.FreeHGlobal(pt);
         }
 
+        unsafe public static byte[] canLastReceive()
+        {
+            res = VCI_GetReceiveNum(deviceType, deviceIndex, canIndex);
+            if (res == 0)
+            {
+                return null;
+            }
+            uint con_maxlen = 50;
+
+            IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (int)con_maxlen);
+
+            res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, con_maxlen, 100);
+
+            VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((uint)pt + (res - 1) * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
+            //canLog.recordLog(obj);
+            if (obj.ID != Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16))
+            {
+                //return;
+            }
+            else
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    rev[j] = obj.Data[j];
+                }
+            }
+
+            Marshal.FreeHGlobal(pt);
+            return rev;
+        } 
+
         static void canReset()
         {
-            if (m_bOpen == 0)
+            if (isOpen == 0)
             {
                 return;
             }
-            VCI_ResetCAN(m_devtype, m_devind, m_canind);
+            VCI_ResetCAN(deviceType, deviceIndex, canIndex);
         }
 
         public static void canClose()
         {
-            if (m_bOpen == 1)
+            if (isOpen == 1)
             {
-                VCI_CloseDevice(m_devtype, m_devind);
-                m_bOpen = 0;
-                //recTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                VCI_CloseDevice(deviceType, deviceIndex);
+                isOpen = 0;
+                recTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
     }

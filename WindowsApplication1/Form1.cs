@@ -140,24 +140,24 @@ namespace WindowsApplication1
 
         private void buttonConnect_Click(object sender, EventArgs e)
         {
-            if (CanControl.m_bOpen == 1)
+            if (CanControl.isOpen == 1)
             {
-                CanControl.VCI_CloseDevice(CanControl.m_devtype, CanControl.m_devind);
-                CanControl.m_bOpen = 0;
+                CanControl.VCI_CloseDevice(CanControl.deviceType, CanControl.deviceIndex);
+                CanControl.isOpen = 0;
             }
             else
             {
-                CanControl.m_devtype = m_arrdevtype[comboBox_devtype.SelectedIndex];
-                CanControl.m_devind = (uint)comboBox_DevIndex.SelectedIndex;
-                CanControl.m_canind = (uint)comboBox_CANIndex.SelectedIndex;
-                if (CanControl.VCI_OpenDevice(CanControl.m_devtype, CanControl.m_devind, 0) == 0)
+                CanControl.deviceType = m_arrdevtype[comboBox_devtype.SelectedIndex];
+                CanControl.deviceIndex = (uint)comboBox_DevIndex.SelectedIndex;
+                CanControl.canIndex = (uint)comboBox_CANIndex.SelectedIndex;
+                if (CanControl.VCI_OpenDevice(CanControl.deviceType, CanControl.deviceIndex, 0) == 0)
                 {
                     MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
 
-                CanControl.m_bOpen = 1;
+                CanControl.isOpen = 1;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
                 config.AccCode = System.Convert.ToUInt32("0x" + textBox_AccCode.Text, 16);
                 config.AccMask = System.Convert.ToUInt32("0x" + textBox_AccMask.Text, 16);
@@ -165,16 +165,16 @@ namespace WindowsApplication1
                 config.Timing1 = System.Convert.ToByte("0x" + textBox_Time1.Text, 16);
                 config.Filter = (byte)comboBox_Filter.SelectedIndex;
                 config.Mode = (byte)comboBox_Mode.SelectedIndex;
-                CanControl.VCI_InitCAN(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind, ref config);
+                CanControl.VCI_InitCAN(CanControl.deviceType, CanControl.deviceIndex, CanControl.canIndex, ref config);
             }
-            buttonConnect.Text = CanControl.m_bOpen == 1 ? "断开" : "连接";
-            timer_rec.Enabled = CanControl.m_bOpen == 1 ? true : false;
+            buttonConnect.Text = CanControl.isOpen == 1 ? "断开" : "连接";
+            //timer_rec.Enabled = CanControl.m_bOpen == 1 ? true : false;
         }
 
         unsafe private void timer_rec_Tick(object sender, EventArgs e)
         {
             uint res = new uint();
-            res = CanControl.VCI_GetReceiveNum(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind);
+            res = CanControl.VCI_GetReceiveNum(CanControl.deviceType, CanControl.deviceIndex, CanControl.canIndex);
             if (res == 0)
                 return;
             //res = VCI_Receive(m_devtype, m_devind, m_canind, ref m_recobj[0],50, 100);
@@ -183,7 +183,7 @@ namespace WindowsApplication1
             uint con_maxlen = 50;
             IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (int)con_maxlen);
 
-            res = CanControl.VCI_Receive(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind, pt, con_maxlen, 100);
+            res = CanControl.VCI_Receive(CanControl.deviceType, CanControl.deviceIndex, CanControl.canIndex, pt, con_maxlen, 100);
             ////////////////////////////////////////////////////////
 
             String str = "";
@@ -236,21 +236,21 @@ namespace WindowsApplication1
 
         private void button_StartCAN_Click(object sender, EventArgs e)
         {
-            if (CanControl.m_bOpen == 0)
+            if (CanControl.isOpen == 0)
                 return;
-            CanControl.VCI_StartCAN(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind);
+            CanControl.VCI_StartCAN(CanControl.deviceType, CanControl.deviceIndex, CanControl.canIndex);
         }
 
         private void button_StopCAN_Click(object sender, EventArgs e)
         {
-            if (CanControl.m_bOpen == 0)
+            if (CanControl.isOpen == 0)
                 return;
-            CanControl.VCI_ResetCAN(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind);
+            CanControl.VCI_ResetCAN(CanControl.deviceType, CanControl.deviceIndex, CanControl.canIndex);
         }
 
         unsafe private void button_Send_Click(object sender, EventArgs e)
         {
-            if (CanControl.m_bOpen == 0)
+            if (CanControl.isOpen == 0)
                 return;
             int num = int.Parse(textBox1.Text);
             VCI_CAN_OBJ[] sendobj = new VCI_CAN_OBJ[num];//sendobj.Init();
@@ -313,7 +313,7 @@ namespace WindowsApplication1
                     }
             }
 
-            uint res = CanControl.VCI_Transmit(CanControl.m_devtype, CanControl.m_devind, CanControl.m_canind, ref sendobj[0], (uint)num);
+            uint res = CanControl.VCI_Transmit(CanControl.deviceType, CanControl.deviceIndex, CanControl.canIndex, ref sendobj[0], (uint)num);
             if (res == 0)
             {
                 MessageBox.Show("发送失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -429,7 +429,7 @@ namespace WindowsApplication1
             //textBox_Data.Text = carSelected["SoftwareVersion"].ToString();
             //button_Send_Click(sender, e);
             //return;
-            flash.start();
+            flash.connect();
             if (s19.readFile(flash.DriverName) == 1)
             {
                 s19.lineToBlock();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace WindowsApplication1
@@ -8,7 +9,6 @@ namespace WindowsApplication1
     {
         private IDictionary carSelected = null;
         private Security sec = null;
-
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
 
         public string DriverName
@@ -24,19 +24,38 @@ namespace WindowsApplication1
             }
         }
 
+        private Thread flashThread = null;
+        private Thread sendThread = null;
+        private Thread receiveThread = null;
+
         public Flash(IDictionary carSelected)
         {
             this.carSelected = carSelected;
             sec = new Security(carSelected);
         }
 
-        public int start()
+        public int connect()
         {
-            CanControl.canConnect();
+            if(CanControl.canConnect() == -1)
+            {
+                return -1;
+            }
+            flashThread = new Thread(new ThreadStart(start));
 
-            CanControl test = new CanControl();
-            test.setCar(carSelected);
+            return 1;
+        }
 
+        public void start()
+        {
+            CanControl canController = new CanControl();
+            canController.setCar(carSelected);
+
+            sendThread = new Thread(new ThreadStart(sendCan));
+            receiveThread = new Thread(new ThreadStart(receiveCan));  
+        }
+
+        void sendCan()
+        {
             enterExSession();
 
             checkPreProg();
@@ -48,8 +67,11 @@ namespace WindowsApplication1
             enterProgSession();
 
             requestSeed();
+        }
 
-            return 1;
+        void receiveCan()
+        {
+            CanControl.canLastReceive();
         }
 
         public string readVersion()
@@ -126,9 +148,9 @@ namespace WindowsApplication1
         }
 
 
-        unsafe private void sendSingleFrame(String canID, String strData)
+        unsafe private void sendSingleFrame(string canID, string strData)
         {
-            if (CanControl.m_bOpen == 0)
+            if (CanControl.isOpen == 0)
             {
                 return;
             }
@@ -151,7 +173,7 @@ namespace WindowsApplication1
             }
 
             CanControl.canSend(ref sendobj[0]);
-            Delay(30);
+            Delay(10);
         }
 
         void sendFrames()
