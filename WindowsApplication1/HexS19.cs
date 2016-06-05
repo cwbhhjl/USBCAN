@@ -13,8 +13,17 @@ namespace WindowsApplication1
         private const byte S5AddressLen = 2;
 
         private S19Line[] s19Line = null;
+        private S19Block[] s19Block = null;
 
-        ArrayList strLineTmp = null;
+        private ArrayList strLineTmp = null;
+
+        internal S19Block[] S19Block
+        {
+            get
+            {
+                return s19Block;
+            }
+        }
 
         public void readFile(FileStream fs)
         {
@@ -190,7 +199,7 @@ namespace WindowsApplication1
             s19Line = (S19Line[])s19LineTmp.ToArray(typeof(S19Line));
         }
 
-        public S19Block[] lineToBlock()
+        public void lineToBlock()
         {
             ArrayList s19BlockTmp = new ArrayList();
             ArrayList s19BlockData = new ArrayList();
@@ -202,7 +211,7 @@ namespace WindowsApplication1
 
             if (s19Line == null)
             {
-                return null;
+                return;
             }
 
             for (int lineNum = 0; lineNum < s19Line.Length; lineNum++)
@@ -244,8 +253,8 @@ namespace WindowsApplication1
                     currentBlockAddress = s19Line[lineNum + 1].lineAddress;
                 }
             }
-
-            return (S19Block[])s19BlockTmp.ToArray(typeof(S19Block));
+            s19Block = (S19Block[])s19BlockTmp.ToArray(typeof(S19Block));
+            return;
         }
     }
 
