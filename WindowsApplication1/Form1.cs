@@ -67,7 +67,7 @@ namespace WindowsApplication1
 
         private void button_LoadS19_Click(object sender, EventArgs e)
         {
-            FileStream myStream = null;
+            Stream myStream = null;
             OpenFileDialog openS19Dialog = new OpenFileDialog();
 
             openS19Dialog.InitialDirectory = System.Environment.CurrentDirectory;
@@ -79,9 +79,12 @@ namespace WindowsApplication1
             {
                 try
                 {
-                    if ((myStream = (FileStream)openS19Dialog.OpenFile()) != null)
-                    {
-                        s19.readFile(myStream);
+                    if ((myStream = openS19Dialog.OpenFile()) != null)
+                    {                        
+                        if (s19.readFile(openS19Dialog.FileName) == 1)
+                        {
+                            s19.lineToBlock();
+                        }
                     }
                 }
                 catch (Exception ex)

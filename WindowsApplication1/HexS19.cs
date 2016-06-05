@@ -27,6 +27,8 @@ namespace WindowsApplication1
                     strLineTmp.Add(sr.ReadLine());
                 } 
             }
+
+            hex();
         }
 
         public int readFile(string filePath)
@@ -98,7 +100,7 @@ namespace WindowsApplication1
                     {
 
                         tmpS19.lineAddress[a] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
-                        tmpS19.lineAddressAll += (ushort)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
+                        tmpS19.lineAddressAll += (uint)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
                         indexLine += 2;
                         checkSum += tmpS19.lineAddress[a];
                     }
@@ -124,7 +126,7 @@ namespace WindowsApplication1
             return 1;
         }
 
-        void hex()
+        private void hex()
         {
             int indexLine = 0;
             ArrayList s19LineTmp = new ArrayList();
@@ -230,6 +232,7 @@ namespace WindowsApplication1
                             currentBlockLengthByte, 
                             (byte[])s19BlockData.ToArray(typeof(byte))
                             ));
+
                     if (lineNum + 1 >= s19Line.Length)
                     {
                         break;
@@ -249,7 +252,7 @@ namespace WindowsApplication1
     class S19Line
     {
         public byte[] lineAddress;
-        public ushort lineAddressAll;
+        public uint lineAddressAll;
         public byte num;
         public byte[] date;
         public byte sumCheck;
@@ -263,7 +266,7 @@ namespace WindowsApplication1
         public S19Block(byte[] startAddress, byte[] dataLength, byte[] data)
         {
             this.startAddress = startAddress;
-            this.dataLength = dataLength;
+            this.dataLength = (byte[])dataLength.Clone();
             this.data = data;
         }
     }
