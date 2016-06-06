@@ -1,4 +1,4 @@
-﻿namespace WindowsApplication1
+﻿namespace USBCAN
 {
     partial class Form1
     {

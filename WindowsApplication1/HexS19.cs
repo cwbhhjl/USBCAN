@@ -3,7 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Text;
 
-namespace WindowsApplication1
+namespace USBCAN
 {
     class HexS19
     {

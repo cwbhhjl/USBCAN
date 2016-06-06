@@ -7,7 +7,7 @@ using System.Collections;
 using System.IO;
 
 
-namespace WindowsApplication1
+namespace USBCAN
 {
     public partial class Form1 : Form
     {
@@ -32,17 +32,19 @@ namespace WindowsApplication1
         }
 
         private void button_Flash_Click(object sender, EventArgs e)
-        {       
-            flash.connect();
-            if (s19.readFile(flash.DriverName) == 1)
+        {   
+            if(!CanControl.canConnect())
             {
-                s19.lineToBlock();
-            }
-            else
-            {
-                MessageBox.Show("S19文件校验和验证失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
+            if(s19.S19Block == null)
+            {
+                MessageBox.Show("请选择s19文件", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+                 
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
@@ -84,6 +86,10 @@ namespace WindowsApplication1
                         if (s19.readFile(openS19Dialog.FileName) == 1)
                         {
                             s19.lineToBlock();
+                        }
+                        else
+                        {
+                            MessageBox.Show("S19文件校验和验证失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         }
                     }
                 }

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WindowsApplication1
+namespace USBCAN
 {
     public partial class FormCan : Form
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace WindowsApplication1
+namespace USBCAN
 {
     class Security
     {

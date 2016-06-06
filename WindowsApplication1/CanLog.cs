@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace WindowsApplication1
+namespace USBCAN
 {
     public class CanLog
     {

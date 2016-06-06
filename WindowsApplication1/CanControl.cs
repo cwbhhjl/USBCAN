@@ -112,7 +112,7 @@ public struct CHGDESIPANDPORT
     }
 }
 
-namespace WindowsApplication1
+namespace USBCAN
 {
     public class CanControl
     {
@@ -175,7 +175,7 @@ namespace WindowsApplication1
         public static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
 
         public static uint deviceType = 4;//USBCAN2
-        public static uint isOpen = 0;
+        public static bool isOpen = false;
         public static uint deviceIndex = 0;
         public static uint canIndex = 0;
 
@@ -194,18 +194,16 @@ namespace WindowsApplication1
 
         //public static CanLog canLog = new CanLog();
 
-        public static int canConnect()
+        public static bool canConnect()
         {
-            if (isOpen == 0)
+            if (!isOpen)
             {
                 if (VCI_OpenDevice(deviceType, deviceIndex, 0) == 0)
                 {
-                    MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    return -1;
+                    return isOpen;
                 }
 
-                isOpen = 1;
+                isOpen = true;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
                 config.AccCode = 0;
                 config.AccMask = 0xFFFFFFFF;
@@ -215,12 +213,11 @@ namespace WindowsApplication1
                 config.Mode = 0;
                 VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config);
                 VCI_StartCAN(deviceType, deviceIndex, canIndex);
-                
             }
 
-            recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
-            recTimer.Change(20, Timeout.Infinite);
-            return 1;
+            //recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
+            //recTimer.Change(20, Timeout.Infinite);
+            return isOpen;
         }
 
         public static uint canSend(ref VCI_CAN_OBJ pSend)
@@ -228,9 +225,9 @@ namespace WindowsApplication1
             return VCI_Transmit(deviceType, deviceIndex, canIndex, ref pSend, 1);
         }
 
-        unsafe private void sendSingleFrame(string canID, string strData)
+        unsafe public static void sendSingleFrame(string canID, string strData)
         {
-            if (isOpen == 0)
+            if (!isOpen)
             {
                 return;
             }
@@ -256,9 +253,9 @@ namespace WindowsApplication1
             Flash.Delay(30);
         }
 
-        unsafe private void sendSingleFrame(uint canID, byte[] date)
+        unsafe public void sendSingleFrame(uint canID, byte[] date)
         {
-            if (isOpen == 0)
+            if (!isOpen)
             {
                 return;
             }
@@ -278,17 +275,17 @@ namespace WindowsApplication1
             }
 
             canSend(ref sendobj);
-            Flash.Delay(30);
+            Delay(30);
         }
 
-        unsafe private void sendFrames(uint canID,byte[] data)
+        unsafe public void sendFrames(uint canID,byte[] data)
         {
             if(data.Length<=8)
             {
                 sendSingleFrame(canID, data);
                 return;
             }
-            if (isOpen == 0)
+            if (!isOpen)
             {
                 return;
             }
@@ -426,7 +423,7 @@ namespace WindowsApplication1
 
         static void canReset()
         {
-            if (isOpen == 0)
+            if (!isOpen)
             {
                 return;
             }
@@ -435,11 +432,20 @@ namespace WindowsApplication1
 
         public static void canClose()
         {
-            if (isOpen == 1)
+            if (isOpen)
             {
                 VCI_CloseDevice(deviceType, deviceIndex);
-                isOpen = 0;
-                recTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                isOpen = false;
+                //recTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
+        }
+
+        public static void Delay(int milliSecond)
+        {
+            int start = Environment.TickCount;
+            while (Math.Abs(Environment.TickCount - start) < milliSecond)
+            {
+                Application.DoEvents();
             }
         }
     }
