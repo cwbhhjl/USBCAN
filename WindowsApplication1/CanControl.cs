@@ -188,8 +188,6 @@ namespace USBCAN
 
         public static uint res = new uint();
 
-        private static IDictionary carSelected = null;
-
         public static System.Threading.Timer recTimer = null;
 
         //public static CanLog canLog = new CanLog();
@@ -347,17 +345,9 @@ namespace USBCAN
                 }
 
             }
-
-
-
-
         }
 
-        public void setCar(IDictionary carSelect) {
-            carSelected = carSelect;
-            recTimer.Change(10, Timeout.Infinite);
-        }
-
+        /*
         unsafe public static void recTimer_Tick(object state)
         {
             //StreamWriter log = new StreamWriter(Environment.CurrentDirectory + "Can.log", true);
@@ -389,8 +379,9 @@ namespace USBCAN
             }
             Marshal.FreeHGlobal(pt);
         }
+        */
 
-        unsafe public static byte[] canLastReceive()
+        unsafe public static byte[] canLastReceive(uint canId)
         {
             res = VCI_GetReceiveNum(deviceType, deviceIndex, canIndex);
             if (res == 0)
@@ -405,7 +396,7 @@ namespace USBCAN
 
             VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((uint)pt + (res - 1) * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
             //canLog.recordLog(obj);
-            if (obj.ID != Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16))
+            if (obj.ID != canId)
             {
                 //return;
             }

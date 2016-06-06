@@ -7,6 +7,9 @@ namespace USBCAN
 {
     class Flash
     {
+        private uint physicalID;
+        private uint functionID;
+        private uint receiveID;
         private IDictionary carSelected = null;
         private Security sec = null;
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
@@ -32,22 +35,24 @@ namespace USBCAN
         {
             this.carSelected = carSelected;
             sec = new Security(carSelected);
+
+            physicalID = Convert.ToUInt32(carSelected["PhysicalID"].ToString(), 16);
+            functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
+            receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
         }
 
-        public bool init()
+        public void init()
         {
             flashThread = new Thread(new ThreadStart(start));
-
-            return true;
         }
 
         public void start()
         {
-            CanControl canController = new CanControl();
-            canController.setCar(carSelected);
-
             sendThread = new Thread(new ThreadStart(sendCan));
-            receiveThread = new Thread(new ThreadStart(receiveCan));  
+            receiveThread = new Thread(new ThreadStart(receiveCan));
+
+            sendThread.Join();
+            receiveThread.Join();
         }
 
         void sendCan()
@@ -67,7 +72,7 @@ namespace USBCAN
 
         void receiveCan()
         {
-            CanControl.canLastReceive();
+            CanControl.canLastReceive(receiveID);
         }
 
         public string readVersion()
