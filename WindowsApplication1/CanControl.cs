@@ -227,12 +227,12 @@ namespace USBCAN
             return isOpen;
         }
 
-        unsafe public static int sendSingleFrame(string canID, string strData)
+        unsafe public static int sendFrame(string canID, string strData)
         {
-            return sendSingleFrame(Convert.ToUInt32(canID, 16), canStringToByte(strData));
+            return sendFrame(Convert.ToUInt32(canID, 16), canStringToByte(strData));
         }
 
-        unsafe public static int sendSingleFrame(uint canID, byte[] date)
+        unsafe public static int sendFrame(uint canID, byte[] date)
         {
             if (!isOpen)
             {
@@ -261,7 +261,7 @@ namespace USBCAN
         {
             if(data.Length<=8)
             {
-                sendSingleFrame(canID, data);
+                sendFrame(canID, data);
                 return;
             }
             if (!isOpen)

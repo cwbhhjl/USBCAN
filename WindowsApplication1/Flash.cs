@@ -82,7 +82,7 @@ namespace USBCAN
                 return "";
             }
             //VCI_ERR_INFO vei;UInt32 dd;vei.ArLost_ErrData = 0;vei.ErrCode = 0;vei.Passive_ErrData1 = 0;vei.Passive_ErrData2 = 0;vei.Passive_ErrData3 = 0;
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["SoftwareVersion"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["SoftwareVersion"].ToString());
             //dd = Form1.VCI_ReadErrInfo(Form1.m_devtype,Form1.m_devind,Form1.m_canind,ref vei);
 
             return "1";
@@ -95,7 +95,7 @@ namespace USBCAN
                 return;
             }
 
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ExtendedSession"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["ExtendedSession"].ToString());
         }
 
         private void checkPreProg()
@@ -105,7 +105,7 @@ namespace USBCAN
                 return;
             }
 
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["PreProgrammingCheck"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["PreProgrammingCheck"].ToString());
         }
 
         private void setDtcOff()
@@ -115,7 +115,7 @@ namespace USBCAN
                 return;
             }
 
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["DtcSetOFF"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["DtcSetOFF"].ToString());
         }
 
         private void disableCommunication()
@@ -125,7 +125,7 @@ namespace USBCAN
                 return;
             }
 
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["CommunicationDisable"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["CommunicationDisable"].ToString());
         }
 
         private void enterProgSession()
@@ -135,7 +135,7 @@ namespace USBCAN
                 return;
             }
 
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["ProgrammingSession"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["ProgrammingSession"].ToString());
         }
 
         private void requestSeed()
@@ -145,7 +145,7 @@ namespace USBCAN
                 return;
             }
 
-            CanControl.sendSingleFrame(carSelected["PhysicalID"].ToString(), carSelected["SeedRequest"].ToString());
+            CanControl.sendFrame(carSelected["PhysicalID"].ToString(), carSelected["SeedRequest"].ToString());
         }
 
         public static void Delay(int milliSecond)
