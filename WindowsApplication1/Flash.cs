@@ -10,8 +10,11 @@ namespace USBCAN
         private uint physicalID;
         private uint functionID;
         private uint receiveID;
+        private bool flashFlag = false;
+        private bool sendFlag = false;
         private IDictionary carSelected = null;
         private Security sec = null;
+        private CanControl canCtl = new CanControl();
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
 
         public string DriverName
@@ -43,36 +46,75 @@ namespace USBCAN
 
         public void init()
         {
-            flashThread = new Thread(new ThreadStart(start));
+            flashFlag = true;
+            sendFlag = true;
+            flashThread = new Thread(new ThreadStart(mainStart));
         }
 
-        public void start()
+        public void mainStart()
         {
-            sendThread = new Thread(new ThreadStart(sendCan));
-            receiveThread = new Thread(new ThreadStart(receiveCan));
-
-            sendThread.Join();
-            receiveThread.Join();
+            sendThread = new Thread(new ParameterizedThreadStart(sendCan));
+            receiveThread = new Thread(new ParameterizedThreadStart(receiveCan));
         }
 
-        void sendCan()
+        void sendCan(object obj)
         {
-            enterExSession();
+            while(flashFlag)
+            {
+                lock(canCtl)
+                {
+                    if(!sendFlag)
+                    {
+                        try
+                        {
+                            Monitor.Wait(canCtl);
+                        }
+                        catch
+                        {
 
-            checkPreProg();
+                        }
+                    }
 
-            setDtcOff();
+                    sendFlag = false;
+                    Monitor.Pulse(canCtl);
+                }
+            }
+            //enterExSession();
 
-            disableCommunication();
+            //checkPreProg();
 
-            enterProgSession();
+            //setDtcOff();
 
-            requestSeed();
+            //disableCommunication();
+
+            //enterProgSession();
+
+            //requestSeed();
         }
 
-        void receiveCan()
+        void receiveCan(object obj)
         {
-            CanControl.canLastReceive(receiveID);
+            while (flashFlag)
+            {
+                lock (canCtl)
+                {
+                    if (sendFlag)
+                    {
+                        try
+                        {
+                            Monitor.Wait(canCtl);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+
+                    sendFlag = true;
+                    Monitor.Pulse(canCtl);
+                }
+            }
+            //CanControl.canLastReceive(receiveID);
         }
 
         public string readVersion()
