@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Configuration;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -10,11 +11,16 @@ namespace USBCAN
         private uint physicalID;
         private uint functionID;
         private uint receiveID;
+
+        private uint currentCan = 0;
+
         private bool flashFlag = false;
         private bool sendFlag = false;
+
         private IDictionary carSelected = null;
         private Security sec = null;
-        private CanControl canCtl = new CanControl();
+        private CanControl canCtl = CanControl.getCanControl();
+
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
 
         public string DriverName
@@ -59,7 +65,9 @@ namespace USBCAN
 
         void sendCan(object obj)
         {
-            while(flashFlag)
+            IDictionary flashConfig = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashProcess"].ToString());
+
+            while (flashFlag)
             {
                 lock(canCtl)
                 {
@@ -75,21 +83,11 @@ namespace USBCAN
                         }
                     }
 
+                    CanControl.sendFrame(physicalID, CanControl.canStringToByte(flashConfig[currentCan++.ToString()].ToString()));
                     sendFlag = false;
                     Monitor.Pulse(canCtl);
                 }
             }
-            //enterExSession();
-
-            //checkPreProg();
-
-            //setDtcOff();
-
-            //disableCommunication();
-
-            //enterProgSession();
-
-            //requestSeed();
         }
 
         void receiveCan(object obj)
@@ -110,6 +108,7 @@ namespace USBCAN
                         }
                     }
 
+                    CanControl.canLastReceive(receiveID);
                     sendFlag = true;
                     Monitor.Pulse(canCtl);
                 }

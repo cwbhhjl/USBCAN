@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace USBCAN.Properties {
+namespace WindowsApplication1.Properties {
     using System;
     
     

@@ -181,6 +181,8 @@ namespace USBCAN
 
         //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
         static byte[] rev = new byte[8];
+        static byte[] send = new byte[8];
+        private static CanControl canCtl;
 
         public uint[] m_arrdevtype = new uint[20];
 
@@ -200,6 +202,21 @@ namespace USBCAN
         }
 
         //public static CanLog canLog = new CanLog();
+
+        private CanControl()
+        {
+            
+        }
+
+        public static CanControl getCanControl()
+        {
+            if(canCtl == null)
+            {
+                canCtl = new CanControl();
+            }
+
+            return canCtl;
+        }
 
         public static bool canConnect()
         {
@@ -427,7 +444,7 @@ namespace USBCAN
             }
         }
 
-        private static byte[] canStringToByte(string str)
+        public static byte[] canStringToByte(string str)
         {
             string[] strTmp = str.Split(' ');
             ArrayList byteTmp = null;
