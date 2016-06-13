@@ -92,7 +92,6 @@ namespace USBCAN
                         break;
                     }
                     indexStrTmp = currentCan++.ToString();
-                    if()
                     CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashConfig[indexStrTmp].ToString()));
                     sendFlag = false;
                     Monitor.Pulse(canCtl);
