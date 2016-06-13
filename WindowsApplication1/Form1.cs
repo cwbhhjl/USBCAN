@@ -32,19 +32,19 @@ namespace USBCAN
         }
 
         private void button_Flash_Click(object sender, EventArgs e)
-        {   
-            if(!CanControl.canConnect())
+        {
+            if (!CanControl.canConnect())
             {
                 MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
-            if(s19.S19Block == null)
+            if (s19.S19Block == null)
             {
                 MessageBox.Show("请选择s19文件", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-                 
+
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
@@ -65,6 +65,7 @@ namespace USBCAN
             string car = (string)comboBox_Config.SelectedItem;
             carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
             flash = new Flash(carSelected);
+            flash.readVersion();
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)
@@ -82,7 +83,7 @@ namespace USBCAN
                 try
                 {
                     if ((myStream = openS19Dialog.OpenFile()) != null)
-                    {                        
+                    {
                         if (s19.readFile(openS19Dialog.FileName) == 1)
                         {
                             s19.lineToBlock();

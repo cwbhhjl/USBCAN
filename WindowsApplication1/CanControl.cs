@@ -214,12 +214,12 @@ namespace USBCAN
 
         private CanControl()
         {
-            
+
         }
 
         public static CanControl getCanControl()
         {
-            if(canCtl == null)
+            if (canCtl == null)
             {
                 canCtl = new CanControl();
             }
@@ -227,7 +227,7 @@ namespace USBCAN
             return canCtl;
         }
 
-        public static bool canConnect()
+        unsafe public static bool canConnect()
         {
             if (!isOpen)
             {
@@ -251,6 +251,14 @@ namespace USBCAN
                 obj.RemoteFlag = 0;
                 obj.ExternFlag = 0;
                 obj.DataLen = 8;
+
+                fixed (byte* pData = obj.Data)
+                {
+                    for (int n = 0; n < 8; n++)
+                    {
+                        pData[n] = 0xFF;
+                    }
+                }
             }
 
             //recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
@@ -291,34 +299,44 @@ namespace USBCAN
                 return -1;
             }
 
-            data.CopyTo(send, 0);
-            obj.ID = canID;
-
-            fixed(byte* pData = obj.Data)
+            int len = data.Length;
+            if (len <= 7)
             {
-                for (int n = 0; n < data.Length; n++)
+                data.CopyTo(send, 0);
+                obj.ID = canID;
+
+                fixed (byte* pData = obj.Data)
                 {
-                    pData[n] = data[n];
+                    pData[0] = (byte)len;
+                    for (int n = 0; n < len; n++)
+                    {
+                        pData[n + 1] = data[n];
+                    }
                 }
+
+                int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+
+                int start = Environment.TickCount;
+                while (Math.Abs(Environment.TickCount - start) < 75)
+                {
+                    if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
+                    {
+                        canLastReceive(receiveID);
+                        return ss;
+                    }
+                }
+                return -2;
+            }
+            else
+            {
+                return -3;
             }
 
-            int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
-
-            int start = Environment.TickCount;
-            while (Math.Abs(Environment.TickCount - start) < 75)
-            {
-                if(VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
-                {
-                    canLastReceive(receiveID);
-                    return ss;
-                }
-            }
-            return -2;
         }
 
-        unsafe public void sendFrames(uint canID,byte[] data)
+        unsafe public void sendFrames(uint canID, byte[] data)
         {
-            if(data.Length<=8)
+            if (data.Length <= 8)
             {
                 sendFrame(canID, data);
                 return;
@@ -434,7 +452,7 @@ namespace USBCAN
             ArrayList canObj = new ArrayList();
 
             IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * 50);
-            res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, 50, 100);                      
+            res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, 50, 100);
 
             for (int i = 0; i < res; i++)
             {
@@ -447,7 +465,7 @@ namespace USBCAN
             }
 
             //canLog.recordLog(obj);
-            objTmp = (VCI_CAN_OBJ)canObj[canObj.Count-1];
+            objTmp = (VCI_CAN_OBJ)canObj[canObj.Count - 1];
 
             for (int j = 0; j < 8; j++)
             {
@@ -457,7 +475,7 @@ namespace USBCAN
             res = 0;
             Marshal.FreeHGlobal(pt);
             return rev;
-        } 
+        }
 
         static void canReset()
         {
@@ -482,7 +500,7 @@ namespace USBCAN
         {
             string[] strTmp = str.Split(' ');
             ArrayList byteTmp = new ArrayList();
-            foreach(string i in strTmp)
+            foreach (string i in strTmp)
             {
                 byteTmp.Add(Convert.ToByte(i, 16));
             }

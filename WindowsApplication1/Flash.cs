@@ -69,9 +69,9 @@ namespace USBCAN
 
             while (flashFlag)
             {
-                lock(canCtl)
+                lock (canCtl)
                 {
-                    if(!sendFlag)
+                    if (!sendFlag)
                     {
                         try
                         {
@@ -124,15 +124,15 @@ namespace USBCAN
             }
 
             CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString()));
-            
-            if(CanControl.send[1] + 0x40 == CanControl.Rev[1])
+
+            if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
             {
                 return Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16);
             }
 
             return "fail";
         }
-        
+
         public static void Delay(int milliSecond)
         {
             int start = Environment.TickCount;
