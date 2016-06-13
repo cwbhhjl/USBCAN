@@ -274,6 +274,41 @@ namespace USBCAN
             //Delay(30);
         }
 
+        unsafe public static int sendFrame(uint canID, uint receiveID, byte[] date)
+        {
+            if (!isOpen)
+            {
+                return -1;
+            }
+
+            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();
+
+            sendobj.SendType = 0;
+            sendobj.RemoteFlag = 0;
+            sendobj.ExternFlag = 0;
+            sendobj.ID = canID;
+            int len = date.Length;
+            sendobj.DataLen = Convert.ToByte(len);
+
+            for (int n = 0; n < len; n++)
+            {
+                sendobj.Data[n] = date[n];
+            }
+
+            int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
+
+            int start = Environment.TickCount;
+            while (Math.Abs(Environment.TickCount - start) < 75)
+            {
+                if(VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
+                {
+                    canLastReceive(receiveID);
+                    return ss;
+                }
+            }
+            return -2;
+        }
+
         unsafe public void sendFrames(uint canID,byte[] data)
         {
             if(data.Length<=8)
@@ -412,6 +447,7 @@ namespace USBCAN
                 rev[j] = objTmp.Data[j];
             }
 
+            res = 0;
             Marshal.FreeHGlobal(pt);
             return rev;
         } 
