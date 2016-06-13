@@ -182,10 +182,11 @@ namespace USBCAN
         //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
         private static byte[] rev = new byte[8];
         public static byte[] send = new byte[8];
+        public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
+
         private static CanControl canCtl;
 
         public uint[] m_arrdevtype = new uint[20];
-
         public VCI_ERR_INFO m_errorInfo;
 
         public static uint res = 0;
@@ -245,6 +246,11 @@ namespace USBCAN
                 config.Mode = 0;
                 VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config);
                 VCI_StartCAN(deviceType, deviceIndex, canIndex);
+
+                obj.SendType = 0;
+                obj.RemoteFlag = 0;
+                obj.ExternFlag = 0;
+                obj.DataLen = 8;
             }
 
             //recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
@@ -257,54 +263,46 @@ namespace USBCAN
             return sendFrame(Convert.ToUInt32(canID, 16), canStringToByte(strData));
         }
 
-        unsafe public static int sendFrame(uint canID, byte[] date)
+        unsafe public static int sendFrame(uint canID, byte[] data)
         {
             if (!isOpen)
             {
                 return -1;
             }
 
-            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();
+            data.CopyTo(send, 0);
+            obj.ID = canID;
 
-            sendobj.SendType = 0;
-            sendobj.RemoteFlag = 0;
-            sendobj.ExternFlag = 0;
-            sendobj.ID = canID;
-            int len = date.Length;
-            sendobj.DataLen = Convert.ToByte(len);
-
-            for (int n = 0; n < len; n++)
+            fixed (byte* pData = obj.Data)
             {
-                sendobj.Data[n] = date[n];
+                for (int n = 0; n < data.Length; n++)
+                {
+                    pData[n] = data[n];
+                }
             }
 
-            return (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
-            //Delay(30);
+            return (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
         }
 
-        unsafe public static int sendFrame(uint canID, uint receiveID, byte[] date)
+        unsafe public static int sendFrame(uint canID, uint receiveID, byte[] data)
         {
             if (!isOpen)
             {
                 return -1;
             }
 
-            date.CopyTo(send, 0);
-            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();
+            data.CopyTo(send, 0);
+            obj.ID = canID;
 
-            sendobj.SendType = 0;
-            sendobj.RemoteFlag = 0;
-            sendobj.ExternFlag = 0;
-            sendobj.ID = canID;
-            int len = date.Length;
-            sendobj.DataLen = Convert.ToByte(len);
-
-            for (int n = 0; n < len; n++)
+            fixed(byte* pData = obj.Data)
             {
-                sendobj.Data[n] = send[n];
+                for (int n = 0; n < data.Length; n++)
+                {
+                    pData[n] = data[n];
+                }
             }
 
-            int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
+            int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
 
             int start = Environment.TickCount;
             while (Math.Abs(Environment.TickCount - start) < 75)
