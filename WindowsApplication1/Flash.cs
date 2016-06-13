@@ -38,7 +38,7 @@ namespace USBCAN
 
         public Thread flashThread = null;
         private Thread sendThread = null;
-        private Thread receiveThread = null;
+        private Thread handleThread = null;
 
         public Flash(IDictionary carSelected)
         {
@@ -60,11 +60,11 @@ namespace USBCAN
         public void mainStart()
         {
             sendThread = new Thread(new ParameterizedThreadStart(sendCan));
-            receiveThread = new Thread(new ParameterizedThreadStart(receiveCan));
+            handleThread = new Thread(new ParameterizedThreadStart(handleCan));
             sendThread.Start();
-            receiveThread.Start();
+            handleThread.Start();
             sendThread.Join();
-            receiveThread.Join();
+            handleThread.Join();
         }
 
         void sendCan(object obj)
@@ -91,15 +91,21 @@ namespace USBCAN
                     {
                         break;
                     }
+
                     indexStrTmp = currentCan++.ToString();
-                    CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashConfig[indexStrTmp].ToString()));
+
+                    if(CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashConfig[indexStrTmp].ToString())) < 0)
+                    {
+                        break;
+                    }
+                    
                     sendFlag = false;
                     Monitor.Pulse(canCtl);
                 }
             }
         }
 
-        void receiveCan(object obj)
+        void handleCan(object obj)
         {
             while (flashFlag)
             {
@@ -117,7 +123,18 @@ namespace USBCAN
                         }
                     }
 
-                    //CanControl.canLastReceive(receiveID);
+                    if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
+                    {
+
+                    }
+                    else
+                    {
+                        switch (CanControl.Rev[1])
+                        {
+
+                        }
+                    }
+
                     sendFlag = true;
                     Monitor.Pulse(canCtl);
                 }
