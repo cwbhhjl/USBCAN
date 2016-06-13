@@ -181,7 +181,7 @@ namespace USBCAN
 
         //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
         static byte[] rev = new byte[8];
-        static byte[] send = new byte[8];
+        public static byte[] send = new byte[8];
         private static CanControl canCtl;
 
         public uint[] m_arrdevtype = new uint[20];
@@ -468,15 +468,6 @@ namespace USBCAN
                 VCI_CloseDevice(deviceType, deviceIndex);
                 isOpen = false;
                 //recTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-        }
-
-        public static void Delay(int milliSecond)
-        {
-            int start = Environment.TickCount;
-            while (Math.Abs(Environment.TickCount - start) < milliSecond)
-            {
-                Application.DoEvents();
             }
         }
 

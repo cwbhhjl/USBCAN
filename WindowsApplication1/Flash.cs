@@ -120,11 +120,17 @@ namespace USBCAN
         {
             if (carSelected == null)
             {
-                return "";
+                return null;
             }
 
-            CanControl.sendFrame(physicalID, CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString()));
-            return "1";
+            CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString()));
+            
+            if(CanControl.send[1] + 0x40 == CanControl.send[1])
+            {
+                return CanControl.send[4].ToString() + "." + CanControl.send[5].ToString();
+            }
+
+            return "fail";
         }
         
         public static void Delay(int milliSecond)
