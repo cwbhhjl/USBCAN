@@ -36,7 +36,7 @@ namespace USBCAN
             }
         }
 
-        private Thread flashThread = null;
+        public Thread flashThread = null;
         private Thread sendThread = null;
         private Thread receiveThread = null;
 
@@ -61,12 +61,16 @@ namespace USBCAN
         {
             sendThread = new Thread(new ParameterizedThreadStart(sendCan));
             receiveThread = new Thread(new ParameterizedThreadStart(receiveCan));
+            sendThread.Start();
+            receiveThread.Start();
+            sendThread.Join();
+            receiveThread.Join();
         }
 
         void sendCan(object obj)
         {
             IDictionary flashConfig = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashProcess"].ToString());
-
+            string indexStrTmp = null;
             while (flashFlag)
             {
                 lock (canCtl)
@@ -82,8 +86,14 @@ namespace USBCAN
 
                         }
                     }
-
-                    CanControl.sendFrame(physicalID, CanControl.canStringToByte(flashConfig[currentCan++.ToString()].ToString()));
+                    
+                    if(currentCan == 6)
+                    {
+                        break;
+                    }
+                    indexStrTmp = currentCan++.ToString();
+                    if()
+                    CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashConfig[indexStrTmp].ToString()));
                     sendFlag = false;
                     Monitor.Pulse(canCtl);
                 }
@@ -108,7 +118,7 @@ namespace USBCAN
                         }
                     }
 
-                    CanControl.canLastReceive(receiveID);
+                    //CanControl.canLastReceive(receiveID);
                     sendFlag = true;
                     Monitor.Pulse(canCtl);
                 }

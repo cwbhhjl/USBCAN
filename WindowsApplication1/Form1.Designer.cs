@@ -96,7 +96,7 @@
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "发送数据帧";
-            this.groupBox3.Enter += new System.EventHandler(this.groupBox3_Enter);
+            //this.groupBox3.Enter += new System.EventHandler(this.groupBox3_Enter);
             // 
             // Form1
             // 

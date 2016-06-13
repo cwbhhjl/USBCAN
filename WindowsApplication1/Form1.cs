@@ -65,7 +65,7 @@ namespace USBCAN
             string car = (string)comboBox_Config.SelectedItem;
             carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
             flash = new Flash(carSelected);
-            flash.readVersion();
+            flash.init();
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)
@@ -100,11 +100,5 @@ namespace USBCAN
                 }
             }
         }
-
-        private void groupBox3_Enter(object sender, EventArgs e)
-        {
-
-        }
-
     }
 }
