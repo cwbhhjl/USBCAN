@@ -180,7 +180,7 @@ namespace USBCAN
         public static uint canIndex = 0;
 
         //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
-        static byte[] rev = new byte[8];
+        private static byte[] rev = new byte[8];
         public static byte[] send = new byte[8];
         private static CanControl canCtl;
 
@@ -198,6 +198,14 @@ namespace USBCAN
             get
             {
                 return isOpen;
+            }
+        }
+
+        public static byte[] Rev
+        {
+            get
+            {
+                return rev;
             }
         }
 
@@ -281,6 +289,7 @@ namespace USBCAN
                 return -1;
             }
 
+            date.CopyTo(send, 0);
             VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();
 
             sendobj.SendType = 0;
@@ -292,7 +301,7 @@ namespace USBCAN
 
             for (int n = 0; n < len; n++)
             {
-                sendobj.Data[n] = date[n];
+                sendobj.Data[n] = send[n];
             }
 
             int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
@@ -424,7 +433,7 @@ namespace USBCAN
             }
 
             VCI_CAN_OBJ objTmp;
-            ArrayList canObj = null;
+            ArrayList canObj = new ArrayList();
 
             IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * 50);
             res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, 50, 100);                      
@@ -440,7 +449,7 @@ namespace USBCAN
             }
 
             //canLog.recordLog(obj);
-            objTmp = (VCI_CAN_OBJ)canObj[-1];
+            objTmp = (VCI_CAN_OBJ)canObj[canObj.Count-1];
 
             for (int j = 0; j < 8; j++)
             {
@@ -474,7 +483,7 @@ namespace USBCAN
         public static byte[] canStringToByte(string str)
         {
             string[] strTmp = str.Split(' ');
-            ArrayList byteTmp = null;
+            ArrayList byteTmp = new ArrayList();
             foreach(string i in strTmp)
             {
                 byteTmp.Add(Convert.ToByte(i, 16));

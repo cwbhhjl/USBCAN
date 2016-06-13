@@ -125,9 +125,9 @@ namespace USBCAN
 
             CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString()));
             
-            if(CanControl.send[1] + 0x40 == CanControl.send[1])
+            if(CanControl.send[1] + 0x40 == CanControl.Rev[1])
             {
-                return CanControl.send[4].ToString() + "." + CanControl.send[5].ToString();
+                return Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16);
             }
 
             return "fail";
