@@ -13,9 +13,13 @@ namespace USBCAN
         private uint receiveID;
 
         private uint currentCan = 0;
+        private string processStr = null;
 
         private bool flashFlag = false;
         private bool sendFlag = false;
+        private bool afterKeepFlag = false;
+
+        private byte securityAccessType;
 
         private IDictionary carSelected = null;
         private IDictionary flashProcess = null;
@@ -44,12 +48,12 @@ namespace USBCAN
         public Flash(IDictionary carSelected)
         {
             this.carSelected = carSelected;
-            flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");
-            sec = new Security(carSelected);
-
+            flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");           
             physicalID = Convert.ToUInt32(carSelected["PhysicalID"].ToString(), 16);
             functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
+            securityAccessType = Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16);
+            sec = new Security(securityAccessType);
         }
 
         public void init()
@@ -73,6 +77,8 @@ namespace USBCAN
         {
             IDictionary sequence = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashSequence"].ToString());
             string indexStrTmp = null;
+            int sendError = 0;
+
             while (flashFlag)
             {
                 lock (canCtl)
@@ -89,14 +95,50 @@ namespace USBCAN
                         }
                     }
 
+                    currentCan = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(currentCan + 1) : currentCan;
+
                     if (currentCan == 6)
                     {
                         break;
                     }
 
                     indexStrTmp = currentCan.ToString();
+                    processStr = sequence[indexStrTmp].ToString();
 
-                    if (CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[sequence[indexStrTmp].ToString()].ToString())) < 0)
+                    switch (processStr)
+                    {
+                        case "SecurityAccess":
+                            securityAccessType = afterKeepFlag ? (byte)(securityAccessType - 1) : securityAccessType;
+                            if(securityAccessType != Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16))
+                            {
+                                byte[] key;
+                                byte[] seed = new byte[4];
+                                for(int i = 0; i < 4; i++)
+                                {
+                                    seed[i] = CanControl.Rev[3 + i];
+                                }
+                                key = sec.seedToKey(seed);
+                                sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString() + " " + securityAccessType.ToString() + " " + Convert.ToString(key[0], 16) + " " + Convert.ToString(key[1], 16) + " " + Convert.ToString(key[2], 16) + " " + Convert.ToString(key[3], 16)));
+                            }
+                            else
+                            {
+                                sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString() + " " + securityAccessType.ToString()));
+                            }                                                   
+                            securityAccessType++;
+                            if(securityAccessType - Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16) == 2)
+                            {
+                                break;
+                            }
+                            currentCan = securityAccessType != Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16) ? currentCan - 1 : currentCan;
+                            break;
+                        default:
+                            sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString()));
+                            break;
+                    }
+
+                    afterKeepFlag = false;
+
+                    if (sendError < 0)
                     {
                         break;
                     }
@@ -173,6 +215,7 @@ namespace USBCAN
                             keepAlive();
                             Delay(3500);
                         }
+                        afterKeepFlag = true;
                         break;
                     default:
                         break;

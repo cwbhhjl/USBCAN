@@ -6,23 +6,33 @@ namespace USBCAN
     {
         private const uint MASK_N330_BLACKBOX = 0x7FEAC5CBU;
         private const uint MASK_DEFAULT = 0xA5CEFDB6U;
-        private IDictionary carSelected = null;
+        private byte securityAccessType;
 
-        public Security(IDictionary carSelected)
+        public Security(byte securityAccessType)
         {
-            this.carSelected = carSelected;
+            this.securityAccessType = securityAccessType;
         }
         public uint seedToKey(uint seed)
         {
-            if (carSelected["SeedRequest"].ToString().Substring(6,2)=="09")
+            if (securityAccessType == 0x09)
             {
                 return securityAlgorithm_090A(seed);
             }
-            if (carSelected["SeedRequest"].ToString().Substring(6, 2) == "03")
+            if (securityAccessType == 0x03)
             {
                 return securityAlgorithm_0304(seed);
             }
             return 0;
+        }
+
+        public byte[] seedToKey(byte[] seed)
+        {
+            switch (securityAccessType)
+            {
+                case 0x03:
+                    return securityAlgorithm_0304(seed);
+            }
+            return null;
         }
 
         private uint securityAlgorithm_090A(uint seed)
@@ -45,6 +55,18 @@ namespace USBCAN
         private uint securityAlgorithm_0304(uint seed)
         {
             return (seed ^ MASK_DEFAULT) + MASK_DEFAULT;
+        }
+
+        private byte[] securityAlgorithm_0304(byte[] seed)
+        {
+            uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
+            uint keyInt = securityAlgorithm_0304(seedInt);
+            byte[] keyRe = new byte[4];
+            for(int i = 0; i < 4; i++)
+            {
+                keyRe[i] = (byte)(keyInt >> (8 * (3 - i)));
+            }
+            return keyRe;
         }
     }
 }
