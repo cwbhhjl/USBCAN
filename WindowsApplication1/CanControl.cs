@@ -303,14 +303,17 @@ namespace USBCAN
             if (len <= 7)
             {
                 data.CopyTo(send, 0);
+                for(int i = data.Length; i < send.Length; i++)
+                {
+                    send[i] = 0xFF;
+                }
                 obj.ID = canID;
-
                 fixed (byte* pData = obj.Data)
                 {
                     pData[0] = (byte)len;
-                    for (int n = 0; n < len; n++)
+                    for (int n = 0; n < 7; n++)
                     {
-                        pData[n + 1] = data[n];
+                        pData[n + 1] = n < len ? data[n] : (byte)0xFF;
                     }
                 }
 

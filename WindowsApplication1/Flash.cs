@@ -61,15 +61,15 @@ namespace USBCAN
 
         public void mainStart()
         {
-            sendThread = new Thread(new ParameterizedThreadStart(sendCan));
-            handleThread = new Thread(new ParameterizedThreadStart(handleCan));
+            sendThread = new Thread(new ParameterizedThreadStart(sendStart));
+            handleThread = new Thread(new ParameterizedThreadStart(handleStart));
             sendThread.Start();
             handleThread.Start();
             sendThread.Join();
             handleThread.Join();
         }
 
-        void sendCan(object obj)
+        void sendStart(object obj)
         {
             IDictionary sequence = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashSequence"].ToString());
             string indexStrTmp = null;
@@ -88,26 +88,26 @@ namespace USBCAN
 
                         }
                     }
-                    
-                    if(currentCan == 6)
+
+                    if (currentCan == 6)
                     {
                         break;
                     }
 
-                    indexStrTmp = currentCan++.ToString();
+                    indexStrTmp = currentCan.ToString();
 
-                    if(CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[sequence[indexStrTmp].ToString()].ToString())) < 0)
+                    if (CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[sequence[indexStrTmp].ToString()].ToString())) < 0)
                     {
                         break;
                     }
-                    
+
                     sendFlag = false;
                     Monitor.Pulse(canCtl);
                 }
             }
         }
 
-        void handleCan(object obj)
+        void handleStart(object obj)
         {
             while (flashFlag)
             {
@@ -125,23 +125,59 @@ namespace USBCAN
                         }
                     }
 
-                    if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
-                    {
+                    handleCan();
+                    //if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
+                    //{
+                    //    currentCan++;
+                    //}
+                    //else
+                    //{
+                    //    switch (CanControl.Rev[1])
+                    //    {
 
-                    }
-                    else
-                    {
-                        switch (CanControl.Rev[1])
-                        {
-
-                        }
-                    }
+                    //    }
+                    //}
 
                     sendFlag = true;
                     Monitor.Pulse(canCtl);
                 }
             }
             //CanControl.canLastReceive(receiveID);
+        }
+
+        private void handleCan()
+        {
+            if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
+            {
+                currentCan++;
+            }
+            else if (CanControl.Rev[1] == SI.NRSI)
+            {
+                switch (CanControl.Rev[3])
+                {
+                    case NRC.RCRRP:
+                        while (CanControl.canLastReceive(receiveID) == null || CanControl.Rev[1] == SI.NRSI)
+                        {
+                            Delay(10);
+                        }
+                        if(CanControl.Rev[1] == CanControl.send[0] + 0x40)
+                        {
+                            currentCan++;
+                            break;
+                        }
+                        flashFlag = false;
+                        break;
+                    case NRC.RTDNE:
+                        for(int c = 0; c < 4; c++)
+                        {
+                            keepAlive();
+                            Delay(3500);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         public string readVersion()
@@ -159,6 +195,16 @@ namespace USBCAN
             }
 
             return "fail";
+        }
+
+        public bool keepAlive()
+        {
+            if (carSelected != null)
+            {
+                CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess["PresentTester"].ToString()));
+                return CanControl.send[0] + 0x40 == CanControl.Rev[1];
+            }
+            return false;
         }
 
         public static void Delay(int milliSecond)

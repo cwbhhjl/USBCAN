@@ -66,7 +66,7 @@ namespace USBCAN
             carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
             flash = new Flash(carSelected);
             flash.init();
-            //flash.flashThread.Start();
+            flash.flashThread.Start();
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)
