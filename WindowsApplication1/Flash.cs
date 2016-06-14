@@ -20,6 +20,7 @@ namespace USBCAN
         private bool afterKeepFlag = false;
 
         private byte securityAccessType;
+        private byte[] securityAccess;
 
         private IDictionary carSelected = null;
         private IDictionary flashProcess = null;
@@ -53,7 +54,8 @@ namespace USBCAN
             functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
             securityAccessType = Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16);
-            sec = new Security(securityAccessType);
+            securityAccess = CanControl.canStringToByte(carSelected["SecurityAccessType"].ToString());
+            sec = new Security(securityAccess[1]);
         }
 
         public void init()

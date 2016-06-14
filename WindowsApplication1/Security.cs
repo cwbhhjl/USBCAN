@@ -6,36 +6,42 @@ namespace USBCAN
     {
         private const uint MASK_N330_BLACKBOX = 0x7FEAC5CBU;
         private const uint MASK_DEFAULT = 0xA5CEFDB6U;
-        private byte securityAccessType;
+        private byte securityAlgorithmType;
 
-        public Security(byte securityAccessType)
+        public Security()
         {
-            this.securityAccessType = securityAccessType;
+            securityAlgorithmType = 0;
         }
+
+        public Security(byte securityAlgorithmType)
+        {
+            this.securityAlgorithmType = securityAlgorithmType;
+        }
+
         public uint seedToKey(uint seed)
         {
-            if (securityAccessType == 0x09)
+            switch (securityAlgorithmType)
             {
-                return securityAlgorithm_090A(seed);
-            }
-            if (securityAccessType == 0x03)
-            {
-                return securityAlgorithm_0304(seed);
+                case 0:
+                    return securityAlgorithm_0(seed);
+                case 1:
+                    return securityAlgorithm_1(seed);
+
             }
             return 0;
         }
 
         public byte[] seedToKey(byte[] seed)
         {
-            switch (securityAccessType)
+            switch (securityAlgorithmType)
             {
-                case 0x03:
-                    return securityAlgorithm_0304(seed);
+                case 0x0:
+                    return securityAlgorithm_0(seed);
             }
             return null;
         }
 
-        private uint securityAlgorithm_090A(uint seed)
+        private uint securityAlgorithm_1(uint seed)
         {
             for (int i = 0; i < 35; i++)
             {
@@ -52,17 +58,18 @@ namespace USBCAN
             return seed;
         }
 
-        private uint securityAlgorithm_0304(uint seed)
+        private uint securityAlgorithm_0(uint seed)
         {
             return (seed ^ MASK_DEFAULT) + MASK_DEFAULT;
         }
 
-        private byte[] securityAlgorithm_0304(byte[] seed)
+        private byte[] securityAlgorithm_0(byte[] seed)
         {
             uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
-            uint keyInt = securityAlgorithm_0304(seedInt);
+            uint keyInt = (seedInt ^ MASK_DEFAULT) + MASK_DEFAULT;
+
             byte[] keyRe = new byte[4];
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 keyRe[i] = (byte)(keyInt >> (8 * (3 - i)));
             }
