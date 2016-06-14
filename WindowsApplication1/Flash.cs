@@ -18,6 +18,7 @@ namespace USBCAN
         private bool sendFlag = false;
 
         private IDictionary carSelected = null;
+        private IDictionary flashProcess = null;
         private Security sec = null;
         private CanControl canCtl = CanControl.getCanControl();
 
@@ -43,6 +44,7 @@ namespace USBCAN
         public Flash(IDictionary carSelected)
         {
             this.carSelected = carSelected;
+            flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");
             sec = new Security(carSelected);
 
             physicalID = Convert.ToUInt32(carSelected["PhysicalID"].ToString(), 16);
@@ -69,7 +71,7 @@ namespace USBCAN
 
         void sendCan(object obj)
         {
-            IDictionary flashConfig = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashProcess"].ToString());
+            IDictionary sequence = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashSequence"].ToString());
             string indexStrTmp = null;
             while (flashFlag)
             {
@@ -94,7 +96,7 @@ namespace USBCAN
 
                     indexStrTmp = currentCan++.ToString();
 
-                    if(CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashConfig[indexStrTmp].ToString())) < 0)
+                    if(CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[sequence[indexStrTmp].ToString()].ToString())) < 0)
                     {
                         break;
                     }
