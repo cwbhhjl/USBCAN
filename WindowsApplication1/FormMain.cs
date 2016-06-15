@@ -5,14 +5,14 @@ using System.Collections;
 
 namespace USBCAN
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         IDictionary carSelected = null;
         Flash flash;
         HexS19 s19 = new HexS19();
         OpenFileDialog openS19Dialog = new OpenFileDialog();
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
 
@@ -58,7 +58,7 @@ namespace USBCAN
         private void comboBox_Config_Click(object sender, EventArgs e)
         {
             comboBox_Config.Items.Clear();
-            System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             int confnum = config.GetSectionGroup("CarConfig").Sections.Count;
             //String[] carInfo=new String[confnum];
             for (int index = 0; index < confnum; index++)
