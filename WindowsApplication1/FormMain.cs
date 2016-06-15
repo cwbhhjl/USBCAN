@@ -88,7 +88,6 @@ namespace USBCAN
             string[] files = openS19Dialog.FileNames;
             openS19Dialog.InitialDirectory = files[0].Substring(0, files[0].LastIndexOfAny("\\".ToCharArray()));
             s19.addFile(files);
-
             s19.wakeUpHexThread();
         }
     }

@@ -15,11 +15,14 @@ namespace USBCAN
 
         private Queue<string> files = new Queue<string>();
         private Thread hexThread = null;
+        private AutoResetEvent ctl = new AutoResetEvent(false);
 
         private S19Line[] s19Line = null;
         private S19Block[] s19Block = null;
 
         private List<string> strLineTmp = null;
+
+        private Queue<S19Block[]> s19Files = new Queue<S19Block[]>();
 
         internal S19Block[] S19Block
         {
@@ -33,13 +36,14 @@ namespace USBCAN
         {
             hexThread = new Thread(hexStart);
             hexThread.IsBackground = true;
+            hexThread.Start();
         }
 
         public void wakeUpHexThread()
         {
-            if (!hexThread.IsAlive)
+            if (hexThread.ThreadState != ThreadState.Running)
             {
-                hexThread.Start();
+                ctl.Set();
             }
         }
 
@@ -49,7 +53,7 @@ namespace USBCAN
             {
                 if (files.Count == 0 || files == null)
                 {
-                    Thread.Sleep(-1);
+                    ctl.WaitOne();
                 }
             }
             
@@ -292,6 +296,7 @@ namespace USBCAN
                 }
             }
             s19Block = s19BlockTmp.ToArray();
+            s19Files.Enqueue(s19BlockTmp.ToArray());
             return;
         }
     }
