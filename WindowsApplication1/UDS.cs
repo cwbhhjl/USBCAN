@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace USBCAN
+﻿namespace USBCAN
 {
     // Negative response codes
     public struct NRC
