@@ -2,13 +2,14 @@
 using System.Windows.Forms;
 using System.Configuration;
 using System.Collections;
+using System.Threading;
 
 namespace USBCAN
 {
     public partial class FormMain : Form
     {
         IDictionary carSelected = null;
-        Flash flash;
+        Flash flash = null;
         HexS19 s19 = new HexS19();
         OpenFileDialog openS19Dialog = new OpenFileDialog();
 
@@ -80,30 +81,6 @@ namespace USBCAN
         private void button_LoadS19_Click(object sender, EventArgs e)
         {
             openS19Dialog.ShowDialog();
-            /*
-            if (openS19Dialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    if ((myStream = openS19Dialog.OpenFile()) != null)
-                    {
-                        myStream.Close(); 
-                        if (s19.readFile(openS19Dialog.FileName) == 1)
-                        {                           
-                            s19.lineToBlock();                           
-                        }
-                        else
-                        {
-                            MessageBox.Show("S19文件校验和验证失败", "错误", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
-                }
-            }
-            */
         }
 
         private void openFileDialog1_FileOk(object sender,System.ComponentModel.CancelEventArgs e)
@@ -111,6 +88,8 @@ namespace USBCAN
             string[] files = openS19Dialog.FileNames;
             openS19Dialog.InitialDirectory = files[0].Substring(0, files[0].LastIndexOfAny("\\".ToCharArray()));
             s19.addFile(files);
+
+            s19.wakeUpHexThread();
         }
     }
 }

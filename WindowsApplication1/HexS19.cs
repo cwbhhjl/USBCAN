@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace USBCAN
 {
@@ -13,6 +14,7 @@ namespace USBCAN
         private const byte S5AddressLen = 2;
 
         private Queue<string> files = new Queue<string>();
+        private Thread hexThread = null;
 
         private S19Line[] s19Line = null;
         private S19Block[] s19Block = null;
@@ -25,6 +27,32 @@ namespace USBCAN
             {
                 return s19Block;
             }
+        }
+
+        public HexS19()
+        {
+            hexThread = new Thread(hexStart);
+            hexThread.IsBackground = true;
+        }
+
+        public void wakeUpHexThread()
+        {
+            if (!hexThread.IsAlive)
+            {
+                hexThread.Start();
+            }
+        }
+
+        private void hexStart()
+        {
+            while (true)
+            {
+                if (files.Count == 0 || files == null)
+                {
+                    Thread.Sleep(-1);
+                }
+            }
+            
         }
 
         public void addFile(string[] files)
