@@ -73,21 +73,6 @@ namespace USBCAN
             }
         }
 
-        public void readFile(FileStream fs)
-        {
-            using (fs)
-            {
-                StreamReader sr = new StreamReader(fs, Encoding.Default);
-
-                while (!sr.EndOfStream)
-                {
-                    strLineTmp.Add(sr.ReadLine());
-                } 
-            }
-
-            hex();
-        }
-
         public int readFile(string filePath)
         {
             int indexLine = 0;
