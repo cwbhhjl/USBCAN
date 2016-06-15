@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using System.Configuration;
 using System.Collections;
-using System.Threading;
 
 namespace USBCAN
 {

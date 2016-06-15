@@ -55,6 +55,12 @@ namespace USBCAN
                 {
                     ctl.WaitOne();
                 }
+
+                int r = readFile(files.Dequeue());
+                if(r == 1)
+                {
+                    lineToBlock();
+                } 
             }
             
         }
@@ -96,29 +102,8 @@ namespace USBCAN
                 {
                     strLineTmp.Add(sr.ReadLine());
                 }
-                //sr.Close();
-                //line = (string[])strLineTmp.ToArray(typeof(string));
             }
-            //FileStream fs = null;
-            //try
-            //{
-            //    fs = File.OpenRead(driverPath);
-            //    using (StreamReader sr = new StreamReader(fs, Encoding.Default))
-            //    {
-            //        while (!sr.EndOfStream)
-            //        {
-            //            strLineTmp.Add(sr.ReadLine());
-            //        }
-            //    }
-            //    line = (string[])strLineTmp.ToArray(typeof(string));
-            //}
-            //finally
-            //{
-            //    if(fs!=null)
-            //    {
-            //        fs.Dispose();
-            //    }
-            //}
+
             for (int i = 0; i < strLineTmp.Count; i++)
             {
                 byte checkSum = 0;
@@ -129,7 +114,7 @@ namespace USBCAN
                     strLineTmp.Remove(strLineTmp[i]);
                     i--;
                 }
-                if (tmp.Equals("S1") || tmp.Equals("S2") || tmp.Equals("S3"))
+                else if (tmp.Equals("S1") || tmp.Equals("S2") || tmp.Equals("S3"))
                 {
                     byte tmpAddressLen = 0;
                     s19LineTmp.Add(new S19Line());
@@ -170,6 +155,10 @@ namespace USBCAN
                     {
                         return 0;
                     }
+                }
+                else
+                {
+                    return -1;
                 }
                 indexLine = 0;
             }
@@ -271,11 +260,6 @@ namespace USBCAN
                     {
                         currentBlockLengthByte[3 - i] = (byte)((currentBlockLength & (0xff * (uint)Math.Pow(0x100, i))) >> 8 * i);
                     }
-
-                    //currentBlockLengthByte[3] = (byte)(currentBlockLength & 0xff);
-                    //currentBlockLengthByte[2] = (byte)((currentBlockLength & 0xff00)>>8);
-                    //currentBlockLengthByte[1] = (byte)((currentBlockLength & 0xff0000) >> 16);
-                    //currentBlockLengthByte[0] = (byte)((currentBlockLength & 0xff000000) >> 24);
 
                     s19BlockTmp.Add(
                         new S19Block(
