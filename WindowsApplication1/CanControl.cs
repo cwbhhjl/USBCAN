@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -183,6 +184,8 @@ namespace USBCAN
         private static byte[] rev = new byte[8];
         public static byte[] send = new byte[8];
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
+        public static VCI_CAN_OBJ[] objs;
+        //public static List<VCI_CAN_OBJ> objs = new List<VCI_CAN_OBJ>();
 
         private static CanControl canCtl;
 
@@ -300,6 +303,11 @@ namespace USBCAN
             }
 
             int len = data.Length;
+            byte N_PCI = 0x00;
+            byte FS, BS, STmin, SN;
+
+            obj.ID = canID;
+
             if (len <= 7)
             {
                 data.CopyTo(send, 0);
@@ -307,7 +315,7 @@ namespace USBCAN
                 {
                     send[i] = 0xFF;
                 }
-                obj.ID = canID;
+                
                 fixed (byte* pData = obj.Data)
                 {
                     pData[0] = (byte)len;
@@ -332,6 +340,85 @@ namespace USBCAN
             }
             else
             {
+                N_PCI = 0x01;
+                fixed (byte* pData = obj.Data)
+                {
+                    pData[0] = (byte)(((N_PCI << 4) & 0xF0) | ((len / 0x100) & 0x0F));
+                    pData[1] = (byte)(len & 0xFF);
+
+                    for (int n = 0; n < 6; n++)
+                    {
+                        pData[n + 2] =  data[n];
+                    }                                     
+                }
+
+                VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+
+                int start = Environment.TickCount;
+                while (Math.Abs(Environment.TickCount - start) < 75)
+                {
+                    if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
+                    {
+                        canLastReceive(receiveID);
+                        break;
+                    }
+                }
+
+                if(rev[0] == 0x30)
+                {
+                    BS = rev[1];
+                    STmin = rev[2];
+                    SN = 1;
+                    int index = 6;
+
+                    int BlockNums = (int)Math.Ceiling((len + 1) / 6.0) - 1;                   
+
+                    for(int i = 0; i < BlockNums; i++)
+                    {
+                        for(byte j = 0; j < BS; j++)
+                        {
+                            fixed (byte* pData = obj.Data)
+                            {
+                                pData[0] = (byte)(0x20 | SN);
+                                for (int n = 0; n < 7; n++)
+                                {
+                                    pData[n + 1] = n < len - 6 - 7 * i ? data[index] : (byte)0xFF;
+                                    index++;
+                                }     
+                            }
+                            VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+                            if (index >= len)
+                            {
+                                break;
+                            }
+                            SN++;
+                            SN = SN > 0x0F ? (byte)1 : SN;
+                        }
+                        Flash.Delay(STmin);
+
+                        start = Environment.TickCount;
+                        while (Math.Abs(Environment.TickCount - start) < 75)
+                        {
+                            if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
+                            {
+                                canLastReceive(receiveID);
+                                break;
+                            }
+                        }
+
+                        if(i == BlockNums - 1)
+                        {
+                            break;
+                        }
+                        if(rev[0] == 30)
+                        {
+                            BS = rev[1];
+                            STmin = rev[2];
+                            continue;
+                        }
+                    }
+                }
+
                 return -3;
             }
 
