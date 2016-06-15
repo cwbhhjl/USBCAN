@@ -18,14 +18,15 @@ namespace USBCAN
         private bool flashFlag = false;
         private bool sendFlag = false;
         private bool afterKeepFlag = false;
-
-        private byte securityAccessType;
+       
         private byte[] securityAccess;
+        private byte securityAccessType;
 
         private IDictionary carSelected = null;
         private IDictionary flashProcess = null;
+
         private Security sec = null;
-        private CanControl canCtl = CanControl.getCanControl();
+        private CanControl canCtl = null;
 
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
 
@@ -49,13 +50,17 @@ namespace USBCAN
         public Flash(IDictionary carSelected)
         {
             this.carSelected = carSelected;
-            flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");           
+            flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");
+                     
             physicalID = Convert.ToUInt32(carSelected["PhysicalID"].ToString(), 16);
             functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
-            securityAccessType = Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16);
-            securityAccess = CanControl.canStringToByte(carSelected["SecurityAccessType"].ToString());
+            
+            securityAccess = CanControl.canStringToByte(carSelected["SecurityAccess"].ToString());
+            securityAccessType = securityAccess[0];
+
             sec = new Security(securityAccess[1]);
+            canCtl = CanControl.getCanControl();
         }
 
         public void init()
@@ -111,7 +116,7 @@ namespace USBCAN
                     {
                         case "SecurityAccess":
                             securityAccessType = afterKeepFlag ? (byte)(securityAccessType - 1) : securityAccessType;
-                            if(securityAccessType != Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16))
+                            if(securityAccessType != securityAccess[0])
                             {
                                 byte[] key;
                                 byte[] seed = new byte[4];
@@ -127,11 +132,11 @@ namespace USBCAN
                                 sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString() + " " + securityAccessType.ToString()));
                             }                                                   
                             securityAccessType++;
-                            if(securityAccessType - Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16) == 2)
+                            if(securityAccessType - securityAccess[0] == 2)
                             {
                                 break;
                             }
-                            currentCan = securityAccessType != Convert.ToByte(carSelected["SecurityAccessType"].ToString(), 16) ? currentCan - 1 : currentCan;
+                            currentCan = securityAccessType != securityAccess[0] ? currentCan - 1 : currentCan;
                             break;
                         default:
                             sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString()));
@@ -170,17 +175,6 @@ namespace USBCAN
                     }
 
                     handleCan();
-                    //if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
-                    //{
-                    //    currentCan++;
-                    //}
-                    //else
-                    //{
-                    //    switch (CanControl.Rev[1])
-                    //    {
-
-                    //    }
-                    //}
 
                     sendFlag = true;
                     Monitor.Pulse(canCtl);
