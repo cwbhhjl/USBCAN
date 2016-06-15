@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Text;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.Configuration;
 using System.Collections;
-using System.IO;
-
 
 namespace USBCAN
 {
@@ -14,10 +10,22 @@ namespace USBCAN
         IDictionary carSelected = null;
         Flash flash;
         HexS19 s19 = new HexS19();
+        OpenFileDialog openS19Dialog = new OpenFileDialog();
 
         public Form1()
         {
             InitializeComponent();
+
+            openS19Dialog.InitialDirectory = Environment.CurrentDirectory;
+            openS19Dialog.Title = "请选择您要烧写的文件";
+            openS19Dialog.Filter = "文本文件 (*.txt)|*.txt|S19 文件 (*.s19)|*.s19|所有文件 (*.*)|*.*";
+            openS19Dialog.FilterIndex = 2;
+            openS19Dialog.AddExtension = true;
+            openS19Dialog.RestoreDirectory = true;
+            openS19Dialog.CheckFileExists = true;
+            openS19Dialog.CheckPathExists = true;
+            openS19Dialog.Multiselect = true;
+            openS19Dialog.FileOk += new System.ComponentModel.CancelEventHandler(openFileDialog1_FileOk);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -71,23 +79,18 @@ namespace USBCAN
 
         private void button_LoadS19_Click(object sender, EventArgs e)
         {
-            Stream myStream = null;
-            OpenFileDialog openS19Dialog = new OpenFileDialog();
-
-            openS19Dialog.InitialDirectory = System.Environment.CurrentDirectory;
-            openS19Dialog.Filter = "文本文件 (*.txt)|*.txt|S19 文件 (*.s19)|*.s19";
-            openS19Dialog.FilterIndex = 2;
-            openS19Dialog.RestoreDirectory = true;
-
+            openS19Dialog.ShowDialog();
+            /*
             if (openS19Dialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
                     if ((myStream = openS19Dialog.OpenFile()) != null)
                     {
+                        myStream.Close(); 
                         if (s19.readFile(openS19Dialog.FileName) == 1)
-                        {
-                            s19.lineToBlock();
+                        {                           
+                            s19.lineToBlock();                           
                         }
                         else
                         {
@@ -100,6 +103,14 @@ namespace USBCAN
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
                 }
             }
+            */
+        }
+
+        private void openFileDialog1_FileOk(object sender,System.ComponentModel.CancelEventArgs e)
+        {
+            string[] files = openS19Dialog.FileNames;
+            openS19Dialog.InitialDirectory = files[0].Substring(0, files[0].LastIndexOfAny("\\".ToCharArray()));
+            s19.addFile(files);
         }
     }
 }

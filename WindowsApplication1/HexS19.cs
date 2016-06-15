@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace USBCAN
@@ -12,16 +14,26 @@ namespace USBCAN
         private const byte S3AddressLen = 4;
         private const byte S5AddressLen = 2;
 
+        private Queue<string> files = new Queue<string>();
+
         private S19Line[] s19Line = null;
         private S19Block[] s19Block = null;
 
-        private ArrayList strLineTmp = null;
+        private List<string> strLineTmp = null;
 
         internal S19Block[] S19Block
         {
             get
             {
                 return s19Block;
+            }
+        }
+
+        public void addFile(string[] files)
+        {
+            foreach(string file in files)
+            {
+                this.files.Enqueue(file);
             }
         }
 
@@ -43,8 +55,8 @@ namespace USBCAN
         public int readFile(string filePath)
         {
             int indexLine = 0;
-            ArrayList s19LineTmp = new ArrayList();
-            strLineTmp = new ArrayList();
+            List<S19Line> s19LineTmp = new List<S19Line>();
+            strLineTmp = new List<string>();
             string tmp;
 
             using (FileStream fs = File.OpenRead(filePath))
@@ -80,7 +92,7 @@ namespace USBCAN
             for (int i = 0; i < strLineTmp.Count; i++)
             {
                 byte checkSum = 0;
-                tmp = ((string)strLineTmp[i]).Substring(indexLine, 2);
+                tmp = strLineTmp[i].Substring(indexLine, 2);
                 indexLine += 2;
                 if (tmp.Equals("S0") || tmp.Equals("S7") || tmp.Equals("S8") || tmp.Equals("S9"))
                 {
@@ -91,8 +103,8 @@ namespace USBCAN
                 {
                     byte tmpAddressLen = 0;
                     s19LineTmp.Add(new S19Line());
-                    S19Line tmpS19 = ((S19Line)s19LineTmp[i]);
-                    tmpS19.num = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                    S19Line tmpS19 = s19LineTmp[i];
+                    tmpS19.num = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
                     checkSum += tmpS19.num;
 
                     switch (tmp)
@@ -108,7 +120,7 @@ namespace USBCAN
                     for (int a = 0; a < tmpAddressLen; a++)
                     {
 
-                        tmpS19.lineAddress[a] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        tmpS19.lineAddress[a] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
                         tmpS19.lineAddressAll += (uint)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
                         indexLine += 2;
                         checkSum += tmpS19.lineAddress[a];
@@ -116,11 +128,11 @@ namespace USBCAN
                     tmpS19.date = new byte[tmpS19.num];
                     for (int j = 0; j < tmpS19.date.Length; j++)
                     {
-                        tmpS19.date[j] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        tmpS19.date[j] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
                         checkSum += tmpS19.date[j];
                         indexLine += 2;
                     }
-                    if ((0xff - checkSum) == Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16))
+                    if ((0xff - checkSum) == Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16))
                     {
                         tmpS19.sumCheck = (byte)(0xff - checkSum);
                     }
@@ -131,21 +143,21 @@ namespace USBCAN
                 }
                 indexLine = 0;
             }
-            s19Line = (S19Line[])s19LineTmp.ToArray(typeof(S19Line));
+            s19Line = s19LineTmp.ToArray();
             return 1;
         }
 
         private void hex()
         {
             int indexLine = 0;
-            ArrayList s19LineTmp = new ArrayList();
-            strLineTmp = new ArrayList();
+            List<S19Line> s19LineTmp = new List<S19Line>();
+            strLineTmp = new List<string>();
             string tmp;
 
             for (int i = 0; i < strLineTmp.Count; i++)
             {
                 byte checkSum = 0;
-                tmp = ((string)strLineTmp[i]).Substring(indexLine, 2);
+                tmp = strLineTmp[i].Substring(indexLine, 2);
                 indexLine += 2;
                 if (tmp.Equals("S0") || tmp.Equals("S7") || tmp.Equals("S8") || tmp.Equals("S9"))
                 {
@@ -156,8 +168,8 @@ namespace USBCAN
                 {
                     byte tmpAddressLen = 0;
                     s19LineTmp.Add(new S19Line());
-                    S19Line tmpS19 = ((S19Line)s19LineTmp[i]);
-                    tmpS19.num = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                    S19Line tmpS19 = s19LineTmp[i];
+                    tmpS19.num = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
                     checkSum += tmpS19.num;
 
                     switch (tmp)
@@ -173,7 +185,7 @@ namespace USBCAN
                     for (int a = 0; a < tmpAddressLen; a++)
                     {
 
-                        tmpS19.lineAddress[a] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        tmpS19.lineAddress[a] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
                         tmpS19.lineAddressAll += (ushort)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
                         indexLine += 2;
                         checkSum += tmpS19.lineAddress[a];
@@ -181,11 +193,11 @@ namespace USBCAN
                     tmpS19.date = new byte[tmpS19.num];
                     for (int j = 0; j < tmpS19.date.Length; j++)
                     {
-                        tmpS19.date[j] = Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16);
+                        tmpS19.date[j] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
                         checkSum += tmpS19.date[j];
                         indexLine += 2;
                     }
-                    if ((0xff - checkSum) == Convert.ToByte(((string)strLineTmp[i]).Substring(indexLine, 2), 16))
+                    if ((0xff - checkSum) == Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16))
                     {
                         tmpS19.sumCheck = (byte)(0xff - checkSum);
                     }
@@ -196,13 +208,13 @@ namespace USBCAN
                 }
                 indexLine = 0;
             }
-            s19Line = (S19Line[])s19LineTmp.ToArray(typeof(S19Line));
+            s19Line = s19LineTmp.ToArray();
         }
 
         public void lineToBlock()
         {
-            ArrayList s19BlockTmp = new ArrayList();
-            ArrayList s19BlockData = new ArrayList();
+            List<S19Block> s19BlockTmp = new List<S19Block>();
+            List<byte> s19BlockData = new List<byte>();
 
             int currentBlockIndex = 0;
             byte[] currentBlockAddress = s19Line[0].lineAddress;
@@ -238,8 +250,8 @@ namespace USBCAN
                     s19BlockTmp.Add(
                         new S19Block(
                             s19Line[currentBlockIndex].lineAddress, 
-                            currentBlockLengthByte, 
-                            (byte[])s19BlockData.ToArray(typeof(byte))
+                            currentBlockLengthByte,
+                            s19BlockData.ToArray()
                             ));
 
                     if (lineNum + 1 >= s19Line.Length)
@@ -248,12 +260,12 @@ namespace USBCAN
                     }
                     //blockNum++;
                     currentBlockIndex = lineNum + 1;
-                    s19BlockData = new ArrayList();
+                    s19BlockData = new List<byte>();
                     currentBlockLength = 0;
                     currentBlockAddress = s19Line[lineNum + 1].lineAddress;
                 }
             }
-            s19Block = (S19Block[])s19BlockTmp.ToArray(typeof(S19Block));
+            s19Block = s19BlockTmp.ToArray();
             return;
         }
     }

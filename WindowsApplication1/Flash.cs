@@ -105,9 +105,9 @@ namespace USBCAN
                         {
                             Monitor.Wait(canCtl);
                         }
-                        catch
+                        catch(Exception ex)
                         {
-
+                            
                         }
                     }
 

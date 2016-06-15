@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 //1.ZLGCAN系列接口卡信息的数据类型。
@@ -536,7 +537,7 @@ namespace USBCAN
             }
 
             VCI_CAN_OBJ objTmp;
-            ArrayList canObj = new ArrayList();
+            List<VCI_CAN_OBJ> canObj = new List<VCI_CAN_OBJ>();
 
             IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * 50);
             res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, 50, 100);
@@ -586,12 +587,12 @@ namespace USBCAN
         public static byte[] canStringToByte(string str)
         {
             string[] strTmp = str.Split(' ');
-            ArrayList byteTmp = new ArrayList();
+            List<byte> byteTmp = new List<byte>();
             foreach (string i in strTmp)
             {
                 byteTmp.Add(Convert.ToByte(i, 16));
             }
-            return (byte[])byteTmp.ToArray(typeof(byte));
+            return byteTmp.ToArray();
         }
     }
 }
