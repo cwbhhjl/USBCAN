@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Windows.Forms;
 
 //1.ZLGCAN系列接口卡信息的数据类型。
 public struct VCI_BOARD_INFO

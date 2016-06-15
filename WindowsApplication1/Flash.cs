@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -12,18 +14,23 @@ namespace USBCAN
         private uint functionID;
         private uint receiveID;
 
-        private uint currentCan = 0;
+        private uint processIndex = 0;
         private string processStr = null;
 
         private bool flashFlag = false;
         private bool sendFlag = false;
         private bool afterKeepFlag = false;
-       
+
+        private byte ServiceIdentifier;
+        private int Error;
+        private List<byte> mainSendData;
+
         private byte[] securityAccess;
         private byte securityAccessType;
 
         private IDictionary carSelected = null;
         private IDictionary flashProcess = null;
+        private IDictionary sequence = null;
 
         private Security sec = null;
         private CanControl canCtl = null;
@@ -51,7 +58,8 @@ namespace USBCAN
         {
             this.carSelected = carSelected;
             flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");
-                     
+            sequence = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashSequence"].ToString());
+
             physicalID = Convert.ToUInt32(carSelected["PhysicalID"].ToString(), 16);
             functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
@@ -74,17 +82,18 @@ namespace USBCAN
         {
             sendThread = new Thread(new ParameterizedThreadStart(sendStart));
             handleThread = new Thread(new ParameterizedThreadStart(handleStart));
+
             sendThread.Start();
             handleThread.Start();
+
             sendThread.Join();
             handleThread.Join();
         }
 
         void sendStart(object obj)
         {
-            IDictionary sequence = (IDictionary)ConfigurationManager.GetSection("FlashConfig/" + carSelected["FlashSequence"].ToString());
             string indexStrTmp = null;
-            int sendError = 0;
+            Error = 0;
 
             while (flashFlag)
             {
@@ -102,15 +111,17 @@ namespace USBCAN
                         }
                     }
 
-                    currentCan = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(currentCan + 1) : currentCan;
+                    processIndex = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(processIndex + 1) : processIndex;
 
-                    if (currentCan == 6)
+                    if (processIndex == 6)
                     {
                         break;
                     }
 
-                    indexStrTmp = currentCan.ToString();
+                    indexStrTmp = processIndex.ToString();
                     processStr = sequence[indexStrTmp].ToString();
+                    mainSendData = CanControl.canStringToByte(flashProcess[processStr].ToString()).ToList();
+                    ServiceIdentifier = mainSendData[0];
 
                     switch (processStr)
                     {
@@ -118,34 +129,37 @@ namespace USBCAN
                             securityAccessType = afterKeepFlag ? (byte)(securityAccessType - 1) : securityAccessType;
                             if(securityAccessType != securityAccess[0])
                             {
-                                byte[] key;
                                 byte[] seed = new byte[4];
                                 for(int i = 0; i < 4; i++)
                                 {
                                     seed[i] = CanControl.Rev[3 + i];
                                 }
-                                key = sec.seedToKey(seed);
-                                sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString() + " " + securityAccessType.ToString() + " " + Convert.ToString(key[0], 16) + " " + Convert.ToString(key[1], 16) + " " + Convert.ToString(key[2], 16) + " " + Convert.ToString(key[3], 16)));
+                                byte[] key = sec.seedToKey(seed);
+
+                                mainSendData.Add(securityAccessType);
+                                mainSendData.AddRange(key);                           
                             }
                             else
                             {
-                                sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString() + " " + securityAccessType.ToString()));
-                            }                                                   
+                                mainSendData.Add(securityAccessType);                               
+                            }
+
+                            Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                             securityAccessType++;
                             if(securityAccessType - securityAccess[0] == 2)
                             {
                                 break;
                             }
-                            currentCan = securityAccessType != securityAccess[0] ? currentCan - 1 : currentCan;
+                            processIndex = securityAccessType != securityAccess[0] ? processIndex - 1 : processIndex;
                             break;
                         default:
-                            sendError = CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess[processStr].ToString()));
+                            Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                             break;
                     }
 
                     afterKeepFlag = false;
 
-                    if (sendError < 0)
+                    if (Error < 0)
                     {
                         break;
                     }
@@ -185,9 +199,9 @@ namespace USBCAN
 
         private void handleCan()
         {
-            if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
+            if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
             {
-                currentCan++;
+                processIndex++;
             }
             else if (CanControl.Rev[1] == SI.NRSI)
             {
@@ -200,7 +214,7 @@ namespace USBCAN
                         }
                         if(CanControl.Rev[1] == CanControl.send[0] + 0x40)
                         {
-                            currentCan++;
+                            processIndex++;
                             break;
                         }
                         flashFlag = false;
