@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="CanControl.cs" />
     <Compile Include="CanLog.cs" />
+    <Compile Include="CRC32.cs" />
     <Compile Include="Flash.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
