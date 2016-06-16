@@ -20,13 +20,17 @@ namespace USBCAN
         private bool flashFlag = false;
         private bool sendFlag = false;
         private bool afterKeepFlag = false;
+        private bool downloadFlag = false;
 
         private byte ServiceIdentifier;
         private int Error;
         private List<byte> mainSendData;
+        private int bootCacheLength;
 
         private byte[] securityAccess;
         private byte securityAccessType;
+
+        private S19Block[] s19File;
 
         private IDictionary carSelected = null;
         private IDictionary flashProcess = null;
@@ -34,6 +38,7 @@ namespace USBCAN
 
         private Security sec = null;
         private CanControl canCtl = null;
+        private HexS19 s19 = null;
 
         private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
 
@@ -54,7 +59,7 @@ namespace USBCAN
         private Thread sendThread = null;
         private Thread handleThread = null;
 
-        public Flash(IDictionary carSelected)
+        public Flash(IDictionary carSelected, HexS19 s19)
         {
             this.carSelected = carSelected;
             flashProcess = (IDictionary)ConfigurationManager.GetSection("FlashConfig/Process");
@@ -69,6 +74,7 @@ namespace USBCAN
 
             sec = new Security(securityAccess[1]);
             canCtl = CanControl.getCanControl();
+            this.s19 = s19;
         }
 
         public void init()
@@ -113,7 +119,7 @@ namespace USBCAN
 
                     processIndex = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(processIndex + 1) : processIndex;
 
-                    if (processIndex == 6)
+                    if (processIndex == 7)
                     {
                         break;
                     }
@@ -151,6 +157,14 @@ namespace USBCAN
                                 break;
                             }
                             processIndex = securityAccessType != securityAccess[0] ? processIndex - 1 : processIndex;
+                            break;
+                        case "DownloadRequest":
+                            s19File = s19.getS19Block();
+                            S19Block currentS19Block = s19File[0];
+                            
+                            mainSendData.AddRange(currentS19Block.StartAddress);
+                            mainSendData.AddRange(currentS19Block.DataLength);
+                            Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                             break;
                         default:
                             Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
@@ -199,37 +213,51 @@ namespace USBCAN
 
         private void handleCan()
         {
-            if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
+            switch (CanControl.Rev[1])
             {
-                processIndex++;
-            }
-            else if (CanControl.Rev[1] == SI.NRSI)
-            {
-                switch (CanControl.Rev[3])
-                {
-                    case NRC.RCRRP:
-                        while (CanControl.canLastReceive(receiveID) == null || CanControl.Rev[1] == SI.NRSI)
-                        {
-                            Delay(10);
-                        }
-                        if(CanControl.Rev[1] == CanControl.send[0] + 0x40)
-                        {
-                            processIndex++;
+                case SI.NRSI:
+                    switch (CanControl.Rev[3])
+                    {
+                        case NRC.RCRRP:
+                            while (CanControl.canLastReceive(receiveID) == null || CanControl.Rev[1] == SI.NRSI)
+                            {
+                                Delay(10);
+                            }
+                            if (CanControl.Rev[1] == ServiceIdentifier + 0x40)
+                            {
+                                processIndex++;
+                                break;
+                            }
+                            flashFlag = false;
                             break;
-                        }
-                        flashFlag = false;
-                        break;
-                    case NRC.RTDNE:
-                        for(int c = 0; c < 4; c++)
-                        {
-                            keepAlive();
-                            Delay(3500);
-                        }
-                        afterKeepFlag = true;
-                        break;
-                    default:
-                        break;
-                }
+                        case NRC.RTDNE:
+                            for (int c = 0; c < 4; c++)
+                            {
+                                keepAlive();
+                                Delay(3000);
+                            }
+                            afterKeepFlag = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+
+                case SI.RDSI + 0x40:
+                    int lengthFormatIdentifier = CanControl.Rev[2] >> 4;
+                    for(int i = 0; i < lengthFormatIdentifier; i++)
+                    {
+                        bootCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
+                    }
+                    processIndex++;
+                    break;
+
+                default:
+                    if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
+                    {
+                        processIndex++;
+                    }
+                    break;
             }
         }
 

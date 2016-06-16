@@ -45,18 +45,29 @@ namespace USBCAN
             {
                 MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
 
             if (s19.S19Block == null)
             {
                 MessageBox.Show("请选择s19文件", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
             }
 
+            if (flash == null)
+            {
+                MessageBox.Show("请选择车型", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            flash.flashThread.Start();
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
         {
+            flash = null;
             comboBox_Config.Items.Clear();
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             int confnum = config.GetSectionGroup("CarConfig").Sections.Count;
@@ -72,9 +83,8 @@ namespace USBCAN
         {
             string car = (string)comboBox_Config.SelectedItem;
             carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
-            flash = new Flash(carSelected);
+            flash = new Flash(carSelected ,s19);
             flash.init();
-            flash.flashThread.Start();
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)
@@ -89,5 +99,6 @@ namespace USBCAN
             s19.addFile(files);
             s19.wakeUpHexThread();
         }
+        
     }
 }

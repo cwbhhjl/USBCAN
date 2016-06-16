@@ -87,6 +87,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.AutoSize = true;
             this.groupBox3.Controls.Add(this.button_LoadS19);
             this.groupBox3.Controls.Add(this.comboBox_Config);
             this.groupBox3.Controls.Add(this.button_Flash);
@@ -95,15 +96,14 @@
             this.groupBox3.Size = new System.Drawing.Size(642, 394);
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "发送数据帧";
-            //this.groupBox3.Enter += new System.EventHandler(this.groupBox3_Enter);
             // 
             // FormMain
             // 
+            this.AcceptButton = this.button_Flash;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(666, 461);
+            this.ClientSize = new System.Drawing.Size(666, 440);
             this.Controls.Add(this.groupBox3);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -113,6 +113,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox3.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

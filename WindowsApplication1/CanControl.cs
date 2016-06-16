@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-//1.ZLGCAN系列接口卡信息的数据类型。
+/// <summary>
+/// ZLGCAN系列接口卡信息的数据类型
+/// </summary>
 public struct VCI_BOARD_INFO
 {
     public ushort hw_Version;
@@ -19,16 +21,17 @@ public struct VCI_BOARD_INFO
     public byte[] Reserved;
 }
 
-/////////////////////////////////////////////////////
-//2.定义CAN信息帧的数据类型。
-unsafe public struct VCI_CAN_OBJ  //使用不安全代码
+/// <summary>
+/// 定义CAN信息帧的数据类型
+/// </summary>
+unsafe public struct VCI_CAN_OBJ
 {
     public uint ID;
     public uint TimeStamp;
     public byte TimeFlag;
     public byte SendType;
-    public byte RemoteFlag;//是否是远程帧
-    public byte ExternFlag;//是否是扩展帧
+    public byte RemoteFlag;
+    public byte ExternFlag;
     public byte DataLen;
 
     public fixed byte Data[8];
@@ -36,29 +39,9 @@ unsafe public struct VCI_CAN_OBJ  //使用不安全代码
     public fixed byte Reserved[3];
 }
 
-////2.定义CAN信息帧的数据类型。
-//public struct VCI_CAN_OBJ 
-//{
-//    public UInt32 ID;
-//    public UInt32 TimeStamp;
-//    public byte TimeFlag;
-//    public byte SendType;
-//    public byte RemoteFlag;//是否是远程帧
-//    public byte ExternFlag;//是否是扩展帧
-//    public byte DataLen;
-//    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-//    public byte[] Data;
-//    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-//    public byte[] Reserved;
-
-//    public void Init()
-//    {
-//        Data = new byte[8];
-//        Reserved = new byte[3];
-//    }
-//}
-
-//3.定义CAN控制器状态的数据类型。
+/// <summary>
+/// 定义CAN控制器状态的数据类型
+/// </summary>
 public struct VCI_CAN_STATUS
 {
     public byte ErrInterrupt;
@@ -73,7 +56,9 @@ public struct VCI_CAN_STATUS
     public byte[] Reserved;
 }
 
-//4.定义错误信息的数据类型。
+/// <summary>
+/// 定义错误信息的数据类型
+/// </summary>
 public struct VCI_ERR_INFO
 {
     public uint ErrCode;
@@ -83,7 +68,9 @@ public struct VCI_ERR_INFO
     public byte ArLost_ErrData;
 }
 
-//5.定义初始化CAN的数据类型
+/// <summary>
+/// 定义初始化CAN的数据类型
+/// </summary>
 public struct VCI_INIT_CONFIG
 {
     public uint AccCode;
@@ -416,7 +403,7 @@ namespace USBCAN
                     }
                 }
 
-                return -3;
+                return 0;
             }
 
         }

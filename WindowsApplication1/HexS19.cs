@@ -73,6 +73,11 @@ namespace USBCAN
             }
         }
 
+        public S19Block[] getS19Block()
+        {
+            return s19Files.Dequeue();
+        }
+
         public int readFile(string filePath)
         {
             int indexLine = 0;
@@ -300,6 +305,30 @@ namespace USBCAN
         private byte[] startAddress = new byte[4];
         private byte[] dataLength = new byte[4];
         private byte[] data;
+
+        public byte[] StartAddress
+        {
+            get
+            {
+                return startAddress;
+            }
+        }
+
+        public byte[] DataLength
+        {
+            get
+            {
+                return dataLength;
+            }
+        }
+
+        public byte[] Data
+        {
+            get
+            {
+                return data;
+            }
+        }
 
         public S19Block(byte[] startAddress, byte[] dataLength, byte[] data)
         {
