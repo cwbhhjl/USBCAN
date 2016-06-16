@@ -355,9 +355,10 @@ namespace USBCAN
                     SN = 1;
                     int index = 6;
 
-                    int BlockNums = (int)Math.Ceiling((len + 1) / 6.0) - 1;                   
+                    int BlockNums = (int)Math.Ceiling((len + 1) / 6.0) - 1;
+                    int dataCount = (int)Math.Ceiling((len - 6) / 7.0);
 
-                    for(int i = 0; i < BlockNums; i++)
+                    for (int i = 0; i < dataCount; )
                     {
                         for(byte j = 0; j < BS; j++)
                         {
@@ -371,12 +372,13 @@ namespace USBCAN
                                 }     
                             }
                             VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+                            i++;
                             if (index >= len)
                             {
                                 break;
                             }
                             SN++;
-                            SN = SN > 0x0F ? (byte)1 : SN;
+                            SN = SN > 0x0F ? (byte)0 : SN;
                         }
                         Flash.Delay(STmin);
 

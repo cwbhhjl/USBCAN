@@ -25,7 +25,12 @@ namespace USBCAN
         private byte ServiceIdentifier;
         private int Error;
         private List<byte> mainSendData;
+
         private int bootCacheLength;
+        private byte bootCacheBlockSequenceCounter = 0x01;
+        private int bootCacheBlockSequenceIndex = 0x00;
+        private uint s19BlockIndex = 0;
+        S19Block currentS19Block = null;
 
         private byte[] securityAccess;
         private byte securityAccessType;
@@ -119,7 +124,7 @@ namespace USBCAN
 
                     processIndex = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(processIndex + 1) : processIndex;
 
-                    if (processIndex == 7)
+                    if (processIndex == 8)
                     {
                         break;
                     }
@@ -158,14 +163,35 @@ namespace USBCAN
                             }
                             processIndex = securityAccessType != securityAccess[0] ? processIndex - 1 : processIndex;
                             break;
+
                         case "DownloadRequest":
                             s19File = s19.getS19Block();
-                            S19Block currentS19Block = s19File[0];
+                            currentS19Block = s19File[s19BlockIndex];
                             
                             mainSendData.AddRange(currentS19Block.StartAddress);
                             mainSendData.AddRange(currentS19Block.DataLength);
                             Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                             break;
+
+                        case "DataTransfer":
+                            int bootCacheBlockDataIndex = bootCacheBlockSequenceIndex * (bootCacheLength - 2);
+                            mainSendData.Clear();
+                            mainSendData.Add(SI.TDSI);
+                            mainSendData.Add(bootCacheBlockSequenceCounter);
+                            for(int i =0; i < bootCacheLength-2; i++)
+                            {
+                                int indexTmp = bootCacheBlockDataIndex + i;
+                                if (indexTmp >= currentS19Block.Data.Length)
+                                {
+                                    break;
+                                }
+                                mainSendData.Add(currentS19Block.Data[indexTmp]);
+                            }
+                            bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
+                            bootCacheBlockSequenceIndex++;
+                            Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                            break;
+
                         default:
                             Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                             break;
@@ -223,13 +249,15 @@ namespace USBCAN
                             {
                                 Delay(10);
                             }
-                            if (CanControl.Rev[1] == ServiceIdentifier + 0x40)
-                            {
-                                processIndex++;
-                                break;
-                            }
-                            flashFlag = false;
+                            handleCan();
+                            //if (CanControl.Rev[1] == ServiceIdentifier + 0x40)
+                            //{
+                            //    processIndex++;
+                            //    break;
+                            //}
+                            //flashFlag = false;
                             break;
+
                         case NRC.RTDNE:
                             for (int c = 0; c < 4; c++)
                             {
@@ -238,6 +266,7 @@ namespace USBCAN
                             }
                             afterKeepFlag = true;
                             break;
+
                         default:
                             break;
                     }
@@ -252,10 +281,17 @@ namespace USBCAN
                     processIndex++;
                     break;
 
+                //case SI.TDSI + 0x40:
+                //    break;
+
                 default:
                     if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
                     {
                         processIndex++;
+                    }
+                    else
+                    {
+                        flashFlag = false;
                     }
                     break;
             }
