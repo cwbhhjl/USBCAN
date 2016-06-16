@@ -116,15 +116,31 @@ namespace USBCAN
 
                     tmpS19.num = (byte)(tmpS19.num - tmpAddressLen - 1);
                     indexLine += 2;
-                    tmpS19.lineAddress = new byte[tmpAddressLen];
-                    for (int a = 0; a < tmpAddressLen; a++)
+                    tmpS19.lineAddress = new byte[4];
+                    tmpS19.lineAddress.Initialize();
+                    for (int a = 0; a < 4; a++)
                     {
-
-                        tmpS19.lineAddress[a] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
-                        tmpS19.lineAddressAll += (uint)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
-                        indexLine += 2;
-                        checkSum += tmpS19.lineAddress[a];
+                        int indexTmp = 4 - tmpAddressLen + a;
+                        if (indexTmp < 4)
+                        {
+                            tmpS19.lineAddress[indexTmp] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
+                            tmpS19.lineAddressAll += (uint)(tmpS19.lineAddress[indexTmp] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
+                            indexLine += 2;
+                            checkSum += tmpS19.lineAddress[indexTmp];
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
+                    //for (int a = 0; a < tmpAddressLen; a++)
+                    //{
+
+                    //    tmpS19.lineAddress[a] = Convert.ToByte(strLineTmp[i].Substring(indexLine, 2), 16);
+                    //    tmpS19.lineAddressAll += (uint)(tmpS19.lineAddress[a] * (Math.Pow(0x100, tmpAddressLen - a - 1)));
+                    //    indexLine += 2;
+                    //    checkSum += tmpS19.lineAddress[a];
+                    //}
                     tmpS19.date = new byte[tmpS19.num];
                     for (int j = 0; j < tmpS19.date.Length; j++)
                     {
@@ -281,14 +297,16 @@ namespace USBCAN
 
     class S19Block
     {
-        private byte[] startAddress;
-        private byte[] dataLength;
+        private byte[] startAddress = new byte[4];
+        private byte[] dataLength = new byte[4];
         private byte[] data;
+
         public S19Block(byte[] startAddress, byte[] dataLength, byte[] data)
         {
-            this.startAddress = startAddress;
-            this.dataLength = (byte[])dataLength.Clone();
-            this.data = data;
+            startAddress.CopyTo(this.startAddress, 0);
+            dataLength.CopyTo(this.dataLength, 0);
+            this.data = data;      
         }
+
     }
 }
