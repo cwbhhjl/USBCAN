@@ -295,11 +295,11 @@ namespace USBCAN
             if (len <= 7)
             {
                 data.CopyTo(send, 0);
-                for(int i = data.Length; i < send.Length; i++)
+                for (int i = data.Length; i < send.Length; i++)
                 {
                     send[i] = 0xFF;
                 }
-                
+
                 fixed (byte* pData = obj.Data)
                 {
                     pData[0] = (byte)len;
@@ -332,8 +332,8 @@ namespace USBCAN
 
                     for (int n = 0; n < 6; n++)
                     {
-                        pData[n + 2] =  data[n];
-                    }                                     
+                        pData[n + 2] = data[n];
+                    }
                 }
 
                 VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
@@ -348,7 +348,7 @@ namespace USBCAN
                     }
                 }
 
-                if(rev[0] == 0x30)
+                if (rev[0] == 0x30)
                 {
                     BS = rev[1];
                     STmin = rev[2];
@@ -358,9 +358,9 @@ namespace USBCAN
                     int BlockNums = (int)Math.Ceiling((len + 1) / 6.0) - 1;
                     int dataCount = (int)Math.Ceiling((len - 6) / 7.0);
 
-                    for (int i = 0; i < dataCount; )
+                    for (int i = 0; i < dataCount;)
                     {
-                        for(byte j = 0; j < BS; j++)
+                        for (byte j = 0; j < BS; j++)
                         {
                             fixed (byte* pData = obj.Data)
                             {
@@ -369,7 +369,7 @@ namespace USBCAN
                                 {
                                     pData[n + 1] = n < len - 6 - 7 * i ? data[index] : (byte)0xFF;
                                     index++;
-                                }     
+                                }
                             }
                             VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
                             i++;
@@ -392,11 +392,11 @@ namespace USBCAN
                             }
                         }
 
-                        if(i == BlockNums - 1)
+                        if (i == BlockNums - 1)
                         {
                             break;
                         }
-                        if(rev[0] == 30)
+                        if (rev[0] == 30)
                         {
                             BS = rev[1];
                             STmin = rev[2];

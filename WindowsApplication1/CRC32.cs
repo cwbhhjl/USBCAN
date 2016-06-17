@@ -56,7 +56,7 @@ namespace USBCAN
             return crc ^ 0xFFFFFFFF;
         }
 
-        public static uint GetCRC32(byte[] bytes ,uint startIndex)
+        public static uint GetCRC32(byte[] bytes, uint startIndex)
         {
             int iCount = bytes.Length;
             uint crc = 0xFFFFFFFF;
@@ -68,11 +68,11 @@ namespace USBCAN
         }
 
         public static uint GetCRC32(string filePath)
-        {        
+        {
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {
                 byte[] re = new byte[fs.Length];
-                fs.Read(re,0,(int)fs.Length);
+                fs.Read(re, 0, (int)fs.Length);
                 return GetCRC32(re);
             }
         }
@@ -85,7 +85,7 @@ namespace USBCAN
             return CRC32Cls.GetCRC32(li.ToArray());
         }
 
-        public static uint GetCRC_Custom(byte[] bytes ,uint startIndex)
+        public static uint GetCRC_Custom(byte[] bytes, uint startIndex)
         {
             GetCrcCustomTable();
             int iCount = bytes.Length;

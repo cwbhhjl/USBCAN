@@ -64,7 +64,7 @@ namespace USBCAN
 
         private byte[] securityAlgorithm_1(byte[] seed)
         {
-            uint keyInt = securityAlgorithm_1(BitConverter.ToUInt32(seed,0));
+            uint keyInt = securityAlgorithm_1(BitConverter.ToUInt32(seed, 0));
             return BitConverter.GetBytes(keyInt);
         }
 

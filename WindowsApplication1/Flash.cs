@@ -74,7 +74,7 @@ namespace USBCAN
             physicalID = Convert.ToUInt32(carSelected["PhysicalID"].ToString(), 16);
             functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
-            
+
             securityAccess = CanControl.canStringToByte(carSelected["SecurityAccess"].ToString());
             securityAccessType = securityAccess[0];
 
@@ -116,9 +116,9 @@ namespace USBCAN
                         {
                             Monitor.Wait(canCtl);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
-                            
+
                         }
                     }
 
@@ -145,7 +145,7 @@ namespace USBCAN
         void sendCan()
         {
             string indexStrTmp = null;
-            processIndex = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(processIndex + 1) : processIndex;    
+            processIndex = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(processIndex + 1) : processIndex;
 
             indexStrTmp = processIndex.ToString();
             processStr = sequence[indexStrTmp].ToString();
@@ -286,7 +286,7 @@ namespace USBCAN
 
                 case SI.RDSI + 0x40:
                     int lengthFormatIdentifier = CanControl.Rev[2] >> 4;
-                    for(int i = 0; i < lengthFormatIdentifier; i++)
+                    for (int i = 0; i < lengthFormatIdentifier; i++)
                     {
                         bootCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
                     }

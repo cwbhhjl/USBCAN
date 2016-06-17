@@ -57,17 +57,17 @@ namespace USBCAN
                 }
 
                 int r = readFile(files.Dequeue());
-                if(r == 1)
+                if (r == 1)
                 {
                     lineToBlock();
-                } 
+                }
             }
-            
+
         }
 
         public void addFile(string[] files)
         {
-            foreach(string file in files)
+            foreach (string file in files)
             {
                 this.files.Enqueue(file);
             }
@@ -269,7 +269,7 @@ namespace USBCAN
 
                     s19BlockTmp.Add(
                         new S19Block(
-                            s19Line[currentBlockIndex].lineAddress, 
+                            s19Line[currentBlockIndex].lineAddress,
                             currentBlockLengthByte,
                             s19BlockData.ToArray()
                             ));
@@ -334,7 +334,7 @@ namespace USBCAN
         {
             startAddress.CopyTo(this.startAddress, 0);
             dataLength.CopyTo(this.dataLength, 0);
-            this.data = data;      
+            this.data = data;
         }
 
     }

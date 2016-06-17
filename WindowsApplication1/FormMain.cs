@@ -83,7 +83,7 @@ namespace USBCAN
         {
             string car = (string)comboBox_Config.SelectedItem;
             carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
-            flash = new Flash(carSelected ,s19);
+            flash = new Flash(carSelected, s19);
             flash.init();
         }
 
@@ -92,13 +92,13 @@ namespace USBCAN
             openS19Dialog.ShowDialog();
         }
 
-        private void openFileDialog1_FileOk(object sender,System.ComponentModel.CancelEventArgs e)
+        private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             string[] files = openS19Dialog.FileNames;
             openS19Dialog.InitialDirectory = files[0].Substring(0, files[0].LastIndexOfAny("\\".ToCharArray()));
             s19.addFile(files);
             s19.wakeUpHexThread();
         }
-        
+
     }
 }
