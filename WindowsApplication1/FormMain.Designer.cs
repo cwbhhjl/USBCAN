@@ -1,4 +1,6 @@
-﻿namespace USBCAN
+﻿using System;
+
+namespace USBCAN
 {
     partial class FormMain
     {
@@ -33,8 +35,16 @@
             this.button_LoadS19 = new System.Windows.Forms.Button();
             this.button_Flash = new System.Windows.Forms.Button();
             this.comboBox_Config = new System.Windows.Forms.ComboBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.groupBox3.SuspendLayout();
+            this.openS19Dialog = new System.Windows.Forms.OpenFileDialog();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.groupBox = new System.Windows.Forms.GroupBox();
+            this.FileBox = new System.Windows.Forms.ListBox();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.Panel2.SuspendLayout();
+            this.splitContainer.SuspendLayout();
+            this.groupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox2
@@ -56,9 +66,9 @@
             // 
             // button_LoadS19
             // 
-            this.button_LoadS19.Location = new System.Drawing.Point(435, 46);
+            this.button_LoadS19.Location = new System.Drawing.Point(3, 3);
             this.button_LoadS19.Name = "button_LoadS19";
-            this.button_LoadS19.Size = new System.Drawing.Size(75, 23);
+            this.button_LoadS19.Size = new System.Drawing.Size(207, 35);
             this.button_LoadS19.TabIndex = 8;
             this.button_LoadS19.Text = "加载S19";
             this.button_LoadS19.UseVisualStyleBackColor = true;
@@ -66,9 +76,9 @@
             // 
             // button_Flash
             // 
-            this.button_Flash.Location = new System.Drawing.Point(583, 47);
+            this.button_Flash.Location = new System.Drawing.Point(332, 6);
             this.button_Flash.Name = "button_Flash";
-            this.button_Flash.Size = new System.Drawing.Size(53, 23);
+            this.button_Flash.Size = new System.Drawing.Size(90, 32);
             this.button_Flash.TabIndex = 8;
             this.button_Flash.Text = "烧写";
             this.button_Flash.UseVisualStyleBackColor = true;
@@ -78,24 +88,76 @@
             // 
             this.comboBox_Config.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Config.FormattingEnabled = true;
-            this.comboBox_Config.Location = new System.Drawing.Point(516, 49);
+            this.comboBox_Config.Location = new System.Drawing.Point(3, 3);
             this.comboBox_Config.Name = "comboBox_Config";
-            this.comboBox_Config.Size = new System.Drawing.Size(61, 20);
+            this.comboBox_Config.Size = new System.Drawing.Size(66, 20);
             this.comboBox_Config.TabIndex = 9;
             this.comboBox_Config.SelectedIndexChanged += new System.EventHandler(this.comboBox_Config_SelectedIndexChanged);
             this.comboBox_Config.Click += new System.EventHandler(this.comboBox_Config_Click);
             // 
-            // groupBox3
+            // openS19Dialog
             // 
-            this.groupBox3.AutoSize = true;
-            this.groupBox3.Controls.Add(this.button_LoadS19);
-            this.groupBox3.Controls.Add(this.comboBox_Config);
-            this.groupBox3.Controls.Add(this.button_Flash);
-            this.groupBox3.Location = new System.Drawing.Point(13, 29);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(642, 394);
-            this.groupBox3.TabIndex = 6;
-            this.groupBox3.TabStop = false;
+            this.openS19Dialog.Filter = "文本文件 (*.txt)|*.txt|S19 文件 (*.s19)|*.s19|所有文件 (*.*)|*.*";
+            this.openS19Dialog.FilterIndex = 2;
+            this.openS19Dialog.InitialDirectory = "D:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE";
+            this.openS19Dialog.Multiselect = true;
+            this.openS19Dialog.RestoreDirectory = true;
+            this.openS19Dialog.Title = "请选择您要烧写的文件";
+            this.openS19Dialog.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
+            // 
+            // splitContainer
+            // 
+            this.splitContainer.Location = new System.Drawing.Point(12, 12);
+            this.splitContainer.Name = "splitContainer";
+            // 
+            // splitContainer.Panel1
+            // 
+            this.splitContainer.Panel1.Controls.Add(this.groupBox);
+            this.splitContainer.Panel1.Controls.Add(this.button_LoadS19);
+            // 
+            // splitContainer.Panel2
+            // 
+            this.splitContainer.Panel2.Controls.Add(this.progressBar);
+            this.splitContainer.Panel2.Controls.Add(this.comboBox_Config);
+            this.splitContainer.Panel2.Controls.Add(this.button_Flash);
+            this.splitContainer.Size = new System.Drawing.Size(642, 416);
+            this.splitContainer.SplitterDistance = 213;
+            this.splitContainer.TabIndex = 7;
+            // 
+            // groupBox
+            // 
+            this.groupBox.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.groupBox.Controls.Add(this.FileBox);
+            this.groupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox.Location = new System.Drawing.Point(0, 47);
+            this.groupBox.Name = "groupBox";
+            this.groupBox.Size = new System.Drawing.Size(213, 369);
+            this.groupBox.TabIndex = 9;
+            this.groupBox.TabStop = false;
+            this.groupBox.Text = "File Box";
+            // 
+            // FileBox
+            // 
+            this.FileBox.AllowDrop = true;
+            this.FileBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.FileBox.FormattingEnabled = true;
+            this.FileBox.ItemHeight = 12;
+            this.FileBox.Location = new System.Drawing.Point(3, 17);
+            this.FileBox.Name = "FileBox";
+            this.FileBox.Size = new System.Drawing.Size(207, 349);
+            this.FileBox.TabIndex = 0;
+            this.FileBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileBox_DragDrop);
+            this.FileBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileBox_DragEnter);
+            this.FileBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FileBox_MouseDown);
+            // 
+            // progressBar
+            // 
+            this.progressBar.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            this.progressBar.Location = new System.Drawing.Point(3, 381);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(419, 32);
+            this.progressBar.TabIndex = 10;
+            this.progressBar.Visible = false;
             // 
             // FormMain
             // 
@@ -104,16 +166,19 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(666, 440);
-            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.splitContainer);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "FormMain";
             this.Text = "USBCAN2-FLASH";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.groupBox3.ResumeLayout(false);
+            this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
+            this.groupBox.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -123,7 +188,11 @@
         private System.Windows.Forms.Button button_LoadS19;
         private System.Windows.Forms.Button button_Flash;
         private System.Windows.Forms.ComboBox comboBox_Config;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.OpenFileDialog openS19Dialog;
+        private System.Windows.Forms.SplitContainer splitContainer;
+        private System.Windows.Forms.ProgressBar progressBar;
+        private System.Windows.Forms.GroupBox groupBox;
+        private System.Windows.Forms.ListBox FileBox;
     }
 }
 

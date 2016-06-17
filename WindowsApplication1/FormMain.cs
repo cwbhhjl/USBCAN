@@ -10,22 +10,10 @@ namespace USBCAN
         IDictionary carSelected = null;
         Flash flash = null;
         HexS19 s19 = new HexS19();
-        OpenFileDialog openS19Dialog = new OpenFileDialog();
 
         public FormMain()
         {
             InitializeComponent();
-
-            openS19Dialog.InitialDirectory = Environment.CurrentDirectory;
-            openS19Dialog.Title = "请选择您要烧写的文件";
-            openS19Dialog.Filter = "文本文件 (*.txt)|*.txt|S19 文件 (*.s19)|*.s19|所有文件 (*.*)|*.*";
-            openS19Dialog.FilterIndex = 2;
-            openS19Dialog.AddExtension = true;
-            openS19Dialog.RestoreDirectory = true;
-            openS19Dialog.CheckFileExists = true;
-            openS19Dialog.CheckPathExists = true;
-            openS19Dialog.Multiselect = true;
-            openS19Dialog.FileOk += new System.ComponentModel.CancelEventHandler(openFileDialog1_FileOk);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -99,6 +87,73 @@ namespace USBCAN
             s19.addFile(files);
             s19.wakeUpHexThread();
         }
-        
+
+        private void FileBox_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                foreach (string s in files)
+                {
+                    if (s.EndsWith(".s19") || s.EndsWith(".S19"))
+                    {
+                        (sender as ListBox).Items.Add(new FileBoxItem(s));
+                    }
+                }
+            }
+        }
+
+        private void FileBox_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.StringFormat))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+        }
+
+        private void FileBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            int index = ((ListBox)sender).IndexFromPoint(e.X, e.Y);
+
+            if ((index & 0xFFFFFFFF) == 0xFFFFFFFF || e.Button == MouseButtons.Middle)
+            {
+                return;
+            }
+
+            if(e.Button == MouseButtons.Right)
+            {
+                (sender as ListBox).Items.RemoveAt(index);
+            }
+            else
+            {
+                (sender as ListBox).DoDragDrop((sender as ListBox).Items[index], DragDropEffects.Move);
+                //DragDropEffects dde1 = DoDragDrop((sender as ListBox).Items[index], DragDropEffects.Move);
+            }
+        }
     }
+
+	class FileBoxItem
+	{
+		private string fileName = null;
+		private string filePath = null;
+
+        public string FilePath
+        {
+            get
+            {
+                return filePath;
+            }
+        }
+
+        override public string ToString()
+		{
+			return fileName;
+		}
+
+		internal FileBoxItem(string filePath)
+		{
+			this.filePath = filePath;
+			fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
+		}
+	}
 }
