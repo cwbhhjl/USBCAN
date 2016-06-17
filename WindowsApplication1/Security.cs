@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace USBCAN
 {
@@ -22,23 +23,26 @@ namespace USBCAN
         {
             switch (securityAlgorithmType)
             {
-                case 0:
+                case 0x00:
                     return securityAlgorithm_0(seed);
-                case 1:
+                case 0x01:
                     return securityAlgorithm_1(seed);
-
+                default:
+                    return 0;
             }
-            return 0;
         }
 
         public byte[] seedToKey(byte[] seed)
         {
             switch (securityAlgorithmType)
             {
-                case 0x0:
+                case 0x00:
                     return securityAlgorithm_0(seed);
+                case 0x01:
+                    return securityAlgorithm_1(seed);
+                default:
+                    return null;
             }
-            return null;
         }
 
         private uint securityAlgorithm_1(uint seed)
@@ -58,6 +62,12 @@ namespace USBCAN
             return seed;
         }
 
+        private byte[] securityAlgorithm_1(byte[] seed)
+        {
+            uint keyInt = securityAlgorithm_1(BitConverter.ToUInt32(seed,0));
+            return BitConverter.GetBytes(keyInt);
+        }
+
         private uint securityAlgorithm_0(uint seed)
         {
             return (seed ^ MASK_DEFAULT) + MASK_DEFAULT;
@@ -68,12 +78,7 @@ namespace USBCAN
             uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
             uint keyInt = (seedInt ^ MASK_DEFAULT) + MASK_DEFAULT;
 
-            byte[] key = new byte[4];
-            for (int i = 0; i < 4; i++)
-            {
-                key[i] = (byte)(keyInt >> (8 * (3 - i)));
-            }
-            return key;
+            return BitConverter.GetBytes(keyInt);
         }
     }
 }

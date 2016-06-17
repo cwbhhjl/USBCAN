@@ -29,6 +29,7 @@ namespace USBCAN
         private int bootCacheLength;
         private byte bootCacheBlockSequenceCounter = 0x01;
         private int bootCacheBlockSequenceIndex = 0x00;
+        private uint bootbootCacheBlockCRC32Value = 0xFFFFFFFF;
         private uint s19BlockIndex = 0;
         S19Block currentS19Block = null;
 
@@ -121,7 +122,7 @@ namespace USBCAN
                         }
                     }
 
-                    if (processIndex == 8)
+                    if (processIndex == 10)
                     {
                         break;
                     }
@@ -206,6 +207,12 @@ namespace USBCAN
                     }
                     bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
                     bootCacheBlockSequenceIndex++;
+                    bootbootCacheBlockCRC32Value = CRC32.GetCRC32(mainSendData.ToArray());
+                    Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    break;
+
+                case "RoutineIdentifier":
+                    mainSendData.AddRange(BitConverter.GetBytes(bootbootCacheBlockCRC32Value));
                     Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 
