@@ -43,6 +43,8 @@ namespace USBCAN
             0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
         };
 
+        static protected uint[] CrcCustomTable;
+
         public static uint GetCRC32(byte[] bytes)
         {
             int iCount = bytes.Length;
@@ -50,6 +52,17 @@ namespace USBCAN
             for (int i = 0; i < iCount; i++)
             {
                 crc = ((crc >> 8) & 0x00FFFFFF) ^ crcTable[(crc ^ bytes[i]) & 0xFF];
+            }
+            return crc ^ 0xFFFFFFFF;
+        }
+
+        public static uint GetCRC32(byte[] bytes ,uint startIndex)
+        {
+            int iCount = bytes.Length;
+            uint crc = 0xFFFFFFFF;
+            for (int i = 0; i < iCount - startIndex; i++)
+            {
+                crc = ((crc >> 8) & 0x00FFFFFF) ^ crcTable[(crc ^ bytes[i + startIndex]) & 0xFF];
             }
             return crc ^ 0xFFFFFFFF;
         }
@@ -62,6 +75,83 @@ namespace USBCAN
                 fs.Read(re,0,(int)fs.Length);
                 return GetCRC32(re);
             }
+        }
+
+        public static uint GetCRC32ByCRC32Cls(byte[] bytes)
+        {
+            List<byte> li = bytes.ToList();
+            li.RemoveAt(0);
+            li.RemoveAt(0);
+            return CRC32Cls.GetCRC32(li.ToArray());
+        }
+
+        public static uint GetCRC_Custom(byte[] bytes ,uint startIndex)
+        {
+            GetCrcCustomTable();
+            int iCount = bytes.Length;
+            uint crc = 0xFFFFFFFF;
+            for (int i = 0; i < iCount - startIndex; i++)
+            {
+                crc = (crc << 8) ^ CrcCustomTable[((crc >> 24) ^ bytes[i + startIndex]) & 0xFF];
+            }
+            return crc ^ 0xFFFFFFFF;
+        }
+
+        static public void GetCrcCustomTable()
+        {
+            uint Crc;
+            CrcCustomTable = new uint[256];
+            int i, j;
+            for (i = 0; i < 256; i++)
+            {
+                Crc = (uint)i << 24;
+                for (j = 8; j > 0; j--)
+                {
+                    if ((Crc & 0x80000000) != 0)
+                        Crc = Crc << 1 ^ 0x04C11DB7;
+                    else
+                        Crc <<= 1;
+                }
+                CrcCustomTable[i] = Crc;
+            }
+        }
+    }
+
+    class CRC32Cls
+    {
+        static protected uint[] Crc32Table;
+        //生成CRC32码表
+        static public void GetCRC32Table()
+        {
+            uint Crc;
+            Crc32Table = new uint[256];
+            int i, j;
+            for (i = 0; i < 256; i++)
+            {
+                Crc = (uint)i;
+                for (j = 8; j > 0; j--)
+                {
+                    if ((Crc & 1) == 1)
+                        Crc = (Crc >> 1) ^ 0xEDB88320;
+                    else
+                        Crc >>= 1;
+                }
+                Crc32Table[i] = Crc;
+            }
+        }
+
+        //获取字符串的CRC32校验值
+        static public uint GetCRC32(byte[] bytes)
+        {
+            //生成码表
+            GetCRC32Table();
+            uint value = 0xffffffff;
+            int len = bytes.Length;
+            for (int i = 0; i < len; i++)
+            {
+                value = (value >> 8) ^ Crc32Table[(value & 0xFF) ^ bytes[i]];
+            }
+            return value ^ 0xffffffff;
         }
     }
 }

@@ -207,7 +207,7 @@ namespace USBCAN
                     }
                     bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
                     bootCacheBlockSequenceIndex++;
-                    bootbootCacheBlockCRC32Value = CRC32.GetCRC32(mainSendData.ToArray());
+                    bootbootCacheBlockCRC32Value = CRC32.GetCRC_Custom(mainSendData.ToArray(), 2);
                     Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 

@@ -78,7 +78,23 @@ namespace USBCAN
             uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
             uint keyInt = (seedInt ^ MASK_DEFAULT) + MASK_DEFAULT;
 
-            return BitConverter.GetBytes(keyInt);
+            byte[] key = BitConverter.GetBytes(keyInt);
+            Array.Reverse(key);
+
+            return key;
+        }
+
+        private byte[] securityAlgorithm_00(byte[] seed)
+        {
+            uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
+            uint keyInt = (seedInt ^ MASK_DEFAULT) + MASK_DEFAULT;
+
+            byte[] key = new byte[4];
+            for (int i = 0; i < 4; i++)
+            {
+                key[i] = (byte)(keyInt >> (8 * (3 - i)));
+            }
+            return key;
         }
     }
 }
