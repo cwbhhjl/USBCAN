@@ -30,55 +30,62 @@ namespace USBCAN
         /// </summary>
         private void InitializeComponent()
         {
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.listBox_Info = new System.Windows.Forms.ListBox();
+            System.Windows.Forms.Label label_car;
             this.button_LoadS19 = new System.Windows.Forms.Button();
             this.button_Flash = new System.Windows.Forms.Button();
             this.comboBox_Config = new System.Windows.Forms.ComboBox();
             this.openS19Dialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.groupBox = new System.Windows.Forms.GroupBox();
+            this.groupBox_File = new System.Windows.Forms.GroupBox();
             this.FileBox = new System.Windows.Forms.ListBox();
+            this.listBox = new System.Windows.Forms.ListBox();
+            this.label_Version = new System.Windows.Forms.Label();
+            this.textBox_Car = new System.Windows.Forms.TextBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.menuStrip_Main = new System.Windows.Forms.MenuStrip();
+            this.toolStripMenuI_Start = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem_Car = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem_Flash = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolStripMenuItem_Version = new System.Windows.Forms.ToolStripMenuItem();
+            label_car = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
-            this.groupBox.SuspendLayout();
+            this.groupBox_File.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.menuStrip_Main.SuspendLayout();
             this.SuspendLayout();
             // 
-            // groupBox2
+            // label_car
             // 
-            this.groupBox2.Location = new System.Drawing.Point(0, 0);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 100);
-            this.groupBox2.TabIndex = 0;
-            this.groupBox2.TabStop = false;
-            // 
-            // listBox_Info
-            // 
-            this.listBox_Info.FormattingEnabled = true;
-            this.listBox_Info.ItemHeight = 12;
-            this.listBox_Info.Location = new System.Drawing.Point(12, 28);
-            this.listBox_Info.Name = "listBox_Info";
-            this.listBox_Info.Size = new System.Drawing.Size(624, 172);
-            this.listBox_Info.TabIndex = 0;
+            label_car.AutoSize = true;
+            label_car.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            label_car.Location = new System.Drawing.Point(11, 6);
+            label_car.Name = "label_car";
+            label_car.Size = new System.Drawing.Size(65, 20);
+            label_car.TabIndex = 13;
+            label_car.Text = "车型选择";
             // 
             // button_LoadS19
             // 
+            this.button_LoadS19.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button_LoadS19.Location = new System.Drawing.Point(3, 3);
             this.button_LoadS19.Name = "button_LoadS19";
             this.button_LoadS19.Size = new System.Drawing.Size(207, 35);
             this.button_LoadS19.TabIndex = 8;
-            this.button_LoadS19.Text = "加载S19";
+            this.button_LoadS19.Text = "加载烧写文件";
             this.button_LoadS19.UseVisualStyleBackColor = true;
             this.button_LoadS19.Click += new System.EventHandler(this.button_LoadS19_Click);
             // 
             // button_Flash
             // 
-            this.button_Flash.Location = new System.Drawing.Point(332, 6);
+            this.button_Flash.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Flash.Location = new System.Drawing.Point(353, 6);
             this.button_Flash.Name = "button_Flash";
-            this.button_Flash.Size = new System.Drawing.Size(90, 32);
+            this.button_Flash.Size = new System.Drawing.Size(69, 37);
             this.button_Flash.TabIndex = 8;
             this.button_Flash.Text = "烧写";
             this.button_Flash.UseVisualStyleBackColor = true;
@@ -88,7 +95,7 @@ namespace USBCAN
             // 
             this.comboBox_Config.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Config.FormattingEnabled = true;
-            this.comboBox_Config.Location = new System.Drawing.Point(3, 3);
+            this.comboBox_Config.Location = new System.Drawing.Point(82, 6);
             this.comboBox_Config.Name = "comboBox_Config";
             this.comboBox_Config.Size = new System.Drawing.Size(66, 20);
             this.comboBox_Config.TabIndex = 9;
@@ -107,34 +114,39 @@ namespace USBCAN
             // 
             // splitContainer
             // 
-            this.splitContainer.Location = new System.Drawing.Point(12, 12);
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitContainer.Location = new System.Drawing.Point(0, 28);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.groupBox);
+            this.splitContainer.Panel1.Controls.Add(this.groupBox_File);
             this.splitContainer.Panel1.Controls.Add(this.button_LoadS19);
             // 
             // splitContainer.Panel2
             // 
+            this.splitContainer.Panel2.Controls.Add(this.listBox);
+            this.splitContainer.Panel2.Controls.Add(this.label_Version);
+            this.splitContainer.Panel2.Controls.Add(label_car);
+            this.splitContainer.Panel2.Controls.Add(this.textBox_Car);
             this.splitContainer.Panel2.Controls.Add(this.progressBar);
             this.splitContainer.Panel2.Controls.Add(this.comboBox_Config);
             this.splitContainer.Panel2.Controls.Add(this.button_Flash);
-            this.splitContainer.Size = new System.Drawing.Size(642, 416);
-            this.splitContainer.SplitterDistance = 213;
+            this.splitContainer.Size = new System.Drawing.Size(666, 416);
+            this.splitContainer.SplitterDistance = 220;
             this.splitContainer.TabIndex = 7;
             // 
-            // groupBox
+            // groupBox_File
             // 
-            this.groupBox.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.groupBox.Controls.Add(this.FileBox);
-            this.groupBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox.Location = new System.Drawing.Point(0, 47);
-            this.groupBox.Name = "groupBox";
-            this.groupBox.Size = new System.Drawing.Size(213, 369);
-            this.groupBox.TabIndex = 9;
-            this.groupBox.TabStop = false;
-            this.groupBox.Text = "File Box";
+            this.groupBox_File.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.groupBox_File.Controls.Add(this.FileBox);
+            this.groupBox_File.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox_File.Location = new System.Drawing.Point(0, 47);
+            this.groupBox_File.Name = "groupBox_File";
+            this.groupBox_File.Size = new System.Drawing.Size(220, 369);
+            this.groupBox_File.TabIndex = 9;
+            this.groupBox_File.TabStop = false;
+            this.groupBox_File.Text = "待烧写的文件";
             // 
             // FileBox
             // 
@@ -144,20 +156,109 @@ namespace USBCAN
             this.FileBox.ItemHeight = 12;
             this.FileBox.Location = new System.Drawing.Point(3, 17);
             this.FileBox.Name = "FileBox";
-            this.FileBox.Size = new System.Drawing.Size(207, 349);
+            this.FileBox.Size = new System.Drawing.Size(214, 349);
             this.FileBox.TabIndex = 0;
             this.FileBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileBox_DragDrop);
             this.FileBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileBox_DragEnter);
             this.FileBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FileBox_MouseDown);
             // 
+            // listBox
+            // 
+            this.listBox.FormattingEnabled = true;
+            this.listBox.ItemHeight = 12;
+            this.listBox.Location = new System.Drawing.Point(3, 54);
+            this.listBox.Name = "listBox";
+            this.listBox.Size = new System.Drawing.Size(419, 328);
+            this.listBox.TabIndex = 15;
+            // 
+            // label_Version
+            // 
+            this.label_Version.AutoSize = true;
+            this.label_Version.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label_Version.Location = new System.Drawing.Point(179, 6);
+            this.label_Version.Name = "label_Version";
+            this.label_Version.Size = new System.Drawing.Size(51, 20);
+            this.label_Version.TabIndex = 14;
+            this.label_Version.Text = "版本号";
+            // 
+            // textBox_Car
+            // 
+            this.textBox_Car.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.textBox_Car.ImeMode = System.Windows.Forms.ImeMode.Disable;
+            this.textBox_Car.Location = new System.Drawing.Point(236, 6);
+            this.textBox_Car.Name = "textBox_Car";
+            this.textBox_Car.ReadOnly = true;
+            this.textBox_Car.ShortcutsEnabled = false;
+            this.textBox_Car.Size = new System.Drawing.Size(74, 21);
+            this.textBox_Car.TabIndex = 12;
+            this.textBox_Car.TabStop = false;
+            // 
             // progressBar
             // 
             this.progressBar.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.progressBar.Location = new System.Drawing.Point(3, 381);
+            this.progressBar.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.progressBar.Location = new System.Drawing.Point(0, 394);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(419, 32);
+            this.progressBar.Size = new System.Drawing.Size(442, 22);
             this.progressBar.TabIndex = 10;
             this.progressBar.Visible = false;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.menuStrip_Main);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(666, 29);
+            this.panel1.TabIndex = 8;
+            // 
+            // menuStrip_Main
+            // 
+            this.menuStrip_Main.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.menuStrip_Main.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuI_Start});
+            this.menuStrip_Main.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip_Main.Name = "menuStrip_Main";
+            this.menuStrip_Main.Size = new System.Drawing.Size(666, 25);
+            this.menuStrip_Main.TabIndex = 0;
+            this.menuStrip_Main.Text = "menuStrip1";
+            // 
+            // toolStripMenuI_Start
+            // 
+            this.toolStripMenuI_Start.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ToolStripMenuItem,
+            this.toolStripMenuItem_Car,
+            this.toolStripMenuItem_Flash,
+            this.ToolStripMenuItem_Version});
+            this.toolStripMenuI_Start.Name = "toolStripMenuI_Start";
+            this.toolStripMenuI_Start.Size = new System.Drawing.Size(44, 21);
+            this.toolStripMenuI_Start.Text = "开始";
+            // 
+            // ToolStripMenuItem
+            // 
+            this.ToolStripMenuItem.Name = "ToolStripMenuItem";
+            this.ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem.Text = "加载文件";
+            this.ToolStripMenuItem.Click += new System.EventHandler(this.button_LoadS19_Click);
+            // 
+            // toolStripMenuItem_Car
+            // 
+            this.toolStripMenuItem_Car.Name = "toolStripMenuItem_Car";
+            this.toolStripMenuItem_Car.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Car.Text = "选择车型";
+            // 
+            // toolStripMenuItem_Flash
+            // 
+            this.toolStripMenuItem_Flash.Name = "toolStripMenuItem_Flash";
+            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Flash.Text = "开始烧写";
+            this.toolStripMenuItem_Flash.Click += new System.EventHandler(this.button_Flash_Click);
+            // 
+            // ToolStripMenuItem_Version
+            // 
+            this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
+            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem_Version.Text = "读取版本号";
             // 
             // FormMain
             // 
@@ -165,9 +266,11 @@ namespace USBCAN
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(666, 440);
+            this.ClientSize = new System.Drawing.Size(666, 444);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.splitContainer);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MainMenuStrip = this.menuStrip_Main;
             this.MaximizeBox = false;
             this.Name = "FormMain";
             this.Text = "USBCAN2-FLASH";
@@ -175,24 +278,37 @@ namespace USBCAN
             this.Load += new System.EventHandler(this.Form1_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
+            this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
-            this.groupBox.ResumeLayout(false);
+            this.groupBox_File.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.menuStrip_Main.ResumeLayout(false);
+            this.menuStrip_Main.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ListBox listBox_Info;
         private System.Windows.Forms.Button button_LoadS19;
         private System.Windows.Forms.Button button_Flash;
         private System.Windows.Forms.ComboBox comboBox_Config;
         private System.Windows.Forms.OpenFileDialog openS19Dialog;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.GroupBox groupBox;
+        private System.Windows.Forms.GroupBox groupBox_File;
         private System.Windows.Forms.ListBox FileBox;
+        private System.Windows.Forms.Label label_Version;
+        private System.Windows.Forms.TextBox textBox_Car;
+        private System.Windows.Forms.ListBox listBox;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.MenuStrip menuStrip_Main;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuI_Start;
+        private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Car;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Flash;
+        private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem_Version;
     }
 }
 
