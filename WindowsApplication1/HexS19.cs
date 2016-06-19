@@ -73,7 +73,7 @@ namespace USBCAN
             }
         }
 
-        public S19Block[] getS19Block()
+        public S19Block[] getS19File()
         {
             return s19Files.Dequeue();
         }

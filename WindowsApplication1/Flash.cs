@@ -14,29 +14,37 @@ namespace USBCAN
         private uint functionID;
         private uint receiveID;
 
+        private byte[] securityAccess;
+
         private uint processIndex = 0;
         private string processStr = null;
 
         private bool flashFlag = false;
         private bool sendFlag = false;
-        private bool afterKeepFlag = false;
-        private bool downloadFlag = false;
 
         private byte ServiceIdentifier;
         private int sendResult;
-        private List<byte> mainSendData;
+        private List<byte> mainSendData = new List<byte>();
 
+        /// <summary>
+        /// 下位机一次能够接受的最大数据长度
+        /// </summary>
         private int bootCacheLength;
         private byte bootCacheBlockSequenceCounter = 0x01;
+        /// <summary>
+        /// 当前的S19Block中数据已经发送的块数
+        /// </summary>
         private int bootCacheBlockSequenceIndex = 0x00;
         private uint bootbootCacheBlockCRC32Value = 0xFFFFFFFF;
         private uint s19BlockIndex = 0;
-        S19Block currentS19Block = null;
-
-        private byte[] securityAccess;
-        private byte securityAccessType;
-
-        private S19Block[] s19File;
+        /// <summary>
+        /// 当前正在发送的S19Block
+        /// </summary>
+        private S19Block s19Block = null;
+        /// <summary>
+        /// 当前发送的S19文件
+        /// </summary>
+        private S19Block[] s19File = null;
 
         private IDictionary carSelected = null;
         private IDictionary flashProcess = null;
@@ -76,9 +84,8 @@ namespace USBCAN
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
 
             securityAccess = CanControl.canStringToByte(carSelected["SecurityAccess"].ToString());
-            securityAccessType = securityAccess[0];
 
-            sec = new Security(securityAccess[1]);
+            sec = new Security(securityAccess[2]);
             canCtl = CanControl.getCanControl();
             this.s19 = s19;
         }
@@ -123,8 +130,6 @@ namespace USBCAN
 
                     sendCan();
 
-                    afterKeepFlag = false;
-
                     if (sendResult < 0)
                     {
                         flashFlag = false;
@@ -138,82 +143,60 @@ namespace USBCAN
 
         void sendCan()
         {
-            string indexStrTmp = null;
-            processIndex = processStr == "SecurityAccess" && afterKeepFlag ? (byte)(processIndex + 1) : processIndex;
-
-            indexStrTmp = processIndex.ToString();
-            processStr = sequence[indexStrTmp].ToString();
-            mainSendData = CanControl.canStringToByte(flashProcess[processStr].ToString()).ToList();
+            processStr = sequence[processIndex.ToString()].ToString();
+            mainSendData.Clear();
+            mainSendData.AddRange(CanControl.canStringToByte(flashProcess[processStr].ToString()));
             ServiceIdentifier = mainSendData[0];
 
             switch (processStr)
             {
-                case "SecurityAccess":
-                    securityAccessType = afterKeepFlag ? (byte)(securityAccessType - 1) : securityAccessType;
-                    if (securityAccessType != securityAccess[0])
-                    {
-                        byte[] seed = new byte[4];
-                        for (int i = 0; i < 4; i++)
-                        {
-                            seed[i] = CanControl.Rev[3 + i];
-                        }
-                        byte[] key = sec.seedToKey(seed);
+                case "SeedRequest":
+                    mainSendData.Add(securityAccess[0]);
+                    break;
 
-                        mainSendData.Add(securityAccessType);
-                        mainSendData.AddRange(key);
-                    }
-                    else
-                    {
-                        mainSendData.Add(securityAccessType);
-                    }
-
-                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
-                    securityAccessType++;
-                    if (securityAccessType - securityAccess[0] == 2)
-                    {
-                        break;
-                    }
-                    processIndex = securityAccessType != securityAccess[0] ? processIndex - 1 : processIndex;
+                case "KeySend":
+                    byte[] seed = new byte[4];
+                    Array.Copy(CanControl.Rev, 3, seed, 0, 4);
+                    byte[] key = sec.seedToKey(seed);
+                    mainSendData.Add(securityAccess[1]);
+                    mainSendData.AddRange(key);
                     break;
 
                 case "DownloadRequest":
-                    s19File = s19.getS19Block();
-                    currentS19Block = s19File[s19BlockIndex];
-
-                    mainSendData.AddRange(currentS19Block.StartAddress);
-                    mainSendData.AddRange(currentS19Block.DataLength);
-                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    s19File = s19File == null ? s19.getS19File() : s19File;
+                    s19Block = s19File[s19BlockIndex];
+                    mainSendData.AddRange(s19Block.StartAddress);
+                    mainSendData.AddRange(s19Block.DataLength);
                     break;
 
                 case "DataTransfer":
                     int bootCacheBlockDataIndex = bootCacheBlockSequenceIndex * (bootCacheLength - 2);
-                    mainSendData.Clear();
-                    mainSendData.Add(SI.TDSI);
+                    //mainSendData.Clear();
+                    //mainSendData.Add(SI.TDSI);
                     mainSendData.Add(bootCacheBlockSequenceCounter);
                     for (int i = 0; i < bootCacheLength - 2; i++)
                     {
                         int indexTmp = bootCacheBlockDataIndex + i;
-                        if (indexTmp >= currentS19Block.Data.Length)
+                        if (indexTmp >= s19Block.Data.Length)
                         {
                             break;
                         }
-                        mainSendData.Add(currentS19Block.Data[indexTmp]);
+                        mainSendData.Add(s19Block.Data[indexTmp]);
                     }
                     bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
                     bootCacheBlockSequenceIndex++;
                     bootbootCacheBlockCRC32Value = CRC32.GetCRC_Custom(mainSendData.ToArray(), 2);
-                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 
                 case "RoutineIdentifier":
                     mainSendData.AddRange(BitConverter.GetBytes(bootbootCacheBlockCRC32Value));
-                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 
                 default:
-                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
             }
+
+            sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
         }
 
         void handleStart(object obj)
@@ -257,10 +240,10 @@ namespace USBCAN
                                 keepAlive();
                                 Delay(2800);
                             }
-                            afterKeepFlag = true;
                             break;
 
                         default:
+                            flashFlag = false;
                             break;
                     }
                     break;
@@ -274,8 +257,26 @@ namespace USBCAN
                     processIndex++;
                     break;
 
-                //case SI.TDSI + 0x40:
-                //    break;
+                case SI.TDSI + 0x40:
+                    if (bootCacheBlockSequenceIndex * (bootCacheLength - 2) >= s19Block.Data.Length)
+                    {
+                        s19BlockIndex++;
+                        processIndex++;                      
+                    }
+                    break;
+
+                case SI.RTESI + 0x40:
+                    if (s19BlockIndex >= s19File.Length)
+                    {
+                        s19File = null;
+                    }
+                    else
+                    {
+                        processIndex--;
+                        bootCacheBlockSequenceIndex = 0;
+                        bootCacheBlockSequenceCounter = 0x01;
+                    }
+                    break;
 
                 default:
                     if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
@@ -297,9 +298,10 @@ namespace USBCAN
                 return null;
             }
 
-            CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString()));
+            byte[] tmp = CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString());
+            CanControl.sendFrame(physicalID, receiveID, tmp);
 
-            if (CanControl.send[0] + 0x40 == CanControl.Rev[1])
+            if (SI.RDBISI + 0x40 == CanControl.Rev[1])
             {
                 return Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16);
             }
@@ -307,12 +309,12 @@ namespace USBCAN
             return "fail";
         }
 
-        public bool keepAlive()
+        private bool keepAlive()
         {
             if (carSelected != null)
             {
                 CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess["PresentTester"].ToString()));
-                return CanControl.send[0] + 0x40 == CanControl.Rev[1];
+                return SI.TPSI + 0x40 == CanControl.Rev[1];
             }
             return false;
         }

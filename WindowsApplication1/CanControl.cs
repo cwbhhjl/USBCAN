@@ -150,7 +150,7 @@ namespace USBCAN
         public static uint canIndex = 0;
 
         private static byte[] rev = new byte[8];
-        public static byte[] send = new byte[8];
+
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
 
         private static CanControl canCtl;
@@ -244,7 +244,6 @@ namespace USBCAN
                 return -1;
             }
 
-            data.CopyTo(send, 0);
             obj.ID = canID;
 
             fixed (byte* pData = obj.Data)
@@ -270,12 +269,6 @@ namespace USBCAN
 
             if (len <= 7)
             {
-                data.CopyTo(send, 0);
-                for (int i = data.Length; i < send.Length; i++)
-                {
-                    send[i] = 0xFF;
-                }
-
                 fixed (byte* pData = obj.Data)
                 {
                     pData[0] = (byte)len;

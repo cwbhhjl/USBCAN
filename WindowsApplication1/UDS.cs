@@ -25,6 +25,14 @@
         /// </summary>
         public const byte NRSI = 0x7F;
         /// <summary>
+        /// Read data by identifier service identifier
+        /// </summary>
+        public const byte RDBISI = 0x22;
+        /// <summary>
+        /// Security access service identifier
+        /// </summary>
+        public const byte SASI = 0x27;
+        /// <summary>
         /// Request download service identifier
         /// </summary>
         public const byte RDSI = 0x34;
@@ -36,6 +44,10 @@
         /// Request transfer exit service identifier
         /// </summary>
         public const byte RTESI = 0x37;
+        /// <summary>
+        /// Tester present request service identifier 
+        /// </summary>
+        public const byte TPSI = 0x3E;
     }
 
     public struct N_PCI
