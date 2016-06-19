@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Configuration;
 using System.Collections;
+using System.Security.Permissions;
 
 namespace USBCAN
 {
@@ -130,6 +131,22 @@ namespace USBCAN
                 //DragDropEffects dde1 = DoDragDrop((sender as ListBox).Items[index], DragDropEffects.Move);
             }
         }
+
+        protected override void WndProc(ref Message m)
+        {
+            //const int WM_DEVICECHANGE = 0x219;
+            //const int WM_DEVICEARRVIAL = 0x8000;//如果m.Msg的值为0x8000那么表示有U盘插入
+            //const int WM_DEVICEMOVECOMPLETE = 0x8004;
+            //switch (m.Msg)
+            //{
+            //    case WM_DEVICECHANGE:
+            //        MessageBox.Show("test"+m.WParam, "错误",
+            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //        break;
+            //}
+            base.WndProc(ref m);
+        }
+
     }
 
     class FileBoxItem
@@ -137,13 +154,7 @@ namespace USBCAN
         private string fileName = null;
         private string filePath = null;
 
-        public string FilePath
-        {
-            get
-            {
-                return filePath;
-            }
-        }
+        public string FilePath { get; }
 
         override public string ToString()
         {

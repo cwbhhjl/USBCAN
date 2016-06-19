@@ -181,28 +181,13 @@ namespace USBCAN
         public static System.Threading.Timer recTimer = null;
 
 
-        public static bool IsOpen
-        {
-            get
-            {
-                return isOpen;
-            }
-        }
+        public static bool IsOpen { get; }
 
-        public static byte[] Rev
-        {
-            get
-            {
-                return rev;
-            }
-        }
+        public static byte[] Rev { get; }
 
         //public static CanLog canLog = new CanLog();
 
-        private CanControl()
-        {
-
-        }
+        private CanControl() { }
 
         public static CanControl getCanControl()
         {
@@ -576,10 +561,7 @@ namespace USBCAN
         {
             string[] strTmp = str.Split(' ');
             List<byte> byteTmp = new List<byte>();
-            foreach (string i in strTmp)
-            {
-                byteTmp.Add(Convert.ToByte(i, 16));
-            }
+            Array.ForEach(strTmp, s => byteTmp.Add(Convert.ToByte(s, 16)));
             return byteTmp.ToArray();
         }
     }

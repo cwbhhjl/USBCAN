@@ -24,13 +24,7 @@ namespace USBCAN
 
         private Queue<S19Block[]> s19Files = new Queue<S19Block[]>();
 
-        internal S19Block[] S19Block
-        {
-            get
-            {
-                return s19Block;
-            }
-        }
+        internal S19Block[] S19Block { get; }
 
         public HexS19()
         {
@@ -67,10 +61,7 @@ namespace USBCAN
 
         public void addFile(string[] files)
         {
-            foreach (string file in files)
-            {
-                this.files.Enqueue(file);
-            }
+            Array.ForEach(files, file => this.files.Enqueue(file));
         }
 
         public S19Block[] getS19Block()
@@ -253,10 +244,7 @@ namespace USBCAN
 
             for (int lineNum = 0; lineNum < s19Line.Length; lineNum++)
             {
-                foreach (byte tmp in s19Line[lineNum].date)
-                {
-                    s19BlockData.Add(tmp);
-                }
+                Array.ForEach(s19Line[lineNum].date, t => s19BlockData.Add(t));
 
                 currentBlockLength += s19Line[lineNum].num;
 
