@@ -149,22 +149,15 @@ namespace USBCAN
         public static uint deviceIndex = 0;
         public static uint canIndex = 0;
 
-        //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
         private static byte[] rev = new byte[8];
         public static byte[] send = new byte[8];
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
-        public static VCI_CAN_OBJ[] objs;
-        //public static List<VCI_CAN_OBJ> objs = new List<VCI_CAN_OBJ>();
 
         private static CanControl canCtl;
 
-        //public uint[] m_arrdevtype = new uint[20];
         public static VCI_ERR_INFO errorInfo = new VCI_ERR_INFO();
 
         public static uint res = 0;
-
-        //public static System.Threading.Timer recTimer = null;
-
 
         public static bool IsOpen
         {
@@ -313,7 +306,7 @@ namespace USBCAN
 
             if (VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1) != 1)
             {
-                return 0;
+                return -5;
             }
 
             if (!waitForResponse(receiveID))
@@ -374,81 +367,10 @@ namespace USBCAN
                     goto handleFlowControl;
 
                 case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.OVFLW:
-                    return -3;
+                    return -4;
 
                 default:
                     return 2;
-            }
-        }
-
-        unsafe public void sendFrames(uint canID, byte[] data)
-        {
-            if (data.Length <= 8)
-            {
-                sendFrame(canID, data);
-                return;
-            }
-            if (!isOpen)
-            {
-                return;
-            }
-            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();//sendobj.Init();
-
-            sendobj.SendType = 0;//正常发送：0；自发自收：2
-            sendobj.RemoteFlag = 0;
-            sendobj.ExternFlag = 0;
-            //sendobj[0].ID = Convert.ToUInt32(canID, 16);
-            sendobj.ID = canID;
-            int len = 8;
-            sendobj.DataLen = Convert.ToByte(len);
-
-            sendobj.Data[0] = (byte)(0x10 | ((data.Length / 0x100) & 0xf));
-            sendobj.Data[1] = (byte)((data.Length % 0x100) & 0xff);
-
-            int index = 0;
-            byte BS, ST, SN = 0;
-            byte BSNumber = 0;
-
-            for (; index < 6; index++)
-            {
-                sendobj.Data[index + 2] = data[index];
-            }
-            VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
-            if (rev[0] == 0x30)
-            {
-                BS = rev[1];
-                ST = rev[2];
-
-                for (; index < data.Length; index += 7)
-                {
-                    Flash.Delay(ST);
-                    SN += 1;
-                    if (SN == 0x10)
-                    {
-                        SN = 0;
-                    }
-                    sendobj.Data[0] = (byte)(SN | 0x20);
-                    for (int i = 1; i < 8; i++, index++)
-                    {
-                        sendobj.Data[i] = data[index];
-                    }
-                    VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
-                    BSNumber += 1;
-                    if (BSNumber == BS)
-                    {
-                        BSNumber = 0;
-                    }
-                    if (rev[0] == 0x30)
-                    {
-                        BS = rev[1];
-                        ST = rev[2];
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
             }
         }
 

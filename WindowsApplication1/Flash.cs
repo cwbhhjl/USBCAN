@@ -23,7 +23,7 @@ namespace USBCAN
         private bool downloadFlag = false;
 
         private byte ServiceIdentifier;
-        private int Error;
+        private int sendResult;
         private List<byte> mainSendData;
 
         private int bootCacheLength;
@@ -104,7 +104,7 @@ namespace USBCAN
 
         void sendStart(object obj)
         {
-            Error = 0;
+            sendResult = 0;
 
             while (flashFlag)
             {
@@ -112,14 +112,8 @@ namespace USBCAN
                 {
                     if (!sendFlag)
                     {
-                        try
-                        {
-                            Monitor.Wait(canCtl);
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
+                        try { Monitor.Wait(canCtl); }
+                        catch { }
                     }
 
                     if (processIndex == 10)
@@ -131,7 +125,7 @@ namespace USBCAN
 
                     afterKeepFlag = false;
 
-                    if (Error < 0)
+                    if (sendResult < 0)
                     {
                         flashFlag = false;
                     }
@@ -173,7 +167,7 @@ namespace USBCAN
                         mainSendData.Add(securityAccessType);
                     }
 
-                    Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     securityAccessType++;
                     if (securityAccessType - securityAccess[0] == 2)
                     {
@@ -188,7 +182,7 @@ namespace USBCAN
 
                     mainSendData.AddRange(currentS19Block.StartAddress);
                     mainSendData.AddRange(currentS19Block.DataLength);
-                    Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 
                 case "DataTransfer":
@@ -208,16 +202,16 @@ namespace USBCAN
                     bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
                     bootCacheBlockSequenceIndex++;
                     bootbootCacheBlockCRC32Value = CRC32.GetCRC_Custom(mainSendData.ToArray(), 2);
-                    Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 
                 case "RoutineIdentifier":
                     mainSendData.AddRange(BitConverter.GetBytes(bootbootCacheBlockCRC32Value));
-                    Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
 
                 default:
-                    Error = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+                    sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
                     break;
             }
         }
@@ -230,14 +224,8 @@ namespace USBCAN
                 {
                     if (sendFlag)
                     {
-                        try
-                        {
-                            Monitor.Wait(canCtl);
-                        }
-                        catch
-                        {
-
-                        }
+                        try { Monitor.Wait(canCtl); }
+                        catch { }
                     }
 
                     handleCan();
@@ -246,7 +234,6 @@ namespace USBCAN
                     Monitor.Pulse(canCtl);
                 }
             }
-            //CanControl.canLastReceive(receiveID);
         }
 
         private void handleCan()
@@ -262,19 +249,13 @@ namespace USBCAN
                                 Delay(10);
                             }
                             handleCan();
-                            //if (CanControl.Rev[1] == ServiceIdentifier + 0x40)
-                            //{
-                            //    processIndex++;
-                            //    break;
-                            //}
-                            //flashFlag = false;
                             break;
 
                         case NRC.RTDNE:
                             for (int c = 0; c < 4; c++)
                             {
                                 keepAlive();
-                                Delay(3000);
+                                Delay(2800);
                             }
                             afterKeepFlag = true;
                             break;
