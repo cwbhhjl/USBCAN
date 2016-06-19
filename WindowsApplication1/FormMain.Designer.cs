@@ -38,10 +38,14 @@ namespace USBCAN
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.groupBox_File = new System.Windows.Forms.GroupBox();
             this.FileBox = new System.Windows.Forms.ListBox();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel_CAN = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel_Error = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel_Flash = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar_Flash = new System.Windows.Forms.ToolStripProgressBar();
             this.listBox = new System.Windows.Forms.ListBox();
             this.label_Version = new System.Windows.Forms.Label();
             this.textBox_Car = new System.Windows.Forms.TextBox();
-            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
             this.menuStrip_Main = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuI_Start = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,6 +59,7 @@ namespace USBCAN
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             this.groupBox_File.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuStrip_Main.SuspendLayout();
             this.SuspendLayout();
@@ -125,11 +130,11 @@ namespace USBCAN
             // 
             // splitContainer.Panel2
             // 
+            this.splitContainer.Panel2.Controls.Add(this.statusStrip);
             this.splitContainer.Panel2.Controls.Add(this.listBox);
             this.splitContainer.Panel2.Controls.Add(this.label_Version);
             this.splitContainer.Panel2.Controls.Add(label_car);
             this.splitContainer.Panel2.Controls.Add(this.textBox_Car);
-            this.splitContainer.Panel2.Controls.Add(this.progressBar);
             this.splitContainer.Panel2.Controls.Add(this.comboBox_Config);
             this.splitContainer.Panel2.Controls.Add(this.button_Flash);
             this.splitContainer.Size = new System.Drawing.Size(666, 416);
@@ -162,11 +167,58 @@ namespace USBCAN
             this.FileBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileBox_DragEnter);
             this.FileBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FileBox_MouseDown);
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel_CAN,
+            this.toolStripStatusLabel_Error,
+            this.toolStripStatusLabel_Flash,
+            this.toolStripProgressBar_Flash});
+            this.statusStrip.Location = new System.Drawing.Point(0, 390);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(442, 26);
+            this.statusStrip.SizingGrip = false;
+            this.statusStrip.TabIndex = 16;
+            this.statusStrip.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel_CAN
+            // 
+            this.toolStripStatusLabel_CAN.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.toolStripStatusLabel_CAN.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel_CAN.Name = "toolStripStatusLabel_CAN";
+            this.toolStripStatusLabel_CAN.Size = new System.Drawing.Size(86, 21);
+            this.toolStripStatusLabel_CAN.Text = "CAN：未连接";
+            // 
+            // toolStripStatusLabel_Error
+            // 
+            this.toolStripStatusLabel_Error.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.toolStripStatusLabel_Error.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel_Error.Margin = new System.Windows.Forms.Padding(10, 3, 0, 2);
+            this.toolStripStatusLabel_Error.Name = "toolStripStatusLabel_Error";
+            this.toolStripStatusLabel_Error.Size = new System.Drawing.Size(60, 21);
+            this.toolStripStatusLabel_Error.Text = "错误：无";
+            // 
+            // toolStripStatusLabel_Flash
+            // 
+            this.toolStripStatusLabel_Flash.Margin = new System.Windows.Forms.Padding(20, 3, 0, 2);
+            this.toolStripStatusLabel_Flash.Name = "toolStripStatusLabel_Flash";
+            this.toolStripStatusLabel_Flash.Size = new System.Drawing.Size(56, 21);
+            this.toolStripStatusLabel_Flash.Text = "刷写进度";
+            // 
+            // toolStripProgressBar_Flash
+            // 
+            this.toolStripProgressBar_Flash.Name = "toolStripProgressBar_Flash";
+            this.toolStripProgressBar_Flash.Size = new System.Drawing.Size(190, 20);
+            // 
             // listBox
             // 
             this.listBox.FormattingEnabled = true;
             this.listBox.ItemHeight = 12;
-            this.listBox.Location = new System.Drawing.Point(3, 54);
+            this.listBox.Location = new System.Drawing.Point(3, 59);
             this.listBox.Name = "listBox";
             this.listBox.Size = new System.Drawing.Size(419, 328);
             this.listBox.TabIndex = 15;
@@ -192,16 +244,6 @@ namespace USBCAN
             this.textBox_Car.Size = new System.Drawing.Size(74, 21);
             this.textBox_Car.TabIndex = 12;
             this.textBox_Car.TabStop = false;
-            // 
-            // progressBar
-            // 
-            this.progressBar.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.progressBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.progressBar.Location = new System.Drawing.Point(0, 394);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(442, 22);
-            this.progressBar.TabIndex = 10;
-            this.progressBar.Visible = false;
             // 
             // panel1
             // 
@@ -237,27 +279,27 @@ namespace USBCAN
             // ToolStripMenuItem
             // 
             this.ToolStripMenuItem.Name = "ToolStripMenuItem";
-            this.ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.ToolStripMenuItem.Text = "加载文件";
             this.ToolStripMenuItem.Click += new System.EventHandler(this.button_LoadS19_Click);
             // 
             // toolStripMenuItem_Car
             // 
             this.toolStripMenuItem_Car.Name = "toolStripMenuItem_Car";
-            this.toolStripMenuItem_Car.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Car.Size = new System.Drawing.Size(136, 22);
             this.toolStripMenuItem_Car.Text = "选择车型";
             // 
             // toolStripMenuItem_Flash
             // 
             this.toolStripMenuItem_Flash.Name = "toolStripMenuItem_Flash";
-            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(136, 22);
             this.toolStripMenuItem_Flash.Text = "开始烧写";
             this.toolStripMenuItem_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // ToolStripMenuItem_Version
             // 
             this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
-            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(136, 22);
             this.ToolStripMenuItem_Version.Text = "读取版本号";
             // 
             // FormMain
@@ -282,6 +324,8 @@ namespace USBCAN
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.groupBox_File.ResumeLayout(false);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.menuStrip_Main.ResumeLayout(false);
@@ -296,7 +340,6 @@ namespace USBCAN
         private System.Windows.Forms.ComboBox comboBox_Config;
         private System.Windows.Forms.OpenFileDialog openS19Dialog;
         private System.Windows.Forms.SplitContainer splitContainer;
-        private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.GroupBox groupBox_File;
         private System.Windows.Forms.ListBox FileBox;
         private System.Windows.Forms.Label label_Version;
@@ -309,6 +352,11 @@ namespace USBCAN
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Car;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Flash;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem_Version;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_CAN;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Error;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Flash;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar_Flash;
     }
 }
 
