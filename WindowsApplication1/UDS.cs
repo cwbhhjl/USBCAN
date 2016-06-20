@@ -25,6 +25,10 @@
         /// </summary>
         public const byte NRSI = 0x7F;
         /// <summary>
+        /// ECU reset service identifier
+        /// </summary>
+        public const byte ERSI = 0x11;
+        /// <summary>
         /// Read data by identifier service identifier
         /// </summary>
         public const byte RDBISI = 0x22;
@@ -32,6 +36,10 @@
         /// Security access service identifier
         /// </summary>
         public const byte SASI = 0x27;
+        /// <summary>
+        /// Communication control service identifier
+        /// </summary>
+        public const byte CCSI = 0x28;
         /// <summary>
         /// Request download service identifier
         /// </summary>

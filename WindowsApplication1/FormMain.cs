@@ -50,7 +50,10 @@ namespace USBCAN
                 return;
             }
 
-            flash.flashThread.Start();
+            if (!flash.flashThread.IsAlive)
+            {
+                flash.flashThread.Start();
+            }
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)

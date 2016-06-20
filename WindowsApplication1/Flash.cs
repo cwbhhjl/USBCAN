@@ -123,11 +123,6 @@ namespace USBCAN
                         catch { }
                     }
 
-                    if (processIndex == 18)
-                    {
-                        break;
-                    }
-
                     sendCan();
 
                     if (sendResult < 0)
@@ -143,7 +138,16 @@ namespace USBCAN
 
         void sendCan()
         {
-            processStr = sequence[processIndex.ToString()].ToString();
+            try
+            {
+                processStr = sequence[processIndex.ToString()].ToString();
+            }
+            catch(NullReferenceException)
+            {
+                flashFlag = false;
+                return;
+            }
+
             mainSendData.Clear();
             mainSendData.AddRange(CanControl.canStringToByte(flashProcess[processStr].ToString()));
             ServiceIdentifier = mainSendData[0];
@@ -296,6 +300,14 @@ namespace USBCAN
                     }
                     bootCacheBlockSequenceIndex = 0;
                     bootCacheBlockSequenceCounter = 0x01;
+                    break;
+
+                case SI.ERSI + 0x40:
+                    if (CanControl.Rev[2] == 0x01)
+                    {
+                        Delay(550);
+                        processIndex++;
+                    }
                     break;
 
                 default:
