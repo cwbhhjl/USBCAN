@@ -35,7 +35,7 @@ namespace USBCAN
         /// 当前的S19Block中数据已经发送的块数
         /// </summary>
         private int bootCacheBlockSequenceIndex = 0x00;
-        private uint bootbootCacheBlockCRC32Value = 0xFFFFFFFF;
+        private uint s19FileDataCRC32Value = 0xFFFFFFFF;
         private uint s19BlockIndex = 0;
         /// <summary>
         /// 当前正在发送的S19Block
@@ -123,7 +123,7 @@ namespace USBCAN
                         catch { }
                     }
 
-                    if (processIndex == 10)
+                    if (processIndex == 18)
                     {
                         break;
                     }
@@ -163,7 +163,11 @@ namespace USBCAN
                     break;
 
                 case "DownloadRequest":
-                    s19File = s19File == null ? s19.getS19File() : s19File;
+                    if (s19File == null)
+                    {
+                        s19File = s19.getS19File();
+                        s19FileDataCRC32Value = CRC32.GetCRC_Custom(s19File);
+                    }
                     s19Block = s19File[s19BlockIndex];
                     mainSendData.AddRange(s19Block.StartAddress);
                     mainSendData.AddRange(s19Block.DataLength);
@@ -171,8 +175,6 @@ namespace USBCAN
 
                 case "DataTransfer":
                     int bootCacheBlockDataIndex = bootCacheBlockSequenceIndex * (bootCacheLength - 2);
-                    //mainSendData.Clear();
-                    //mainSendData.Add(SI.TDSI);
                     mainSendData.Add(bootCacheBlockSequenceCounter);
                     for (int i = 0; i < bootCacheLength - 2; i++)
                     {
@@ -185,11 +187,26 @@ namespace USBCAN
                     }
                     bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
                     bootCacheBlockSequenceIndex++;
-                    bootbootCacheBlockCRC32Value = CRC32.GetCRC_Custom(mainSendData.ToArray(), 2);
                     break;
 
                 case "RoutineIdentifier":
-                    mainSendData.AddRange(BitConverter.GetBytes(bootbootCacheBlockCRC32Value));
+                    byte[] crc32Byte = new byte[4];
+                    for (int i = 0; i < 4; i++)
+                    {
+                        crc32Byte[i] = (byte)(s19FileDataCRC32Value >> (8 * (3 - i)));
+                    }
+                    mainSendData.AddRange(crc32Byte);
+                    break;
+
+                case "MemoryErase":
+                    mainSendData.Add(0x44);
+                    if (s19File == null)
+                    {
+                        s19File = s19.getS19File();
+                        s19FileDataCRC32Value = CRC32.GetCRC_Custom(s19File);
+                    }
+                    mainSendData.AddRange(s19File[s19BlockIndex].StartAddress);
+                    mainSendData.AddRange(s19File[s19BlockIndex].DataLength);
                     break;
 
                 default:
@@ -250,6 +267,7 @@ namespace USBCAN
 
                 case SI.RDSI + 0x40:
                     int lengthFormatIdentifier = CanControl.Rev[2] >> 4;
+                    bootCacheLength = 0;
                     for (int i = 0; i < lengthFormatIdentifier; i++)
                     {
                         bootCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
@@ -261,7 +279,7 @@ namespace USBCAN
                     if (bootCacheBlockSequenceIndex * (bootCacheLength - 2) >= s19Block.Data.Length)
                     {
                         s19BlockIndex++;
-                        processIndex++;                      
+                        processIndex++;
                     }
                     break;
 
@@ -269,13 +287,15 @@ namespace USBCAN
                     if (s19BlockIndex >= s19File.Length)
                     {
                         s19File = null;
+                        s19BlockIndex = 0;
+                        processIndex++;
                     }
                     else
                     {
-                        processIndex--;
-                        bootCacheBlockSequenceIndex = 0;
-                        bootCacheBlockSequenceCounter = 0x01;
+                        processIndex = processIndex - 2;
                     }
+                    bootCacheBlockSequenceIndex = 0;
+                    bootCacheBlockSequenceCounter = 0x01;
                     break;
 
                 default:
