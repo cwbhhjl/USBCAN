@@ -24,11 +24,11 @@ namespace USBCAN
 
         private Queue<S19Block[]> s19Files = new Queue<S19Block[]>();
 
-        internal S19Block[] S19Block
+        internal int Count
         {
             get
             {
-                return s19Block;
+                return s19Files.Count;
             }
         }
 

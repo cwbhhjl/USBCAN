@@ -159,14 +159,6 @@ namespace USBCAN
 
         public static uint res = 0;
 
-        public static bool IsOpen
-        {
-            get
-            {
-                return isOpen;
-            }
-        }
-
         public static byte[] Rev
         {
             get
@@ -177,10 +169,7 @@ namespace USBCAN
 
         //public static CanLog canLog = new CanLog();
 
-        private CanControl()
-        {
-
-        }
+        private CanControl() { }
 
         public static CanControl getCanControl()
         {
