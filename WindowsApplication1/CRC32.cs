@@ -97,6 +97,19 @@ namespace USBCAN
             return crc ^ 0xFFFFFFFF;
         }
 
+        internal static uint GetCRC_Custom(S19Block[] s19File)
+        {
+            GetCrcCustomTable();
+            List<byte> byteList = new List<byte>();
+            Array.ForEach(s19File, block => byteList.AddRange(block.Data));
+            uint crc = 0xFFFFFFFF;
+            foreach (byte b in byteList)
+            {
+                crc = (crc << 8) ^ CrcCustomTable[((crc >> 24) ^ b) & 0xFF];
+            }
+            return crc ^ 0xFFFFFFFF;
+        }
+
         static public void GetCrcCustomTable()
         {
             uint Crc;

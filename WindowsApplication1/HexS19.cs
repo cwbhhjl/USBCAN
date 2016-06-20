@@ -64,7 +64,7 @@ namespace USBCAN
             Array.ForEach(files, file => this.files.Enqueue(file));
         }
 
-        public S19Block[] getS19Block()
+        public S19Block[] getS19File()
         {
             return s19Files.Dequeue();
         }

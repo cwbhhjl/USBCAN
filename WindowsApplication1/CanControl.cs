@@ -82,21 +82,6 @@ public struct VCI_INIT_CONFIG
     public byte Mode;
 }
 
-public struct CHGDESIPANDPORT
-{
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-    public byte[] szpwd;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
-    public byte[] szdesip;
-    public int desport;
-
-    public void Init()
-    {
-        szpwd = new byte[10];
-        szdesip = new byte[20];
-    }
-}
-
 namespace USBCAN
 {
     public class CanControl
@@ -159,35 +144,43 @@ namespace USBCAN
         [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
         private static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
 
-        public static uint deviceType = 4;//USBCAN2
+        public static uint deviceType = VCI_USBCAN2;
         private static bool isOpen = false;
         public static uint deviceIndex = 0;
         public static uint canIndex = 0;
 
-        //public static VCI_CAN_OBJ[] m_recobj = new VCI_CAN_OBJ[50];
         private static byte[] rev = new byte[8];
-        public static byte[] send = new byte[8];
+
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
-        public static VCI_CAN_OBJ[] objs;
-        //public static List<VCI_CAN_OBJ> objs = new List<VCI_CAN_OBJ>();
 
         private static CanControl canCtl;
 
-        public uint[] m_arrdevtype = new uint[20];
-        public VCI_ERR_INFO m_errorInfo;
+        public static VCI_ERR_INFO errorInfo = new VCI_ERR_INFO();
 
         public static uint res = 0;
 
-        public static System.Threading.Timer recTimer = null;
+        public static bool IsOpen
+        {
+            get
+            {
+                return isOpen;
+            }
+        }
 
-
-        public static bool IsOpen { get; }
-
-        public static byte[] Rev { get; }
+        public static byte[] Rev
+        {
+            get
+            {
+                return rev;
+            }
+        }
 
         //public static CanLog canLog = new CanLog();
 
-        private CanControl() { }
+        private CanControl()
+        {
+
+        }
 
         public static CanControl getCanControl()
         {
@@ -205,17 +198,20 @@ namespace USBCAN
             {
                 if (VCI_OpenDevice(deviceType, deviceIndex, 0) == 0)
                 {
-                    return isOpen;
+                    VCI_ReadErrInfo(deviceType, deviceIndex, canIndex, ref errorInfo);
+                    return false;
                 }
 
                 isOpen = true;
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
+
                 config.AccCode = 0;
                 config.AccMask = 0xFFFFFFFF;
                 config.Timing0 = 0;
                 config.Timing1 = 28;
                 config.Filter = 1;
                 config.Mode = 0;
+
                 VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config);
                 VCI_StartCAN(deviceType, deviceIndex, canIndex);
 
@@ -233,8 +229,6 @@ namespace USBCAN
                 }
             }
 
-            //recTimer = new System.Threading.Timer(new TimerCallback(recTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
-            //recTimer.Change(20, Timeout.Infinite);
             return isOpen;
         }
 
@@ -250,7 +244,6 @@ namespace USBCAN
                 return -1;
             }
 
-            data.CopyTo(send, 0);
             obj.ID = canID;
 
             fixed (byte* pData = obj.Data)
@@ -272,19 +265,10 @@ namespace USBCAN
             }
 
             int len = data.Length;
-            byte N_PCI = 0x00;
-            byte FS, BS, STmin, SN;
-
             obj.ID = canID;
 
             if (len <= 7)
             {
-                data.CopyTo(send, 0);
-                for (int i = data.Length; i < send.Length; i++)
-                {
-                    send[i] = 0xFF;
-                }
-
                 fixed (byte* pData = obj.Data)
                 {
                     pData[0] = (byte)len;
@@ -293,26 +277,17 @@ namespace USBCAN
                         pData[n + 1] = n < len ? data[n] : (byte)0xFF;
                     }
                 }
-
-                int ss = (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
-
-                int start = Environment.TickCount;
-                while (Math.Abs(Environment.TickCount - start) < 75)
-                {
-                    if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
-                    {
-                        canLastReceive(receiveID);
-                        return ss;
-                    }
-                }
-                return -2;
             }
             else
             {
-                N_PCI = 0x01;
+                if (len > 0xFFF)
+                {
+                    return -3;
+                }
+
                 fixed (byte* pData = obj.Data)
                 {
-                    pData[0] = (byte)(((N_PCI << 4) & 0xF0) | ((len / 0x100) & 0x0F));
+                    pData[0] = (byte)(((N_PCI.FF.N_PCItype << 4) & 0xF0) | (len >> 8) & 0x0F);
                     pData[1] = (byte)(len & 0xFF);
 
                     for (int n = 0; n < 6; n++)
@@ -320,185 +295,91 @@ namespace USBCAN
                         pData[n + 2] = data[n];
                     }
                 }
+            }
 
-                VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+            if (VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1) != 1)
+            {
+                return -5;
+            }
 
-                int start = Environment.TickCount;
-                while (Math.Abs(Environment.TickCount - start) < 75)
+            if (!waitForResponse(receiveID))
+            {
+                return -2;
+            }
+            else
+            {
+                if (len <= 7)
                 {
-                    if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
-                    {
-                        canLastReceive(receiveID);
-                        break;
-                    }
+                    return 1;
                 }
+            }
 
-                if (rev[0] == 0x30)
-                {
+            int index = 6;
+            int dataCount = (int)Math.Ceiling((len - 6) / 7.0);
+            byte BS, STmin;
+            byte SN = 1;
+
+        handleFlowControl:
+            switch (rev[0])
+            {
+                case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.CTS:
+
                     BS = rev[1];
                     STmin = rev[2];
-                    SN = 1;
-                    int index = 6;
 
-                    int BlockNums = (int)Math.Ceiling((len + 1) / 6.0) - 1;
-                    int dataCount = (int)Math.Ceiling((len - 6) / 7.0);
-
-                    for (int i = 0; i < dataCount;)
+                    for (byte j = 0; j < BS; j++)
                     {
-                        for (byte j = 0; j < BS; j++)
+                        fixed (byte* pData = obj.Data)
                         {
-                            fixed (byte* pData = obj.Data)
+                            pData[0] = (byte)(0x20 | SN);
+                            for (int n = 0; n < 7; n++)
                             {
-                                pData[0] = (byte)(0x20 | SN);
-                                for (int n = 0; n < 7; n++)
-                                {
-                                    pData[n + 1] = n < len - 6 - 7 * i ? data[index] : (byte)0xFF;
-                                    index++;
-                                }
-                            }
-                            VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
-                            i++;
-                            if (index >= len)
-                            {
-                                break;
-                            }
-                            SN++;
-                            SN = SN > 0x0F ? (byte)0 : SN;
-                        }
-                        Flash.Delay(STmin);
-
-                        start = Environment.TickCount;
-                        while (Math.Abs(Environment.TickCount - start) < 75)
-                        {
-                            if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
-                            {
-                                canLastReceive(receiveID);
-                                break;
+                                pData[n + 1] = index < len ? data[index] : (byte)0xFF;
+                                index++;
                             }
                         }
+                        VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
 
-                        if (i == BlockNums - 1)
+                        if (index >= len)
                         {
                             break;
                         }
-                        if (rev[0] == 30)
-                        {
-                            BS = rev[1];
-                            STmin = rev[2];
-                            continue;
-                        }
+
+                        SN++;
+                        SN = SN > 0x0F ? (byte)0 : SN;
                     }
-                }
 
-                return 0;
+                    Flash.Delay(STmin);
+                    goto case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.WT;
+
+                case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.WT:
+                    if (!waitForResponse(receiveID))
+                    {
+                        return -2;
+                    }
+                    goto handleFlowControl;
+
+                case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.OVFLW:
+                    return -4;
+
+                default:
+                    return 2;
             }
-
         }
 
-        unsafe public void sendFrames(uint canID, byte[] data)
+        private static bool waitForResponse(uint receiveID)
         {
-            if (data.Length <= 8)
+            int start = Environment.TickCount;
+            while (Math.Abs(Environment.TickCount - start) < 75)
             {
-                sendFrame(canID, data);
-                return;
-            }
-            if (!isOpen)
-            {
-                return;
-            }
-            VCI_CAN_OBJ sendobj = new VCI_CAN_OBJ();//sendobj.Init();
-
-            sendobj.SendType = 0;//正常发送：0；自发自收：2
-            sendobj.RemoteFlag = 0;
-            sendobj.ExternFlag = 0;
-            //sendobj[0].ID = Convert.ToUInt32(canID, 16);
-            sendobj.ID = canID;
-            int len = 8;
-            sendobj.DataLen = Convert.ToByte(len);
-
-            sendobj.Data[0] = (byte)(0x10 | ((data.Length / 0x100) & 0xf));
-            sendobj.Data[1] = (byte)((data.Length % 0x100) & 0xff);
-
-            int index = 0;
-            byte BS, ST, SN = 0;
-            byte BSNumber = 0;
-
-            for (; index < 6; index++)
-            {
-                sendobj.Data[index + 2] = data[index];
-            }
-            VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
-            if (rev[0] == 0x30)
-            {
-                BS = rev[1];
-                ST = rev[2];
-
-                for (; index < data.Length; index += 7)
+                if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
                 {
-                    Flash.Delay(ST);
-                    SN += 1;
-                    if (SN == 0x10)
-                    {
-                        SN = 0;
-                    }
-                    sendobj.Data[0] = (byte)(SN | 0x20);
-                    for (int i = 1; i < 8; i++, index++)
-                    {
-                        sendobj.Data[i] = data[index];
-                    }
-                    VCI_Transmit(deviceType, deviceIndex, canIndex, ref sendobj, 1);
-                    BSNumber += 1;
-                    if (BSNumber == BS)
-                    {
-                        BSNumber = 0;
-                    }
-                    if (rev[0] == 0x30)
-                    {
-                        BS = rev[1];
-                        ST = rev[2];
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    canLastReceive(receiveID);
+                    return true;
                 }
-
             }
+            return false;
         }
-
-        /*
-        unsafe public static void recTimer_Tick(object state)
-        {
-            //StreamWriter log = new StreamWriter(Environment.CurrentDirectory + "Can.log", true);
-            res = VCI_GetReceiveNum(deviceType, deviceIndex, canIndex);
-            if (res == 0)
-            {
-                return;
-            }
-            uint con_maxlen = 50;
-            IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * (int)con_maxlen);
-
-            res = VCI_Receive(deviceType, deviceIndex, canIndex, pt, con_maxlen, 100);
-
-            for (uint i = 0; i < res; i++)
-            {
-                VCI_CAN_OBJ obj = (VCI_CAN_OBJ)Marshal.PtrToStructure((IntPtr)((uint)pt + i * Marshal.SizeOf(typeof(VCI_CAN_OBJ))), typeof(VCI_CAN_OBJ));
-                //canLog.recordLog(obj);
-                if(obj.ID!= Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16))
-                {
-                    //return;
-                }
-                else
-                {
-                    for (int j = 0; j < 8; j++)
-                    {
-                        rev[j] = obj.Data[j];
-                    }
-                }
-            }
-            Marshal.FreeHGlobal(pt);
-        }
-        */
 
         unsafe public static byte[] canLastReceive(uint canId)
         {
@@ -526,7 +407,7 @@ namespace USBCAN
             }
 
             //canLog.recordLog(obj);
-            objTmp = (VCI_CAN_OBJ)canObj[canObj.Count - 1];
+            objTmp = canObj[canObj.Count - 1];
 
             for (int j = 0; j < 8; j++)
             {
@@ -553,7 +434,6 @@ namespace USBCAN
             {
                 VCI_CloseDevice(deviceType, deviceIndex);
                 isOpen = false;
-                //recTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
@@ -561,7 +441,10 @@ namespace USBCAN
         {
             string[] strTmp = str.Split(' ');
             List<byte> byteTmp = new List<byte>();
-            Array.ForEach(strTmp, s => byteTmp.Add(Convert.ToByte(s, 16)));
+            foreach (string i in strTmp)
+            {
+                byteTmp.Add(Convert.ToByte(i, 16));
+            }
             return byteTmp.ToArray();
         }
     }
