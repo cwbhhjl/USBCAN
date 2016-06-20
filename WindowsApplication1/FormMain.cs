@@ -37,7 +37,7 @@ namespace USBCAN
                 return;
             }
 
-            if (s19.S19Block == null)
+            if (s19.Count == 0)
             {
                 MessageBox.Show("请选择s19文件", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -135,27 +135,26 @@ namespace USBCAN
             }
         }
 
-        protected override void WndProc(ref Message m)
-        {
-            //const int WM_DEVICECHANGE = 0x219;
-            //const int WM_DEVICEARRVIAL = 0x8000;//如果m.Msg的值为0x8000那么表示有U盘插入
-            //const int WM_DEVICEMOVECOMPLETE = 0x8004;
-            //switch (m.Msg)
-            //{
-            //    case WM_DEVICECHANGE:
-            //        MessageBox.Show("test"+m.WParam, "错误",
-            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            //        break;
-            //}
-            base.WndProc(ref m);
-        }
+        //protected override void WndProc(ref Message m)
+        //{
+        //    //const int WM_DEVICECHANGE = 0x219;
+        //    //const int WM_DEVICEARRVIAL = 0x8000;//如果m.Msg的值为0x8000那么表示有U盘插入
+        //    //const int WM_DEVICEMOVECOMPLETE = 0x8004;
+        //    //switch (m.Msg)
+        //    //{
+        //    //    case WM_DEVICECHANGE:
+        //    //        MessageBox.Show("test"+m.WParam, "错误",
+        //    //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        //    //        break;
+        //    //}
+        //    base.WndProc(ref m);
+        //}
 
     }
 
     class FileBoxItem
     {
         private string fileName = null;
-        private string filePath = null;
 
         public string FilePath { get; }
 
@@ -166,7 +165,7 @@ namespace USBCAN
 
         internal FileBoxItem(string filePath)
         {
-            this.filePath = filePath;
+            FilePath = filePath;
             fileName = filePath.Substring(filePath.LastIndexOf("\\") + 1);
         }
     }
