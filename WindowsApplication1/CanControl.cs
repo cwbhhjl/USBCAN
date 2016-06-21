@@ -2,117 +2,10 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-/// <summary>
-/// ZLGCAN系列接口卡信息的数据类型
-/// </summary>
-public struct VCI_BOARD_INFO
-{
-    public ushort hw_Version;
-    public ushort fw_Version;
-    public ushort dr_Version;
-    public ushort in_Version;
-    public ushort irq_Num;
-    public byte can_Num;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
-    public byte[] str_Serial_Num;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 40)]
-    public byte[] str_hw_Type;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-    public byte[] Reserved;
-}
-
-/// <summary>
-/// 定义CAN信息帧的数据类型
-/// </summary>
-unsafe public struct VCI_CAN_OBJ
-{
-    public uint ID;
-    public uint TimeStamp;
-    public byte TimeFlag;
-    public byte SendType;
-    public byte RemoteFlag;
-    public byte ExternFlag;
-    public byte DataLen;
-
-    public fixed byte Data[8];
-
-    public fixed byte Reserved[3];
-}
-
-/// <summary>
-/// 定义CAN控制器状态的数据类型
-/// </summary>
-public struct VCI_CAN_STATUS
-{
-    public byte ErrInterrupt;
-    public byte regMode;
-    public byte regStatus;
-    public byte regALCapture;
-    public byte regECCapture;
-    public byte regEWLimit;
-    public byte regRECounter;
-    public byte regTECounter;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-    public byte[] Reserved;
-}
-
-/// <summary>
-/// 定义错误信息的数据类型
-/// </summary>
-public struct VCI_ERR_INFO
-{
-    public uint ErrCode;
-    public byte Passive_ErrData1;
-    public byte Passive_ErrData2;
-    public byte Passive_ErrData3;
-    public byte ArLost_ErrData;
-}
-
-/// <summary>
-/// 定义初始化CAN的数据类型
-/// </summary>
-public struct VCI_INIT_CONFIG
-{
-    public uint AccCode;
-    public uint AccMask;
-    public uint Reserved;
-    public byte Filter;
-    public byte Timing0;
-    public byte Timing1;
-    public byte Mode;
-}
-
 namespace USBCAN
 {
     public class CanControl
     {
-        public const int VCI_PCI5121 = 1;
-        public const int VCI_PCI9810 = 2;
-        public const int VCI_USBCAN1 = 3;
-        public const int VCI_USBCAN2 = 4;
-        public const int VCI_USBCAN2A = 4;
-        public const int VCI_PCI9820 = 5;
-        public const int VCI_CAN232 = 6;
-        public const int VCI_PCI5110 = 7;
-        public const int VCI_CANLITE = 8;
-        public const int VCI_ISA9620 = 9;
-        public const int VCI_ISA5420 = 10;
-        public const int VCI_PC104CAN = 11;
-        public const int VCI_CANETUDP = 12;
-        public const int VCI_CANETE = 12;
-        public const int VCI_DNP9810 = 13;
-        public const int VCI_PCI9840 = 14;
-        public const int VCI_PC104CAN2 = 15;
-        public const int VCI_PCI9820I = 16;
-        public const int VCI_CANETTCP = 17;
-        public const int VCI_PEC9920 = 18;
-        public const int VCI_PCI5010U = 19;
-        public const int VCI_USBCAN_E_U = 20;
-        public const int VCI_USBCAN_2E_U = 21;
-        public const int VCI_PCI5020U = 22;
-        public const int VCI_EG20T_CAN = 23;
-        public const int VCI_PCIE9221 = 24;
-
         [DllImport("controlcan.dll")]
         private static extern uint VCI_OpenDevice(uint DeviceType, uint DeviceInd, uint Reserved);
         [DllImport("controlcan.dll")]
@@ -139,12 +32,10 @@ namespace USBCAN
         private static extern uint VCI_ResetCAN(uint DeviceType, uint DeviceInd, uint CANInd);
         [DllImport("controlcan.dll")]
         private static extern uint VCI_Transmit(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_OBJ pSend, uint Len);
-        //[DllImport("controlcan.dll")]
-        //static extern UInt32 VCI_Receive(UInt32 DeviceType, UInt32 DeviceInd, UInt32 CANInd, ref VCI_CAN_OBJ pReceive, UInt32 Len, Int32 WaitTime);
         [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
         private static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
 
-        public static uint deviceType = VCI_USBCAN2;
+        public static uint deviceType = (uint)USBCAN.HardwareType.VCI_USBCAN2;
         private static bool isOpen = false;
         public static uint deviceIndex = 0;
         public static uint canIndex = 0;
@@ -152,10 +43,9 @@ namespace USBCAN
         private static byte[] rev = new byte[8];
 
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
+        public static VCI_ERR_INFO errorInfo = new VCI_ERR_INFO();
 
         private static CanControl canCtl;
-
-        public static VCI_ERR_INFO errorInfo = new VCI_ERR_INFO();
 
         public static uint res = 0;
 
@@ -219,11 +109,6 @@ namespace USBCAN
             }
 
             return isOpen;
-        }
-
-        unsafe public static int sendFrame(string canID, string strData)
-        {
-            return sendFrame(Convert.ToUInt32(canID, 16), canStringToByte(strData));
         }
 
         unsafe public static int sendFrame(uint canID, byte[] data)
@@ -439,17 +324,6 @@ namespace USBCAN
         public static uint canClearBuffer()
         {
             return VCI_ClearBuffer(deviceType, deviceIndex, canIndex);
-        }
-
-        public static byte[] canStringToByte(string str)
-        {
-            string[] strTmp = str.Split(' ');
-            List<byte> byteTmp = new List<byte>();
-            foreach (string i in strTmp)
-            {
-                byteTmp.Add(Convert.ToByte(i, 16));
-            }
-            return byteTmp.ToArray();
         }
     }
 }

@@ -21,7 +21,7 @@ namespace USBCAN
         private S19Line[] s19Line = null;
         private List<string> strLineTmp = null;
 
-        private Queue<S19Block[]> s19Files = new Queue<S19Block[]>();
+        private List<S19Block[]> s19Files = new List<S19Block[]>();
         private Queue<S19Block[]> s19FilesGhost;
 
         internal int Count
@@ -294,7 +294,7 @@ namespace USBCAN
                     currentBlockAddress = s19Line[lineNum + 1].lineAddress;
                 }
             }
-            s19Files.Enqueue(s19BlockTmp.ToArray());
+            s19Files.Add(s19BlockTmp.ToArray());
             return;
         }
     }

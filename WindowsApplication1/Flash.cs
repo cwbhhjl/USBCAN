@@ -32,12 +32,12 @@ namespace USBCAN
         /// <summary>
         /// 下位机一次能够接受的最大数据长度
         /// </summary>
-        private int bootCacheLength;
-        private byte bootCacheBlockSequenceCounter = 0x01;
+        private int blCacheLength;
+        private byte blCacheBlockSequenceCounter = 0x01;
         /// <summary>
         /// 当前的S19Block中数据已经发送的块数
         /// </summary>
-        private int bootCacheBlockSequenceIndex = 0x00;
+        private int blCacheBlockSequenceIndex = 0x00;
         private uint s19FileDataCRC32Value = 0xFFFFFFFF;
         private uint s19BlockIndex = 0;
         /// <summary>
@@ -88,7 +88,7 @@ namespace USBCAN
             functionID = Convert.ToUInt32(carSelected["FunctionID"].ToString(), 16);
             receiveID = Convert.ToUInt32(carSelected["ReceiveID"].ToString(), 16);
 
-            securityAccess = CanControl.canStringToByte(carSelected["SecurityAccess"].ToString());
+            securityAccess = canStringToByte(carSelected["SecurityAccess"].ToString());
 
             sec = new Security(securityAccess[2]);
             canCtl = CanControl.getCanControl();
@@ -155,6 +155,26 @@ namespace USBCAN
             }
         }
 
+        void handleStart(object obj)
+        {
+            while (flashFlag)
+            {
+                lock (canCtl)
+                {
+                    if (sendFlag)
+                    {
+                        try { Monitor.Wait(canCtl); }
+                        catch { }
+                    }
+
+                    handleCan();
+
+                    sendFlag = true;
+                    Monitor.Pulse(canCtl);
+                }
+            }
+        }
+
         void sendCan()
         {
             try
@@ -178,7 +198,7 @@ namespace USBCAN
             }
 
             mainSendData.Clear();
-            mainSendData.AddRange(CanControl.canStringToByte(flashProcess[processStr].ToString()));
+            mainSendData.AddRange(canStringToByte(flashProcess[processStr].ToString()));
             ServiceIdentifier = mainSendData[0];
 
             switch (processStr)
@@ -207,19 +227,19 @@ namespace USBCAN
                     break;
 
                 case "DataTransfer":
-                    int bootCacheBlockDataIndex = bootCacheBlockSequenceIndex * (bootCacheLength - 2);
-                    mainSendData.Add(bootCacheBlockSequenceCounter);
-                    for (int i = 0; i < bootCacheLength - 2; i++)
+                    int blCacheBlockDataIndex = blCacheBlockSequenceIndex * (blCacheLength - 2);
+                    mainSendData.Add(blCacheBlockSequenceCounter);
+                    for (int i = 0; i < blCacheLength - 2; i++)
                     {
-                        int indexTmp = bootCacheBlockDataIndex + i;
+                        int indexTmp = blCacheBlockDataIndex + i;
                         if (indexTmp >= s19Block.Data.Length)
                         {
                             break;
                         }
                         mainSendData.Add(s19Block.Data[indexTmp]);
                     }
-                    bootCacheBlockSequenceCounter = (byte)((bootCacheBlockSequenceCounter + 1) & 0xFF);
-                    bootCacheBlockSequenceIndex++;
+                    blCacheBlockSequenceCounter = (byte)((blCacheBlockSequenceCounter + 1) & 0xFF);
+                    blCacheBlockSequenceIndex++;
                     break;
 
                 case "RoutineIdentifier":
@@ -247,26 +267,6 @@ namespace USBCAN
             }
 
             sendResult = CanControl.sendFrame(sendID, receiveID, mainSendData.ToArray());
-        }
-
-        void handleStart(object obj)
-        {
-            while (flashFlag)
-            {
-                lock (canCtl)
-                {
-                    if (sendFlag)
-                    {
-                        try { Monitor.Wait(canCtl); }
-                        catch { }
-                    }
-
-                    handleCan();
-
-                    sendFlag = true;
-                    Monitor.Pulse(canCtl);
-                }
-            }
         }
 
         private void handleCan()
@@ -300,16 +300,16 @@ namespace USBCAN
 
                 case SI.RDSI + 0x40:
                     int lengthFormatIdentifier = CanControl.Rev[2] >> 4;
-                    bootCacheLength = 0;
+                    blCacheLength = 0;
                     for (int i = 0; i < lengthFormatIdentifier; i++)
                     {
-                        bootCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
+                        blCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
                     }
                     processIndex++;
                     break;
 
                 case SI.TDSI + 0x40:
-                    if (bootCacheBlockSequenceIndex * (bootCacheLength - 2) >= s19Block.Data.Length)
+                    if (blCacheBlockSequenceIndex * (blCacheLength - 2) >= s19Block.Data.Length)
                     {
                         s19BlockIndex++;
                         processIndex++;
@@ -327,8 +327,8 @@ namespace USBCAN
                     {
                         processIndex = processIndex - 2;
                     }
-                    bootCacheBlockSequenceIndex = 0;
-                    bootCacheBlockSequenceCounter = 0x01;
+                    blCacheBlockSequenceIndex = 0;
+                    blCacheBlockSequenceCounter = 0x01;
                     break;
 
                 case SI.ERSI + 0x40:
@@ -369,7 +369,7 @@ namespace USBCAN
                 return null;
             }
 
-            byte[] tmp = CanControl.canStringToByte(carSelected["SoftwareVersion"].ToString());
+            byte[] tmp = canStringToByte(carSelected["SoftwareVersion"].ToString());
             CanControl.sendFrame(physicalID, receiveID, tmp);
 
             if (SI.RDBISI + 0x40 == CanControl.Rev[1])
@@ -384,7 +384,7 @@ namespace USBCAN
         {
             if (carSelected != null)
             {
-                CanControl.sendFrame(physicalID, receiveID, CanControl.canStringToByte(flashProcess["PresentTester"].ToString()));
+                CanControl.sendFrame(physicalID, receiveID, canStringToByte(flashProcess["PresentTester"].ToString()));
                 return SI.TPSI + 0x40 == CanControl.Rev[1];
             }
             return false;
@@ -399,5 +399,15 @@ namespace USBCAN
             }
         }
 
+        internal static byte[] canStringToByte(string str)
+        {
+            string[] strTmp = str.Split(' ');
+            List<byte> byteTmp = new List<byte>();
+            foreach (string i in strTmp)
+            {
+                byteTmp.Add(Convert.ToByte(i, 16));
+            }
+            return byteTmp.ToArray();
+        }
     }
 }
