@@ -53,6 +53,10 @@ namespace USBCAN
             this.toolStripMenuItem_Car = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_Flash = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem_Version = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem_Reset = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem_FileReset = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem_About = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkBox_Log = new System.Windows.Forms.CheckBox();
             label_car = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -87,13 +91,16 @@ namespace USBCAN
             // 
             // button_Flash
             // 
+            this.button_Flash.BackColor = System.Drawing.Color.AliceBlue;
+            this.button_Flash.FlatAppearance.BorderColor = System.Drawing.Color.LightCoral;
+            this.button_Flash.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button_Flash.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_Flash.Location = new System.Drawing.Point(353, 6);
+            this.button_Flash.Location = new System.Drawing.Point(343, 6);
             this.button_Flash.Name = "button_Flash";
-            this.button_Flash.Size = new System.Drawing.Size(69, 37);
+            this.button_Flash.Size = new System.Drawing.Size(79, 37);
             this.button_Flash.TabIndex = 8;
-            this.button_Flash.Text = "烧写";
-            this.button_Flash.UseVisualStyleBackColor = true;
+            this.button_Flash.Text = "开始烧写";
+            this.button_Flash.UseVisualStyleBackColor = false;
             this.button_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // comboBox_Config
@@ -130,6 +137,7 @@ namespace USBCAN
             // 
             // splitContainer.Panel2
             // 
+            this.splitContainer.Panel2.Controls.Add(this.checkBox_Log);
             this.splitContainer.Panel2.Controls.Add(this.statusStrip);
             this.splitContainer.Panel2.Controls.Add(this.listBox);
             this.splitContainer.Panel2.Controls.Add(this.label_Version);
@@ -143,9 +151,10 @@ namespace USBCAN
             // 
             // groupBox_File
             // 
-            this.groupBox_File.BackColor = System.Drawing.SystemColors.HighlightText;
+            this.groupBox_File.BackColor = System.Drawing.SystemColors.Control;
             this.groupBox_File.Controls.Add(this.FileBox);
             this.groupBox_File.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox_File.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.groupBox_File.Location = new System.Drawing.Point(0, 47);
             this.groupBox_File.Name = "groupBox_File";
             this.groupBox_File.Size = new System.Drawing.Size(220, 369);
@@ -158,10 +167,10 @@ namespace USBCAN
             this.FileBox.AllowDrop = true;
             this.FileBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FileBox.FormattingEnabled = true;
-            this.FileBox.ItemHeight = 12;
-            this.FileBox.Location = new System.Drawing.Point(3, 17);
+            this.FileBox.ItemHeight = 17;
+            this.FileBox.Location = new System.Drawing.Point(3, 19);
             this.FileBox.Name = "FileBox";
-            this.FileBox.Size = new System.Drawing.Size(214, 349);
+            this.FileBox.Size = new System.Drawing.Size(214, 347);
             this.FileBox.TabIndex = 0;
             this.FileBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileBox_DragDrop);
             this.FileBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileBox_DragEnter);
@@ -218,9 +227,9 @@ namespace USBCAN
             // 
             this.listBox.FormattingEnabled = true;
             this.listBox.ItemHeight = 12;
-            this.listBox.Location = new System.Drawing.Point(3, 59);
+            this.listBox.Location = new System.Drawing.Point(0, 66);
             this.listBox.Name = "listBox";
-            this.listBox.Size = new System.Drawing.Size(419, 328);
+            this.listBox.Size = new System.Drawing.Size(436, 316);
             this.listBox.TabIndex = 15;
             // 
             // label_Version
@@ -258,7 +267,8 @@ namespace USBCAN
             // 
             this.menuStrip_Main.BackColor = System.Drawing.SystemColors.ControlLight;
             this.menuStrip_Main.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuI_Start});
+            this.toolStripMenuI_Start,
+            this.toolStripMenuItem_About});
             this.menuStrip_Main.Location = new System.Drawing.Point(0, 0);
             this.menuStrip_Main.Name = "menuStrip_Main";
             this.menuStrip_Main.Size = new System.Drawing.Size(666, 25);
@@ -271,7 +281,9 @@ namespace USBCAN
             this.ToolStripMenuItem,
             this.toolStripMenuItem_Car,
             this.toolStripMenuItem_Flash,
-            this.ToolStripMenuItem_Version});
+            this.ToolStripMenuItem_Version,
+            this.toolStripMenuItem_Reset,
+            this.toolStripMenuItem_FileReset});
             this.toolStripMenuI_Start.Name = "toolStripMenuI_Start";
             this.toolStripMenuI_Start.Size = new System.Drawing.Size(44, 21);
             this.toolStripMenuI_Start.Text = "开始";
@@ -279,28 +291,56 @@ namespace USBCAN
             // ToolStripMenuItem
             // 
             this.ToolStripMenuItem.Name = "ToolStripMenuItem";
-            this.ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItem.Text = "加载文件";
             this.ToolStripMenuItem.Click += new System.EventHandler(this.button_LoadS19_Click);
             // 
             // toolStripMenuItem_Car
             // 
             this.toolStripMenuItem_Car.Name = "toolStripMenuItem_Car";
-            this.toolStripMenuItem_Car.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_Car.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_Car.Text = "选择车型";
             // 
             // toolStripMenuItem_Flash
             // 
             this.toolStripMenuItem_Flash.Name = "toolStripMenuItem_Flash";
-            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_Flash.Text = "开始烧写";
             this.toolStripMenuItem_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // ToolStripMenuItem_Version
             // 
             this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
-            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(136, 22);
+            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItem_Version.Text = "读取版本号";
+            // 
+            // toolStripMenuItem_Reset
+            // 
+            this.toolStripMenuItem_Reset.Name = "toolStripMenuItem_Reset";
+            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Reset.Text = "连接重置";
+            // 
+            // toolStripMenuItem_FileReset
+            // 
+            this.toolStripMenuItem_FileReset.Name = "toolStripMenuItem_FileReset";
+            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_FileReset.Text = "文件重置";
+            // 
+            // toolStripMenuItem_About
+            // 
+            this.toolStripMenuItem_About.Name = "toolStripMenuItem_About";
+            this.toolStripMenuItem_About.Size = new System.Drawing.Size(44, 21);
+            this.toolStripMenuItem_About.Text = "关于";
+            // 
+            // checkBox_Log
+            // 
+            this.checkBox_Log.AutoSize = true;
+            this.checkBox_Log.Location = new System.Drawing.Point(3, 47);
+            this.checkBox_Log.Name = "checkBox_Log";
+            this.checkBox_Log.Size = new System.Drawing.Size(42, 16);
+            this.checkBox_Log.TabIndex = 17;
+            this.checkBox_Log.Text = "log";
+            this.checkBox_Log.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -357,6 +397,10 @@ namespace USBCAN
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Error;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel_Flash;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar_Flash;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Reset;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_FileReset;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_About;
+        private System.Windows.Forms.CheckBox checkBox_Log;
     }
 }
 
