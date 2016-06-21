@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Linq;
 
 namespace USBCAN
 {
@@ -18,11 +19,10 @@ namespace USBCAN
         private AutoResetEvent ctl = new AutoResetEvent(false);
 
         private S19Line[] s19Line = null;
-        private S19Block[] s19Block = null;
-
         private List<string> strLineTmp = null;
 
         private Queue<S19Block[]> s19Files = new Queue<S19Block[]>();
+        private Queue<S19Block[]> s19FilesGhost;
 
         internal int Count
         {
@@ -80,7 +80,11 @@ namespace USBCAN
 
         public S19Block[] getS19File()
         {
-            return s19Files.Dequeue();
+            if(s19FilesGhost == null || s19FilesGhost.Count == 0)
+            {
+                s19FilesGhost = new Queue<S19Block[]>(s19Files);
+            }
+            return s19FilesGhost.Dequeue();
         }
 
         public int readFile(string filePath)
@@ -290,7 +294,6 @@ namespace USBCAN
                     currentBlockAddress = s19Line[lineNum + 1].lineAddress;
                 }
             }
-            s19Block = s19BlockTmp.ToArray();
             s19Files.Enqueue(s19BlockTmp.ToArray());
             return;
         }

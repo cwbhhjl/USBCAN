@@ -105,13 +105,15 @@ namespace USBCAN
 
         public void mainStart()
         {
+            CanControl.canClearBuffer();
+
             sendThread = new Thread(new ParameterizedThreadStart(sendStart));
             handleThread = new Thread(new ParameterizedThreadStart(handleStart));
 
             sendThread.IsBackground = true;
             handleThread.IsBackground = true;
 
-            if(carSelected["NoFlashDriver"] != null && new Regex("true",RegexOptions.IgnoreCase).IsMatch(carSelected["NoFlashDriver"].ToString()))
+            if (carSelected["NoFlashDriver"] != null && new Regex("true", RegexOptions.IgnoreCase).IsMatch(carSelected["NoFlashDriver"].ToString()))
             {
                 s19.getS19File();
             }
@@ -121,6 +123,9 @@ namespace USBCAN
 
             sendThread.Join();
             handleThread.Join();
+
+            processIndex = 0;
+            CanControl.canClearBuffer();
         }
 
         void sendStart(object obj)
@@ -156,7 +161,7 @@ namespace USBCAN
             {
                 processStr = sequence[processIndex.ToString()].ToString();
             }
-            catch(NullReferenceException)
+            catch (NullReferenceException)
             {
                 flashFlag = false;
                 return;
@@ -344,6 +349,16 @@ namespace USBCAN
                         flashFlag = false;
                     }
                     break;
+            }
+        }
+
+        internal void go()
+        {
+            if (flashThread == null || flashThread.ThreadState == (ThreadState.Background | ThreadState.Unstarted)
+                || flashThread.ThreadState == ThreadState.Stopped)
+            {
+                init();
+                flashThread.Start();
             }
         }
 

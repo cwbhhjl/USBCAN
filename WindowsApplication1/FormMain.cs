@@ -52,10 +52,7 @@ namespace USBCAN
                 return;
             }
 
-            if (flash.flashThread.ThreadState == (System.Threading.ThreadState.Background | System.Threading.ThreadState.Unstarted))
-            {
-                flash.flashThread.Start();
-            }
+            flash.go();
         }
 
         private void comboBox_Config_Click(object sender, EventArgs e)
@@ -87,7 +84,7 @@ namespace USBCAN
             }
             
             flash = new Flash(carSelected, s19);
-            flash.init();
+            
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)

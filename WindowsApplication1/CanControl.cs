@@ -288,6 +288,7 @@ namespace USBCAN
 
             if (VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1) != 1)
             {
+                VCI_ReadErrInfo(deviceType, deviceIndex, canIndex, ref errorInfo);
                 return -5;
             }
 
@@ -408,13 +409,13 @@ namespace USBCAN
             return rev;
         }
 
-        static void canReset()
+        static uint canReset()
         {
             if (!isOpen)
             {
-                return;
+                return 2;
             }
-            VCI_ResetCAN(deviceType, deviceIndex, canIndex);
+            return VCI_ResetCAN(deviceType, deviceIndex, canIndex);
         }
 
         public static void canClose()
@@ -424,6 +425,20 @@ namespace USBCAN
                 VCI_CloseDevice(deviceType, deviceIndex);
                 isOpen = false;
             }
+        }
+
+        public static uint canReInit()
+        {
+            if(VCI_ResetCAN(deviceType, deviceIndex, canIndex) == 1)
+            {
+                return VCI_StartCAN(deviceType, deviceIndex, canIndex);
+            }
+            return 2;
+        }
+
+        public static uint canClearBuffer()
+        {
+            return VCI_ClearBuffer(deviceType, deviceIndex, canIndex);
         }
 
         public static byte[] canStringToByte(string str)
