@@ -73,6 +73,11 @@ namespace USBCAN
             }
         }
 
+        public void addFile(string file)
+        {
+            files.Enqueue(file);
+        }
+
         public S19Block[] getS19File()
         {
             return s19Files.Dequeue();

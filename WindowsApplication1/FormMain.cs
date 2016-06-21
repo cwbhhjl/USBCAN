@@ -19,6 +19,8 @@ namespace USBCAN
         private void Form1_Load(object sender, EventArgs e)
         {
             CanControl.canConnect();
+            s19.addFile(Flash.DriverName);
+            s19.wakeUpHexThread();
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -50,7 +52,7 @@ namespace USBCAN
                 return;
             }
 
-            if (!flash.flashThread.IsAlive)
+            if (flash.flashThread.ThreadState == (System.Threading.ThreadState.Background | System.Threading.ThreadState.Unstarted))
             {
                 flash.flashThread.Start();
             }
@@ -73,7 +75,17 @@ namespace USBCAN
         private void comboBox_Config_SelectedIndexChanged(object sender, EventArgs e)
         {
             string car = (string)comboBox_Config.SelectedItem;
-            carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
+            try
+            {
+                carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
+            }
+            catch(ConfigurationErrorsException)
+            {
+                MessageBox.Show("配置文件错误，请检查", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            
             flash = new Flash(carSelected, s19);
             flash.init();
         }

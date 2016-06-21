@@ -77,14 +77,6 @@ namespace USBCAN
             }
         }
 
-        public static uint GetCRC32ByCRC32Cls(byte[] bytes)
-        {
-            List<byte> li = bytes.ToList();
-            li.RemoveAt(0);
-            li.RemoveAt(0);
-            return CRC32Cls.GetCRC32(li.ToArray());
-        }
-
         public static uint GetCRC_Custom(byte[] bytes, uint startIndex)
         {
             GetCrcCustomTable();

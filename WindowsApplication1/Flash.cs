@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -13,6 +14,8 @@ namespace USBCAN
         private uint physicalID;
         private uint functionID;
         private uint receiveID;
+
+        private uint sendID;
 
         private byte[] securityAccess;
 
@@ -54,9 +57,11 @@ namespace USBCAN
         private CanControl canCtl = null;
         private HexS19 s19 = null;
 
-        private string driverName = "\\FlashDriver_S12GX_V1.0.s19";
+        private Regex reg = new Regex("_[pf]$", RegexOptions.IgnoreCase);
 
-        public string DriverName
+        private static string driverName = "\\FlashDriver_S12GX_V1.0.s19";
+
+        public static string DriverName
         {
             get
             {
@@ -95,12 +100,21 @@ namespace USBCAN
             flashFlag = true;
             sendFlag = true;
             flashThread = new Thread(new ThreadStart(mainStart));
+            flashThread.IsBackground = true;
         }
 
         public void mainStart()
         {
             sendThread = new Thread(new ParameterizedThreadStart(sendStart));
             handleThread = new Thread(new ParameterizedThreadStart(handleStart));
+
+            sendThread.IsBackground = true;
+            handleThread.IsBackground = true;
+
+            if(carSelected["NoFlashDriver"] != null && new Regex("true",RegexOptions.IgnoreCase).IsMatch(carSelected["NoFlashDriver"].ToString()))
+            {
+                s19.getS19File();
+            }
 
             sendThread.Start();
             handleThread.Start();
@@ -146,6 +160,16 @@ namespace USBCAN
             {
                 flashFlag = false;
                 return;
+            }
+
+            if (reg.IsMatch(processStr))
+            {
+                sendID = (processStr.EndsWith("_f") || processStr.EndsWith("_F")) ? functionID : physicalID;
+                processStr = reg.Split(processStr)[0];
+            }
+            else
+            {
+                sendID = physicalID;
             }
 
             mainSendData.Clear();
@@ -217,7 +241,7 @@ namespace USBCAN
                     break;
             }
 
-            sendResult = CanControl.sendFrame(physicalID, receiveID, mainSendData.ToArray());
+            sendResult = CanControl.sendFrame(sendID, receiveID, mainSendData.ToArray());
         }
 
         void handleStart(object obj)
