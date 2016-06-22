@@ -62,7 +62,8 @@ namespace USBCAN
 
         private Regex reg = new Regex("_[pf]$", RegexOptions.IgnoreCase);
 
-        private int dataNum = 0;
+        private ulong dataNum = 0;
+        private ulong dataCounter = 0;
 
         private static string driverName = "FlashDriver_S12GX_V1.0.s19";
 
@@ -94,7 +95,7 @@ namespace USBCAN
             canCtl = CanControl.getCanControl();
             this.s19 = s19;
 
-            dataNum = sequence.Keys.Count;
+            dataNum = (ulong)sequence.Keys.Count;
         }
 
         public void init()
@@ -272,7 +273,16 @@ namespace USBCAN
 
             sendResult = CanControl.sendFrame(sendID, receiveID, mainSendData.ToArray());
 
-            updata(4,"", mainSendData.Count / dataNum * 100);
+            if (mainSendData[0] != SI.TDSI)
+            {
+                dataCounter++;
+            }
+            else
+            {
+                dataCounter = dataCounter + (ulong)mainSendData.Count - 2;
+            }
+
+            updata(4,"", (int)(dataCounter * 100 / dataNum));
         }
 
         private void handleCan()

@@ -345,10 +345,10 @@ namespace USBCAN
             return;
         }
 
-        internal int getS19DataNum()
+        internal ulong getS19DataNum()
         {
-            int dataNum = 0;
-            s19Files.ForEach(s => { Array.ForEach(s, ss => { dataNum += ss.Data.Length; }); });
+            ulong dataNum = 0;
+            s19Files.ForEach(s => { Array.ForEach(s, ss => { dataNum += (ulong)ss.Data.Length; }); });
             return dataNum;
         }
     }

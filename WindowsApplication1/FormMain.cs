@@ -244,7 +244,7 @@ namespace USBCAN
                             toolStripProgressBar_Flash.Increment(processValue);
                             break;
                         case 4:
-                            toolStripProgressBar_Flash.Value = processValue;
+                            toolStripProgressBar_Flash.Value = processValue > 100 ? 100 : processValue;
                             break;
                         default:
                             break;
