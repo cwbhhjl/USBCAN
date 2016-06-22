@@ -344,6 +344,13 @@ namespace USBCAN
             s19Files.Add(s19BlockTmp.ToArray());
             return;
         }
+
+        internal int getS19DataNum()
+        {
+            int dataNum = 0;
+            s19Files.ForEach(s => { Array.ForEach(s, ss => { dataNum += ss.Data.Length; }); });
+            return dataNum;
+        }
     }
 
     class S19Line

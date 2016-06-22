@@ -76,20 +76,21 @@ namespace USBCAN
             {
                 carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);
             }
-            catch(ConfigurationErrorsException)
+            catch (ConfigurationErrorsException)
             {
                 MessageBox.Show("配置文件错误，请检查", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            
+
             flash = new Flash(carSelected, s19);
+            flash.updata += new Flash.Updata(updataUI);
 
             if (carSelected["FlashDriver"] != null)
             {
                 string flashDriverConfig = carSelected["FlashDriver"].ToString().ToLower();
                 if (FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName)
-                { 
+                {
                     switch (flashDriverConfig)
                     {
                         case "true":
@@ -103,7 +104,9 @@ namespace USBCAN
                             {
                                 FileBox.Items.Insert(0, flashDriverConfig);
                                 s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
-                            }else if(((FileBoxItem)FileBox.Items[0]).FilePath == Flash.DriverName){
+                            }
+                            else if (((FileBoxItem)FileBox.Items[0]).FilePath == Flash.DriverName)
+                            {
                                 FileBox.Items.RemoveAt(0);
                                 s19.syncFilesWithUI(-1, 0);
                                 FileBox.Items.Add(new FileBoxItem(flashDriverConfig));
@@ -112,7 +115,7 @@ namespace USBCAN
                             break;
                     }
                 }
-                else if(flashDriverConfig == "false")
+                else if (flashDriverConfig == "false")
                 {
                     FileBox.Items.RemoveAt(0);
                     s19.syncFilesWithUI(-1, 0);
@@ -138,12 +141,12 @@ namespace USBCAN
         private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             fileList.Clear();
-            foreach(var it in FileBox.Items)
+            foreach (var it in FileBox.Items)
             {
                 fileList.Add(((FileBoxItem)it).FilePath);
             }
             string[] files = openS19Dialog.FileNames;
-            foreach(var a in files)
+            foreach (var a in files)
             {
                 if (fileList.Contains(a))
                 {
@@ -210,7 +213,7 @@ namespace USBCAN
 
         private void textBox_Version_Click(object sender, EventArgs e)
         {
-            if(flash != null)
+            if (flash != null)
             {
                 (sender as TextBox).Text = flash.readVersion();
             }
@@ -220,22 +223,58 @@ namespace USBCAN
             }
         }
 
-        //protected override void WndProc(ref Message m)
-        //{
-        //    //const int WM_DEVICECHANGE = 0x219;
-        //    //const int WM_DEVICEARRVIAL = 0x8000;//如果m.Msg的值为0x8000那么表示有U盘插入
-        //    //const int WM_DEVICEMOVECOMPLETE = 0x8004;
-        //    //switch (m.Msg)
-        //    //{
-        //    //    case WM_DEVICECHANGE:
-        //    //        MessageBox.Show("test"+m.WParam, "错误",
-        //    //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        //    //        break;
-        //    //}
-        //    base.WndProc(ref m);
-        //}
+        private void updataUI(int cmd, string msg = null, int processValue = 0)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate
+                {
+                    switch (cmd)
+                    {
+                        case 1:
+                            listBox.Items.Insert(listBox.Items.Count, msg);
+                            listBox.SelectedIndex = listBox.Items.Count - 1;
+                            listBox.Refresh();
+                            break;
+                        case 2:
+                            MessageBox.Show(msg, "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            break;
+                        case 3:
+                            toolStripProgressBar_Flash.Increment(processValue);
+                            break;
+                        case 4:
+                            toolStripProgressBar_Flash.Value = processValue;
+                            break;
+                        default:
+                            break;
+                    }
 
+                }));
+            }
+            else {
+                listBox.Items.Insert(listBox.Items.Count, msg);
+                listBox.SelectedIndex = listBox.Items.Count - 1;
+                listBox.Refresh();
+            }
+
+        }
     }
+
+    //protected override void WndProc(ref Message m)
+    //{
+    //    //const int WM_DEVICECHANGE = 0x219;
+    //    //const int WM_DEVICEARRVIAL = 0x8000;//如果m.Msg的值为0x8000那么表示有U盘插入
+    //    //const int WM_DEVICEMOVECOMPLETE = 0x8004;
+    //    //switch (m.Msg)
+    //    //{
+    //    //    case WM_DEVICECHANGE:
+    //    //        MessageBox.Show("test"+m.WParam, "错误",
+    //    //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+    //    //        break;
+    //    //}
+    //    base.WndProc(ref m);
+    //}
 
     class FileBoxItem
     {

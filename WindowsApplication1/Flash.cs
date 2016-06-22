@@ -11,6 +11,9 @@ namespace USBCAN
 {
     class Flash
     {
+        public delegate void Updata(int cmd, string msg = null, int procssValue = 0);
+        public event Updata updata;
+
         private uint physicalID;
         private uint functionID;
         private uint receiveID;
@@ -39,7 +42,7 @@ namespace USBCAN
         /// </summary>
         private int blCacheBlockSequenceIndex = 0x00;
         private uint s19FileDataCRC32Value = 0xFFFFFFFF;
-        private uint s19BlockIndex = 0;
+        private uint s19BlockIndex;
         /// <summary>
         /// 当前正在发送的S19Block
         /// </summary>
@@ -58,6 +61,8 @@ namespace USBCAN
         private HexS19 s19 = null;
 
         private Regex reg = new Regex("_[pf]$", RegexOptions.IgnoreCase);
+
+        private int dataNum = 0;
 
         private static string driverName = "FlashDriver_S12GX_V1.0.s19";
 
@@ -88,6 +93,8 @@ namespace USBCAN
             sec = new Security(securityAccess[2]);
             canCtl = CanControl.getCanControl();
             this.s19 = s19;
+
+            dataNum = sequence.Keys.Count;
         }
 
         public void init()
@@ -112,6 +119,8 @@ namespace USBCAN
             {
                 s19.getS19File();
             }
+
+            dataNum += s19.getS19DataNum();
 
             sendThread.Start();
             handleThread.Start();
@@ -262,6 +271,8 @@ namespace USBCAN
             }
 
             sendResult = CanControl.sendFrame(sendID, receiveID, mainSendData.ToArray());
+
+            updata(4,"", mainSendData.Count / dataNum * 100);
         }
 
         private void handleCan()
@@ -272,6 +283,10 @@ namespace USBCAN
                     switch (CanControl.Rev[3])
                     {
                         case NRC.RCRRP:
+                            if(processStr!= "DataTransfer")
+                            {
+                                updata(1, processStr + "...wait");
+                            } 
                             while (CanControl.canLastReceive(receiveID) == null || CanControl.Rev[1] == SI.NRSI)
                             {
                                 Delay(10);
@@ -280,6 +295,7 @@ namespace USBCAN
                             break;
 
                         case NRC.RTDNE:
+                            updata(1, processStr + "...keep alive");
                             for (int c = 0; c < 4; c++)
                             {
                                 keepAlive();
@@ -289,6 +305,7 @@ namespace USBCAN
 
                         default:
                             flashFlag = false;
+                            updata(1, processStr + "...fail");
                             break;
                     }
                     break;
@@ -300,6 +317,7 @@ namespace USBCAN
                     {
                         blCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
                     }
+                    updata(1, "sending file...");
                     processIndex++;
                     break;
 
@@ -316,6 +334,7 @@ namespace USBCAN
                     {
                         s19File = null;
                         s19BlockIndex = 0;
+                        updata(1, "sending file...finish");
                         processIndex++;
                     }
                     else
@@ -330,6 +349,7 @@ namespace USBCAN
                     if (CanControl.Rev[2] == 0x01)
                     {
                         Delay(550);
+                        updata(1, processStr + "...ok");
                         processIndex++;
                     }
                     break;
@@ -337,10 +357,12 @@ namespace USBCAN
                 default:
                     if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
                     {
+                        updata(1, processStr + "...ok");
                         processIndex++;
                     }
                     else
                     {
+                        updata(1, processStr + "...fail");
                         flashFlag = false;
                     }
                     break;

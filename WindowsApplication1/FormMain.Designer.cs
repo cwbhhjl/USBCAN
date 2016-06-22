@@ -235,11 +235,12 @@ namespace USBCAN
             // 
             // listBox
             // 
+            this.listBox.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listBox.FormattingEnabled = true;
-            this.listBox.ItemHeight = 12;
+            this.listBox.ItemHeight = 14;
             this.listBox.Location = new System.Drawing.Point(0, 66);
             this.listBox.Name = "listBox";
-            this.listBox.Size = new System.Drawing.Size(436, 316);
+            this.listBox.Size = new System.Drawing.Size(436, 312);
             this.listBox.TabIndex = 15;
             // 
             // label_Version
