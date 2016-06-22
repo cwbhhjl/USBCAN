@@ -32,6 +32,14 @@ namespace USBCAN
             }
         }
 
+        internal ThreadState HexThreadState
+        {
+            get
+            {
+                return hexThread.ThreadState;
+            }
+        }
+
         public HexS19()
         {
             hexThread = new Thread(hexStart);
@@ -41,7 +49,7 @@ namespace USBCAN
 
         public void wakeUpHexThread()
         {
-            if (hexThread.ThreadState != ThreadState.Running)
+            if (hexThread.ThreadState != ThreadState.Background)
             {
                 ctl.Set();
             }
@@ -55,11 +63,13 @@ namespace USBCAN
                 {
                     ctl.WaitOne();
                 }
-
-                int r = readFile(files.Dequeue());
-                if (r == 1)
+                lock (s19Files)
                 {
-                    lineToBlock();
+                    int r = readFile(files.Dequeue());
+                    if (r == 1)
+                    {
+                        lineToBlock();
+                    }
                 }
             }
 
@@ -78,6 +88,35 @@ namespace USBCAN
             files.Enqueue(file);
         }
 
+        internal void syncFilesWithUI(int cmd,int index, string[] files = null)
+        {
+            switch (cmd)
+            {
+                case -1:
+                    s19Files.RemoveAt(index);
+                    break;
+                case 1:
+                    addFile(files);
+                    wakeUpHexThread();
+                    break;
+                case 2:
+                    addFile(files);
+                    wakeUpHexThread();
+
+                    Thread.Sleep(1);
+                    lock (s19Files)
+                    {
+                        if (s19Files.Count != 1)
+                        {
+                            S19Block[] tmp = s19Files[Count - 1];
+                            s19Files.RemoveAt(Count - 1);
+                            s19Files.Insert(0, tmp);
+                        }
+                    }
+                    break;
+            }
+        }
+
         public S19Block[] getS19File()
         {
             if(s19FilesGhost == null || s19FilesGhost.Count == 0)
@@ -94,14 +133,22 @@ namespace USBCAN
             strLineTmp = new List<string>();
             string tmp;
 
-            using (FileStream fs = File.OpenRead(filePath))
+            try
             {
-                StreamReader sr = new StreamReader(fs, Encoding.Default);
-                while (!sr.EndOfStream)
+                using (FileStream fs = File.OpenRead(filePath))
                 {
-                    strLineTmp.Add(sr.ReadLine());
+                    StreamReader sr = new StreamReader(fs, Encoding.Default);
+                    while (!sr.EndOfStream)
+                    {
+                        strLineTmp.Add(sr.ReadLine());
+                    }
                 }
             }
+            catch (FileNotFoundException)
+            {
+                return -1;
+            }
+            
 
             for (int i = 0; i < strLineTmp.Count; i++)
             {

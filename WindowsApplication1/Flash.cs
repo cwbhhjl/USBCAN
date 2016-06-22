@@ -59,18 +59,13 @@ namespace USBCAN
 
         private Regex reg = new Regex("_[pf]$", RegexOptions.IgnoreCase);
 
-        private static string driverName = "\\FlashDriver_S12GX_V1.0.s19";
+        private static string driverName = "FlashDriver_S12GX_V1.0.s19";
 
         public static string DriverName
         {
             get
             {
-                return Environment.CurrentDirectory + driverName;
-            }
-
-            set
-            {
-                driverName = "\\" + value;
+                return Environment.CurrentDirectory + "\\" + driverName;
             }
         }
 
@@ -113,7 +108,7 @@ namespace USBCAN
             sendThread.IsBackground = true;
             handleThread.IsBackground = true;
 
-            if (carSelected["NoFlashDriver"] != null && new Regex("true", RegexOptions.IgnoreCase).IsMatch(carSelected["NoFlashDriver"].ToString()))
+            if (carSelected["FlashDriver"] != null && new Regex("true", RegexOptions.IgnoreCase).IsMatch(carSelected["FlashDriver"].ToString()))
             {
                 s19.getS19File();
             }

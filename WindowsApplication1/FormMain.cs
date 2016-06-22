@@ -10,6 +10,8 @@ namespace USBCAN
         IDictionary carSelected = null;
         Flash flash = null;
         HexS19 s19 = new HexS19();
+        FileBoxItem flashDriverDefaultPath = new FileBoxItem(Flash.DriverName);
+        System.Collections.Generic.List<string> fileList = new System.Collections.Generic.List<string>();
 
         public FormMain()
         {
@@ -19,8 +21,8 @@ namespace USBCAN
         private void Form1_Load(object sender, EventArgs e)
         {
             CanControl.canConnect();
-            s19.addFile(Flash.DriverName);
-            s19.wakeUpHexThread();
+            FileBox.Items.Add(flashDriverDefaultPath);
+            s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -61,10 +63,8 @@ namespace USBCAN
             comboBox_Config.Items.Clear();
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             int confnum = config.GetSectionGroup("CarConfig").Sections.Count;
-            //String[] carInfo=new String[confnum];
             for (int index = 0; index < confnum; index++)
             {
-                //carInfo[index]= config.GetSectionGroup("CarConfig").Sections.GetKey(index);
                 comboBox_Config.Items.Add(config.GetSectionGroup("CarConfig").Sections.GetKey(index));
             }
         }
@@ -84,7 +84,50 @@ namespace USBCAN
             }
             
             flash = new Flash(carSelected, s19);
-            
+
+            if (carSelected["FlashDriver"] != null)
+            {
+                string flashDriverConfig = carSelected["FlashDriver"].ToString().ToLower();
+                if (FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName)
+                { 
+                    switch (flashDriverConfig)
+                    {
+                        case "true":
+                            FileBox.Items.Insert(0, flashDriverDefaultPath);
+                            s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
+                            break;
+                        case "false":
+                            break;
+                        default:
+                            if (FileBox.Items.Count == 0 || (FileBox.Items[0].ToString() != flashDriverConfig && ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName))
+                            {
+                                FileBox.Items.Insert(0, flashDriverConfig);
+                                s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
+                            }else if(((FileBoxItem)FileBox.Items[0]).FilePath == Flash.DriverName){
+                                FileBox.Items.RemoveAt(0);
+                                s19.syncFilesWithUI(-1, 0);
+                                FileBox.Items.Add(new FileBoxItem(flashDriverConfig));
+                                s19.syncFilesWithUI(1, -1, new string[1] { flashDriverConfig });
+                            }
+                            break;
+                    }
+                }
+                else if(flashDriverConfig == "false")
+                {
+                    FileBox.Items.RemoveAt(0);
+                    s19.syncFilesWithUI(-1, 0);
+                }
+            }
+            else
+            {
+                if (FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName)
+                {
+                    FileBox.Items.Insert(0, flashDriverDefaultPath);
+                    s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
+                }
+            }
+
+            textBox_Version_Click(textBox_Version, e);
         }
 
         private void button_LoadS19_Click(object sender, EventArgs e)
@@ -94,10 +137,30 @@ namespace USBCAN
 
         private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            fileList.Clear();
+            foreach(var it in FileBox.Items)
+            {
+                fileList.Add(((FileBoxItem)it).FilePath);
+            }
             string[] files = openS19Dialog.FileNames;
+            foreach(var a in files)
+            {
+                if (fileList.Contains(a))
+                {
+                    MessageBox.Show("含有重复文件，请重新选择", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+            }
             openS19Dialog.InitialDirectory = files[0].Substring(0, files[0].LastIndexOfAny("\\".ToCharArray()));
-            s19.addFile(files);
-            s19.wakeUpHexThread();
+            s19.syncFilesWithUI(1, -1, files);
+            foreach (string s in files)
+            {
+                if (s.EndsWith(".s19") || s.EndsWith(".S19"))
+                {
+                    FileBox.Items.Add(new FileBoxItem(s));
+                }
+            }
         }
 
         private void FileBox_DragDrop(object sender, DragEventArgs e)
@@ -105,6 +168,7 @@ namespace USBCAN
             if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                s19.syncFilesWithUI(1, -1, files);
                 foreach (string s in files)
                 {
                     if (s.EndsWith(".s19") || s.EndsWith(".S19"))
@@ -135,11 +199,24 @@ namespace USBCAN
             if (e.Button == MouseButtons.Right)
             {
                 (sender as ListBox).Items.RemoveAt(index);
+                s19.syncFilesWithUI(-1, index);
             }
             else
             {
                 (sender as ListBox).DoDragDrop((sender as ListBox).Items[index], DragDropEffects.Move);
                 //DragDropEffects dde1 = DoDragDrop((sender as ListBox).Items[index], DragDropEffects.Move);
+            }
+        }
+
+        private void textBox_Version_Click(object sender, EventArgs e)
+        {
+            if(flash != null)
+            {
+                (sender as TextBox).Text = flash.readVersion();
+            }
+            else
+            {
+                (sender as TextBox).Text = "";
             }
         }
 
