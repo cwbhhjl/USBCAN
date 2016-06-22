@@ -223,41 +223,39 @@ namespace USBCAN
             }
         }
 
-        private void updataUI(int cmd, string msg = null, int processValue = 0)
+        private void updataUI(int cmd, string msg = null, int processValue = 0,string msg2 = null)
         {
-            if (InvokeRequired)
+            Invoke(new MethodInvoker(delegate
             {
-                Invoke(new MethodInvoker(delegate
+                switch (cmd)
                 {
-                    switch (cmd)
-                    {
-                        case 1:
-                            listBox.Items.Insert(listBox.Items.Count, msg);
-                            listBox.SelectedIndex = listBox.Items.Count - 1;
-                            listBox.Refresh();
-                            break;
-                        case 2:
-                            MessageBox.Show(msg, "错误",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            break;
-                        case 3:
-                            toolStripProgressBar_Flash.Increment(processValue);
-                            break;
-                        case 4:
-                            toolStripProgressBar_Flash.Value = processValue > 100 ? 100 : processValue;
-                            break;
-                        default:
-                            break;
-                    }
+                    case 1:
+                        listBox.Items.Insert(listBox.Items.Count, msg);
+                        listBox.SelectedIndex = listBox.Items.Count - 1;
+                        listBox.Refresh();
+                        break;
+                    case 2:
+                        MessageBox.Show(msg, "INFO",
+                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        break;
+                    case 3:
+                        toolStripProgressBar_Flash.Increment(processValue);
+                        break;
+                    case 4:
+                        toolStripProgressBar_Flash.Value = processValue > 100 ? 100 : processValue;
+                        break;
+                    case 5:
+                        listBox.Items.Insert(listBox.Items.Count, msg);
+                        listBox.SelectedIndex = listBox.Items.Count - 1;
+                        listBox.Refresh();
+                        MessageBox.Show(msg2, "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        break;
+                    default:
+                        break;
+                }
 
-                }));
-            }
-            else {
-                listBox.Items.Insert(listBox.Items.Count, msg);
-                listBox.SelectedIndex = listBox.Items.Count - 1;
-                listBox.Refresh();
-            }
-
+            }));
         }
     }
 

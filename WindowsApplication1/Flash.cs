@@ -11,7 +11,7 @@ namespace USBCAN
 {
     class Flash
     {
-        public delegate void Updata(int cmd, string msg = null, int procssValue = 0);
+        public delegate void Updata(int cmd, string msg = null, int procssValue = 0, string msg2 = null);
         public event Updata updata;
 
         private uint physicalID;
@@ -189,6 +189,7 @@ namespace USBCAN
             catch (NullReferenceException)
             {
                 flashFlag = false;
+                updata(2, "刷写完成");
                 return;
             }
 
@@ -282,7 +283,7 @@ namespace USBCAN
                 dataCounter = dataCounter + (ulong)mainSendData.Count - 2;
             }
 
-            updata(4,"", (int)(dataCounter * 100 / dataNum));
+            updata(4, "", (int)(dataCounter * 100 / dataNum));
         }
 
         private void handleCan()
@@ -293,10 +294,10 @@ namespace USBCAN
                     switch (CanControl.Rev[3])
                     {
                         case NRC.RCRRP:
-                            if(processStr!= "DataTransfer")
+                            if (processStr != "DataTransfer")
                             {
                                 updata(1, processStr + "...wait");
-                            } 
+                            }
                             while (CanControl.canLastReceive(receiveID) == null || CanControl.Rev[1] == SI.NRSI)
                             {
                                 Delay(10);
@@ -315,7 +316,8 @@ namespace USBCAN
 
                         default:
                             flashFlag = false;
-                            updata(1, processStr + "...fail");
+                            string error = CanControl.Rev.ToString();
+                            updata(5, processStr + "...fail", 0, "刷写失败:" + error);
                             break;
                     }
                     break;
@@ -372,7 +374,7 @@ namespace USBCAN
                     }
                     else
                     {
-                        updata(1, processStr + "...fail");
+                        updata(5, processStr + "...fail", 0, "刷写失败");
                         flashFlag = false;
                     }
                     break;
