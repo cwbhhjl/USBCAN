@@ -223,7 +223,7 @@ namespace USBCAN
             }
         }
 
-        private void updataUI(int cmd, string msg = null, int processValue = 0,string msg2 = null)
+        private void updataUI(int cmd, string msg = null, int processValue = 0, string msg2 = null)
         {
             Invoke(new MethodInvoker(delegate
             {
@@ -236,7 +236,7 @@ namespace USBCAN
                         break;
                     case 2:
                         MessageBox.Show(msg, "INFO",
-                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         break;
                     case 3:
                         toolStripProgressBar_Flash.Increment(processValue);
@@ -249,7 +249,7 @@ namespace USBCAN
                         listBox.SelectedIndex = listBox.Items.Count - 1;
                         listBox.Refresh();
                         MessageBox.Show(msg2, "错误",
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         break;
                     case 0:
                         listBox.Items.Clear();
@@ -260,6 +260,12 @@ namespace USBCAN
                 }
 
             }));
+        }
+
+        private void toolStripMenuItem_About_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("联系：cwbhhjl@gmail.com\n\n" + "软件版本：" + Application.ProductVersion.ToString(), "关于",
+                        MessageBoxButtons.OK, MessageBoxIcon.None);
         }
     }
 

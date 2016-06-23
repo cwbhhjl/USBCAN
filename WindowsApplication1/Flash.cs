@@ -148,6 +148,11 @@ namespace USBCAN
                         catch { }
                     }
 
+                    if (!flashFlag)
+                    {
+                        break;
+                    }
+
                     sendCan();
 
                     if (sendResult < 0)
@@ -171,6 +176,11 @@ namespace USBCAN
                     {
                         try { Monitor.Wait(canCtl); }
                         catch { }
+                    }
+
+                    if (!flashFlag)
+                    {
+                        break;
                     }
 
                     handleCan();

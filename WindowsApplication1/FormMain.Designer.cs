@@ -343,6 +343,7 @@ namespace USBCAN
             this.toolStripMenuItem_About.Name = "toolStripMenuItem_About";
             this.toolStripMenuItem_About.Size = new System.Drawing.Size(44, 21);
             this.toolStripMenuItem_About.Text = "关于";
+            this.toolStripMenuItem_About.Click += new System.EventHandler(this.toolStripMenuItem_About_Click);
             // 
             // FormMain
             // 
