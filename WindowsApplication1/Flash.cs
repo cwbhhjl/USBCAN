@@ -119,7 +119,7 @@ namespace USBCAN
                 s19.getS19File();
             }
 
-            updata(0);
+            updata(-1);
 
             dataNum = (ulong)sequence.Keys.Count + s19.getS19DataNum();
             dataCounter = 0;
@@ -132,6 +132,7 @@ namespace USBCAN
 
             processIndex = 0;
             CanControl.canClearBuffer();
+            updata(0);
         }
 
         void sendStart(object obj)

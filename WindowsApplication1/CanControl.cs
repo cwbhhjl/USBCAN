@@ -255,9 +255,9 @@ namespace USBCAN
             int start = Environment.TickCount;
             while (Math.Abs(Environment.TickCount - start) < 75)
             {
-                if (VCI_GetReceiveNum(deviceType, deviceIndex, canIndex) > 0)
+                if (canLastReceive(receiveID) != null)
                 {
-                    canLastReceive(receiveID);
+                    //canLastReceive(receiveID);
                     return true;
                 }
             }
@@ -287,6 +287,11 @@ namespace USBCAN
                     continue;
                 }
                 canObj.Add(objTmp);
+            }
+
+            if(canObj == null)
+            {
+                return null;
             }
 
             //canLog.recordLog(obj);

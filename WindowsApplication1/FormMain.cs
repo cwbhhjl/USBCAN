@@ -215,11 +215,11 @@ namespace USBCAN
         {
             if (flash != null)
             {
-                (sender as TextBox).Text = flash.readVersion();
+                textBox_Version.Text = flash.readVersion();
             }
             else
             {
-                (sender as TextBox).Text = "";
+                textBox_Version.Text = "";
             }
         }
 
@@ -251,9 +251,23 @@ namespace USBCAN
                         MessageBox.Show(msg2, "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         break;
-                    case 0:
+                    case -1:
                         listBox.Items.Clear();
                         toolStripProgressBar_Flash.Value = 0;
+                        textBox_Version.Text = flash.readVersion();
+                        textBox_Version.Enabled = false;
+                        FileBox.Enabled = false;
+                        button_LoadS19.Enabled = false;
+                        comboBox_Config.Enabled = false;
+                        toolStripMenuI_Start.Enabled = false;
+                        break;
+                    case 0:
+                        textBox_Version.Enabled = true;
+                        FileBox.Enabled = true;
+                        button_LoadS19.Enabled = true;
+                        comboBox_Config.Enabled = true;
+                        toolStripMenuI_Start.Enabled = true;
+                        textBox_Version.Text = flash.readVersion();
                         break;
                     default:
                         break;
@@ -264,8 +278,9 @@ namespace USBCAN
 
         private void toolStripMenuItem_About_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("联系：cwbhhjl@gmail.com\n\n" + "软件版本：" + Application.ProductVersion.ToString(), "关于",
-                        MessageBoxButtons.OK, MessageBoxIcon.None);
+            MessageBox.Show("联系：cwbhhjl@gmail.com\n\n" + "软件版本：" + Application.ProductVersion.ToString() +
+                "\n\nIcons made by Freepik(http://www.freepik.com), is licensed by CC 3.0(http://creativecommons.org/licenses/by/3.0/)",
+                "关于", MessageBoxButtons.OK, MessageBoxIcon.None);
         }
     }
 

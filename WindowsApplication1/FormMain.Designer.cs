@@ -31,8 +31,8 @@ namespace USBCAN
         private void InitializeComponent()
         {
             System.Windows.Forms.Label label_car;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.button_LoadS19 = new System.Windows.Forms.Button();
-            this.button_Flash = new System.Windows.Forms.Button();
             this.comboBox_Config = new System.Windows.Forms.ComboBox();
             this.openS19Dialog = new System.Windows.Forms.OpenFileDialog();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
@@ -57,6 +57,7 @@ namespace USBCAN
             this.toolStripMenuItem_Reset = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_FileReset = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_About = new System.Windows.Forms.ToolStripMenuItem();
+            this.button_Flash = new System.Windows.Forms.Button();
             label_car = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -88,20 +89,6 @@ namespace USBCAN
             this.button_LoadS19.Text = "加载烧写文件";
             this.button_LoadS19.UseVisualStyleBackColor = true;
             this.button_LoadS19.Click += new System.EventHandler(this.button_LoadS19_Click);
-            // 
-            // button_Flash
-            // 
-            this.button_Flash.BackColor = System.Drawing.Color.AliceBlue;
-            this.button_Flash.FlatAppearance.BorderColor = System.Drawing.Color.LightCoral;
-            this.button_Flash.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button_Flash.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_Flash.Location = new System.Drawing.Point(343, 6);
-            this.button_Flash.Name = "button_Flash";
-            this.button_Flash.Size = new System.Drawing.Size(79, 37);
-            this.button_Flash.TabIndex = 8;
-            this.button_Flash.Text = "开始烧写";
-            this.button_Flash.UseVisualStyleBackColor = false;
-            this.button_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // comboBox_Config
             // 
@@ -167,6 +154,7 @@ namespace USBCAN
             this.FileBox.AllowDrop = true;
             this.FileBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FileBox.FormattingEnabled = true;
+            this.FileBox.HorizontalScrollbar = true;
             this.FileBox.ItemHeight = 17;
             this.FileBox.Location = new System.Drawing.Point(3, 19);
             this.FileBox.Name = "FileBox";
@@ -312,6 +300,7 @@ namespace USBCAN
             this.toolStripMenuItem_Car.Name = "toolStripMenuItem_Car";
             this.toolStripMenuItem_Car.Size = new System.Drawing.Size(136, 22);
             this.toolStripMenuItem_Car.Text = "选择车型";
+            this.toolStripMenuItem_Car.Click += new System.EventHandler(this.comboBox_Config_Click);
             // 
             // toolStripMenuItem_Flash
             // 
@@ -325,6 +314,7 @@ namespace USBCAN
             this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
             this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(136, 22);
             this.ToolStripMenuItem_Version.Text = "读取版本号";
+            this.ToolStripMenuItem_Version.Click += new System.EventHandler(this.textBox_Version_Click);
             // 
             // toolStripMenuItem_Reset
             // 
@@ -345,6 +335,20 @@ namespace USBCAN
             this.toolStripMenuItem_About.Text = "关于";
             this.toolStripMenuItem_About.Click += new System.EventHandler(this.toolStripMenuItem_About_Click);
             // 
+            // button_Flash
+            // 
+            this.button_Flash.BackColor = System.Drawing.Color.AliceBlue;
+            this.button_Flash.FlatAppearance.BorderColor = System.Drawing.Color.LightCoral;
+            this.button_Flash.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Flash.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button_Flash.Location = new System.Drawing.Point(353, 3);
+            this.button_Flash.Name = "button_Flash";
+            this.button_Flash.Size = new System.Drawing.Size(83, 35);
+            this.button_Flash.TabIndex = 8;
+            this.button_Flash.Text = "开始烧写";
+            this.button_Flash.UseVisualStyleBackColor = true;
+            this.button_Flash.Click += new System.EventHandler(this.button_Flash_Click);
+            // 
             // FormMain
             // 
             this.AcceptButton = this.button_Flash;
@@ -355,6 +359,7 @@ namespace USBCAN
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.splitContainer);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip_Main;
             this.MaximizeBox = false;
             this.Name = "FormMain";
