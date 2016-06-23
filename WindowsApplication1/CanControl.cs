@@ -50,6 +50,16 @@ namespace USBCAN
 
         public static uint res = 0;
 
+        internal Dictionary<int, string> sendError = new Dictionary<int, string>()
+        {
+            {-1,"发送错误：设备未打开" },
+            {-2,"发送错误：无响应" },
+            {-3,"发送错误：发送数据超出最大范围" },
+            {-4,"发送错误：控制帧显示缓存溢出" },
+            {-5,"发送错误：报文发送失败" },
+            {-6,"发送错误：外部组件异常" }
+        };
+
         public static byte[] Rev
         {
             get
@@ -156,6 +166,20 @@ namespace USBCAN
             return (int)VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
         }
 
+        /// <summary>
+        /// 调用成功后，响应报文写在Cancontrol.Rev数组中
+        /// </summary>
+        /// <param name="canID">发送ID</param>
+        /// <param name="receiveID">接收ID</param>
+        /// <param name="data">发送数据</param>
+        /// <returns>-1：设备未打开</returns>
+        /// <returns>-2：无响应</returns>
+        /// <returns>-3：发送数据超出最大范围</returns>
+        /// <returns>-4：控制帧显示缓存溢出</returns>
+        /// <returns>-5：报文发送失败</returns>
+        /// <returns>-6：外部组件异常</returns>
+        /// <returns>1：单帧发送成功</returns>
+        /// <returns>2：多帧发送成功</returns>
         unsafe public static int sendFrame(uint canID, uint receiveID, byte[] data)
         {
             if (!isOpen)

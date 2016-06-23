@@ -166,6 +166,7 @@ namespace USBCAN
                     if (sendResult < 0)
                     {
                         flashFlag = false;
+                        updata(5, processStr + "...fail", 0, canCtl.sendError[sendResult]);
                     }
 
                     sendFlag = false;

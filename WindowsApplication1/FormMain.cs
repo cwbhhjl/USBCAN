@@ -283,22 +283,16 @@ namespace USBCAN
         private void toolStripMenuItem_About_Click(object sender, EventArgs e)
         {
             MessageBox.Show("联系：cwbhhjl@gmail.com\n\n" + "软件版本：" + Application.ProductVersion.ToString() +
-                "\n\nIcons made by Freepik(http://www.freepik.com), is licensed by CC 3.0(http://creativecommons.org/licenses/by/3.0/)",
+                "\n\nIcons made by Freepik (http://www.freepik.com) , is licensed by CC 3.0 (http://creativecommons.org/licenses/by/3.0/)",
                 "关于", MessageBoxButtons.OK, MessageBoxIcon.None);
         }
 
         protected override void WndProc(ref Message m)
         {
             const int WM_DEVICECHANGE = 0x219;
-            //const int WM_DEVICEARRVIAL = 0x8000;//如果m.Msg的值为0x8000那么表示有U盘插入
-            //const int WM_DEVICEMOVECOMPLETE = 0x8004;
             switch (m.Msg)
             {
                 case WM_DEVICECHANGE:
-                    //if(waitUSB == 0)
-                    //{
-                    //    toolStripStatusLabel_CAN.Text = CanControl.canConnect() ? "CAN : true" : "CAN : false";
-                    //}
                     if (CanControl.IsOpen)
                     {
                         if (CanControl.readBoardInfo() == 0)
