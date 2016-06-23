@@ -47,6 +47,7 @@ namespace USBCAN
             this.listBox = new System.Windows.Forms.ListBox();
             this.label_Version = new System.Windows.Forms.Label();
             this.textBox_Version = new System.Windows.Forms.TextBox();
+            this.button_Flash = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.menuStrip_Main = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuI_Start = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,7 +58,6 @@ namespace USBCAN
             this.toolStripMenuItem_Reset = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_FileReset = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_About = new System.Windows.Forms.ToolStripMenuItem();
-            this.button_Flash = new System.Windows.Forms.Button();
             label_car = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -194,6 +194,7 @@ namespace USBCAN
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.toolStripStatusLabel_CAN.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripStatusLabel_CAN.MergeAction = System.Windows.Forms.MergeAction.Replace;
             this.toolStripStatusLabel_CAN.Name = "toolStripStatusLabel_CAN";
             this.toolStripStatusLabel_CAN.Size = new System.Drawing.Size(86, 21);
             this.toolStripStatusLabel_CAN.Text = "CAN：未连接";
@@ -253,6 +254,20 @@ namespace USBCAN
             this.textBox_Version.TabIndex = 12;
             this.textBox_Version.TabStop = false;
             this.textBox_Version.Click += new System.EventHandler(this.textBox_Version_Click);
+            // 
+            // button_Flash
+            // 
+            this.button_Flash.BackColor = System.Drawing.Color.AliceBlue;
+            this.button_Flash.FlatAppearance.BorderColor = System.Drawing.Color.LightCoral;
+            this.button_Flash.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button_Flash.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button_Flash.Location = new System.Drawing.Point(353, 3);
+            this.button_Flash.Name = "button_Flash";
+            this.button_Flash.Size = new System.Drawing.Size(83, 35);
+            this.button_Flash.TabIndex = 8;
+            this.button_Flash.Text = "开始烧写";
+            this.button_Flash.UseVisualStyleBackColor = true;
+            this.button_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // panel1
             // 
@@ -334,20 +349,6 @@ namespace USBCAN
             this.toolStripMenuItem_About.Size = new System.Drawing.Size(44, 21);
             this.toolStripMenuItem_About.Text = "关于";
             this.toolStripMenuItem_About.Click += new System.EventHandler(this.toolStripMenuItem_About_Click);
-            // 
-            // button_Flash
-            // 
-            this.button_Flash.BackColor = System.Drawing.Color.AliceBlue;
-            this.button_Flash.FlatAppearance.BorderColor = System.Drawing.Color.LightCoral;
-            this.button_Flash.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button_Flash.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button_Flash.Location = new System.Drawing.Point(353, 3);
-            this.button_Flash.Name = "button_Flash";
-            this.button_Flash.Size = new System.Drawing.Size(83, 35);
-            this.button_Flash.TabIndex = 8;
-            this.button_Flash.Text = "开始烧写";
-            this.button_Flash.UseVisualStyleBackColor = true;
-            this.button_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // FormMain
             // 

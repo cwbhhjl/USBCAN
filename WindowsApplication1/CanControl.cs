@@ -44,6 +44,7 @@ namespace USBCAN
 
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
         public static VCI_ERR_INFO errorInfo = new VCI_ERR_INFO();
+        public static VCI_BOARD_INFO boardInfo = new VCI_BOARD_INFO();
 
         private static CanControl canCtl;
 
@@ -54,6 +55,19 @@ namespace USBCAN
             get
             {
                 return rev;
+            }
+        }
+
+        internal static bool IsOpen
+        {
+            get
+            {
+                return isOpen;
+            }
+
+            set
+            {
+                isOpen = value;
             }
         }
 
@@ -80,8 +94,7 @@ namespace USBCAN
                     VCI_ReadErrInfo(deviceType, deviceIndex, canIndex, ref errorInfo);
                     return false;
                 }
-
-                isOpen = true;
+ 
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
 
                 config.AccCode = 0;
@@ -91,8 +104,15 @@ namespace USBCAN
                 config.Filter = 1;
                 config.Mode = 0;
 
-                VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config);
-                VCI_StartCAN(deviceType, deviceIndex, canIndex);
+                if(VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config) != 1
+                    || VCI_StartCAN(deviceType, deviceIndex, canIndex) != 1)
+                {
+                    return false;
+                }
+
+                isOpen = true;
+                //VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config);
+                //VCI_StartCAN(deviceType, deviceIndex, canIndex);
 
                 obj.SendType = 0;
                 obj.RemoteFlag = 0;
@@ -106,6 +126,11 @@ namespace USBCAN
                         pData[n] = 0xFF;
                     }
                 }
+            }
+            else if(readBoardInfo() == 0)
+            {
+                isOpen = false;
+                canConnect();
             }
 
             return isOpen;
@@ -318,9 +343,8 @@ namespace USBCAN
 
         public static void canClose()
         {
-            if (isOpen)
+            if(VCI_CloseDevice(deviceType, deviceIndex) == 1)
             {
-                VCI_CloseDevice(deviceType, deviceIndex);
                 isOpen = false;
             }
         }
@@ -337,6 +361,11 @@ namespace USBCAN
         public static uint canClearBuffer()
         {
             return VCI_ClearBuffer(deviceType, deviceIndex, canIndex);
+        }
+
+        public static uint readBoardInfo()
+        {
+            return VCI_ReadBoardInfo(deviceType, deviceIndex, ref boardInfo);
         }
     }
 }
