@@ -335,7 +335,9 @@ namespace USBCAN
 
                         default:
                             flashFlag = false;
-                            updata(5, processStr + "...fail", 0, "刷写失败: 7F" + CanControl.Rev[2] + CanControl.Rev[3]);
+                            updata(5, 
+                                processStr + "...fail", 0, 
+                                "刷写失败: 7F" + Convert.ToString(CanControl.Rev[2], 16) + Convert.ToString(CanControl.Rev[3], 16));
                             break;
                     }
                     break;
