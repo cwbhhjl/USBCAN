@@ -251,6 +251,10 @@ namespace USBCAN
                         MessageBox.Show(msg2, "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         break;
+                    case 0:
+                        listBox.Items.Clear();
+                        toolStripProgressBar_Flash.Value = 0;
+                        break;
                     default:
                         break;
                 }

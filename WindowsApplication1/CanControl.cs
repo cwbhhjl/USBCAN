@@ -213,8 +213,16 @@ namespace USBCAN
                                 index++;
                             }
                         }
-                        VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
 
+                        try
+                        {
+                            VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+                        }
+                        catch (Exception)
+                        {
+                            return -6;
+                        }
+                        
                         if (index >= len)
                         {
                             break;

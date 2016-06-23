@@ -94,8 +94,6 @@ namespace USBCAN
             sec = new Security(securityAccess[2]);
             canCtl = CanControl.getCanControl();
             this.s19 = s19;
-
-            dataNum = (ulong)sequence.Keys.Count;
         }
 
         public void init()
@@ -121,7 +119,10 @@ namespace USBCAN
                 s19.getS19File();
             }
 
-            dataNum += s19.getS19DataNum();
+            updata(0);
+
+            dataNum = (ulong)sequence.Keys.Count + s19.getS19DataNum();
+            dataCounter = 0;
 
             sendThread.Start();
             handleThread.Start();
