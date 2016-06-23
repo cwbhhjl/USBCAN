@@ -91,7 +91,15 @@ namespace USBCAN
 
             securityAccess = canStringToByte(carSelected["SecurityAccess"].ToString());
 
-            sec = new Security(securityAccess[2]);
+            if (carSelected["SecurityAccessMask"] != null)
+            {
+                sec = new Security(securityAccess[2], Convert.ToUInt32(carSelected["SecurityAccessMask"].ToString(), 16));
+            }
+            else
+            {
+                sec = new Security(securityAccess[2]);
+            }
+            
             canCtl = CanControl.getCanControl();
             this.s19 = s19;
         }

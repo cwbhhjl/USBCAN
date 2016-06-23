@@ -5,18 +5,26 @@ namespace USBCAN
 {
     class Security
     {
-        private const uint MASK_N330_BLACKBOX = 0x7FEAC5CBU;
+        private uint MASK;
         private const uint MASK_DEFAULT = 0xA5CEFDB6U;
         private byte securityAlgorithmType;
 
         public Security()
         {
             securityAlgorithmType = 0;
+            MASK = MASK_DEFAULT;
         }
 
         public Security(byte securityAlgorithmType)
         {
             this.securityAlgorithmType = securityAlgorithmType;
+            MASK = MASK_DEFAULT;
+        }
+
+        public Security(byte securityAlgorithmType, uint mask)
+        {
+            this.securityAlgorithmType = securityAlgorithmType;
+            MASK = mask;
         }
 
         public uint seedToKey(uint seed)
@@ -52,7 +60,7 @@ namespace USBCAN
                 if ((seed & 0x80000000) == 0x80000000)
                 {
                     seed <<= 1;
-                    seed ^= MASK_N330_BLACKBOX;
+                    seed ^= MASK;
                 }
                 else
                 {
@@ -64,19 +72,25 @@ namespace USBCAN
 
         private byte[] securityAlgorithm_1(byte[] seed)
         {
-            uint keyInt = securityAlgorithm_1(BitConverter.ToUInt32(seed, 0));
-            return BitConverter.GetBytes(keyInt);
+            uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
+            uint keyInt = securityAlgorithm_1(seedInt);
+            byte[] key = new byte[4];
+            for (int i = 0; i < 4; i++)
+            {
+                key[i] = (byte)(keyInt >> (8 * (3 - i)));
+            }
+            return key;
         }
 
         private uint securityAlgorithm_0(uint seed)
         {
-            return (seed ^ MASK_DEFAULT) + MASK_DEFAULT;
+            return (seed ^ MASK) + MASK;
         }
 
         private byte[] securityAlgorithm_0(byte[] seed)
         {
             uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
-            uint keyInt = (seedInt ^ MASK_DEFAULT) + MASK_DEFAULT;
+            uint keyInt = (seedInt ^ MASK) + MASK;
 
             byte[] key = new byte[4];
             for (int i = 0; i < 4; i++)
