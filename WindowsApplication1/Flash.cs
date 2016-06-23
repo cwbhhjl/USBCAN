@@ -106,8 +106,6 @@ namespace USBCAN
 
         public void mainStart()
         {
-            CanControl.canClearBuffer();
-
             sendThread = new Thread(new ParameterizedThreadStart(sendStart));
             handleThread = new Thread(new ParameterizedThreadStart(handleStart));
 
@@ -138,6 +136,7 @@ namespace USBCAN
         void sendStart(object obj)
         {
             sendResult = 0;
+            CanControl.canClearBuffer();
 
             while (flashFlag)
             {
@@ -328,8 +327,7 @@ namespace USBCAN
 
                         default:
                             flashFlag = false;
-                            string error = CanControl.Rev.ToString();
-                            updata(5, processStr + "...fail", 0, "刷写失败:" + error);
+                            updata(5, processStr + "...fail", 0, "刷写失败: 7F" + CanControl.Rev[2] + CanControl.Rev[3]);
                             break;
                     }
                     break;

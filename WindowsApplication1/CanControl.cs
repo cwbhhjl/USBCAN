@@ -289,7 +289,7 @@ namespace USBCAN
                 canObj.Add(objTmp);
             }
 
-            if(canObj == null)
+            if(canObj.Count == 0)
             {
                 return null;
             }
