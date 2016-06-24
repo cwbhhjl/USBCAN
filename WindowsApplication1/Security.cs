@@ -48,6 +48,8 @@ namespace USBCAN
                     return securityAlgorithm_0(seed);
                 case 0x01:
                     return securityAlgorithm_1(seed);
+                case 0x02:
+                    return securityAlgorithm_2(seed);
                 default:
                     return null;
             }
@@ -99,6 +101,26 @@ namespace USBCAN
             }
             return key;
         }
+
+        private byte[] securityAlgorithm_2(byte[] seed)
+        {
+            byte[] Xor = new byte[4]
+            {
+                0x14,0x28,0xEC,0x6D
+            };
+            byte[] Cal = new byte[4];
+            for(int i = 0; i < 4; i++)
+            {
+                Cal[i] = (byte)(seed[i] ^ Xor[i]);
+            }
+            byte[] key = new byte[4];
+            key[0] = (byte)(((Cal[3] & 0x0F) << 4) | (Cal[2] & 0xF0));
+            key[1] = (byte)(((Cal[2] & 0x3F) << 2) | ((Cal[1] & 0xFC) >> 2));
+            key[2] = (byte)(((Cal[1] & 0xFC) >> 2) | (Cal[0] & 0xC0));
+            key[3] = (byte)(((Cal[0] & 0x0F) << 4) | (Cal[3] & 0x0F));
+            return key;
+        }
+
 
     }
 }
