@@ -16,17 +16,13 @@ namespace USBCAN
             if (CanControl.log)
             {
                 logStr.Append("帧ID:0x" + Convert.ToString((int)obj.ID, 16));
-
-                if (obj.RemoteFlag == 0)
+                logStr.Append("    数据: ");
+                byte[] tmp = new byte[8]; 
+                for (byte j = 0; j < 8; j++)
                 {
-                    logStr.Append("    数据: ");
-                    byte len = (byte)(obj.DataLen % 9);
-
-                    for (byte j = 0; j < len; j++)
-                    {
-                        logStr.Append(" " + Convert.ToString(obj.Data[j], 16));
-                    }
+                    tmp[j] = obj.Data[j];
                 }
+                logStr.Append(BitConverter.ToString(tmp));
                 logStr.Append(Environment.NewLine);
             }
         }
