@@ -104,7 +104,7 @@ namespace USBCAN
                     VCI_ReadErrInfo(deviceType, deviceIndex, -1, ref errorInfo);
                     return false;
                 }
- 
+
                 VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
 
                 config.AccCode = 0;
@@ -114,7 +114,7 @@ namespace USBCAN
                 config.Filter = 1;
                 config.Mode = 0;
 
-                if(VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config) != 1
+                if (VCI_InitCAN(deviceType, deviceIndex, canIndex, ref config) != 1
                     || VCI_StartCAN(deviceType, deviceIndex, canIndex) != 1)
                 {
                     return false;
@@ -137,7 +137,7 @@ namespace USBCAN
                     }
                 }
             }
-            else if(readBoardInfo() == 0)
+            else if (readBoardInfo() == 0)
             {
                 isOpen = false;
                 canConnect();
@@ -271,7 +271,7 @@ namespace USBCAN
                         {
                             return -6;
                         }
-                        
+
                         if (index >= len)
                         {
                             break;
@@ -338,7 +338,7 @@ namespace USBCAN
                 canObj.Add(objTmp);
             }
 
-            if(canObj.Count == 0)
+            if (canObj.Count == 0)
             {
                 return null;
             }
@@ -367,19 +367,27 @@ namespace USBCAN
 
         public static void canClose()
         {
-            if(VCI_CloseDevice(deviceType, deviceIndex) == 1)
+            if (VCI_CloseDevice(deviceType, deviceIndex) == 1)
             {
                 isOpen = false;
             }
         }
 
-        public static uint canReInit()
+        public static int canReInit()
         {
-            if(VCI_ResetCAN(deviceType, deviceIndex, canIndex) == 1)
+            if (VCI_ReadBoardInfo(deviceType, deviceIndex, ref boardInfo) == 1)
             {
-                return VCI_StartCAN(deviceType, deviceIndex, canIndex);
+                if (VCI_ResetCAN(deviceType, deviceIndex, canIndex) == 1)
+                {
+                    return (int)VCI_StartCAN(deviceType, deviceIndex, canIndex);
+                }
+                return -1;
             }
-            return 2;
+            else
+            {
+                return canConnect() ? 1 : 0;
+            }
+
         }
 
         public static uint canClearBuffer()

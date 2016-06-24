@@ -341,6 +341,11 @@ namespace USBCAN
             }
             base.WndProc(ref m);
         }
+
+        private void toolStripMenuItem_Reset_Click(object sender, EventArgs e)
+        {
+            toolStripStatusLabel_CAN.Text = CanControl.canReInit() == 1 ? "CAN : true" : "CAN : false";
+        }
     }
 
     class FileBoxItem

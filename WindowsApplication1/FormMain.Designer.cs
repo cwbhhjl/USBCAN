@@ -52,7 +52,6 @@ namespace USBCAN
             this.menuStrip_Main = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuI_Start = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem_Car = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_Flash = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem_Version = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem_Reset = new System.Windows.Forms.ToolStripMenuItem();
@@ -294,7 +293,6 @@ namespace USBCAN
             // 
             this.toolStripMenuI_Start.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItem,
-            this.toolStripMenuItem_Car,
             this.toolStripMenuItem_Flash,
             this.ToolStripMenuItem_Version,
             this.toolStripMenuItem_Reset,
@@ -306,41 +304,35 @@ namespace USBCAN
             // ToolStripMenuItem
             // 
             this.ToolStripMenuItem.Name = "ToolStripMenuItem";
-            this.ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItem.Text = "加载文件";
             this.ToolStripMenuItem.Click += new System.EventHandler(this.button_LoadS19_Click);
-            // 
-            // toolStripMenuItem_Car
-            // 
-            this.toolStripMenuItem_Car.Name = "toolStripMenuItem_Car";
-            this.toolStripMenuItem_Car.Size = new System.Drawing.Size(136, 22);
-            this.toolStripMenuItem_Car.Text = "选择车型";
-            this.toolStripMenuItem_Car.Click += new System.EventHandler(this.comboBox_Config_Click);
             // 
             // toolStripMenuItem_Flash
             // 
             this.toolStripMenuItem_Flash.Name = "toolStripMenuItem_Flash";
-            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_Flash.Text = "开始烧写";
             this.toolStripMenuItem_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // ToolStripMenuItem_Version
             // 
             this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
-            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(136, 22);
+            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItem_Version.Text = "读取版本号";
             this.ToolStripMenuItem_Version.Click += new System.EventHandler(this.textBox_Version_Click);
             // 
             // toolStripMenuItem_Reset
             // 
             this.toolStripMenuItem_Reset.Name = "toolStripMenuItem_Reset";
-            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_Reset.Text = "连接重置";
+            this.toolStripMenuItem_Reset.Click += new System.EventHandler(this.toolStripMenuItem_Reset_Click);
             // 
             // toolStripMenuItem_FileReset
             // 
             this.toolStripMenuItem_FileReset.Name = "toolStripMenuItem_FileReset";
-            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_FileReset.Text = "文件重置";
             // 
             // toolStripMenuItem_About
@@ -397,7 +389,6 @@ namespace USBCAN
         private System.Windows.Forms.MenuStrip menuStrip_Main;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuI_Start;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Car;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem_Flash;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem_Version;
         private System.Windows.Forms.StatusStrip statusStrip;
