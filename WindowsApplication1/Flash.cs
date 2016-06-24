@@ -424,7 +424,11 @@ namespace USBCAN
 
             if (SI.RDBISI + 0x40 == CanControl.Rev[1])
             {
-                return Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16);
+                string ver = CanControl.Rev[6] == 0x55 ?
+                    Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) :
+                    Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) 
+                    + "." + Convert.ToString(CanControl.Rev[6], 16);
+                return ver;
             }
 
             return "fail";
