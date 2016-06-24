@@ -24,6 +24,11 @@ namespace USBCAN
             {
                 toolStripStatusLabel_CAN.Text = "CAN : true";
             }
+            else if(USBCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
+            {
+                MessageBox.Show(USBCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
             
             FileBox.Items.Add(flashDriverDefaultPath);
             s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
@@ -39,9 +44,19 @@ namespace USBCAN
         {
             if (!CanControl.canConnect())
             {
-                MessageBox.Show("打开设备失败,请检查设备类型和设备索引号是否正确", "错误",
+                MessageBox.Show("打开设备失败,请检查设备已连接并没有被其他程序占用", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                if (USBCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
+                {
+                    MessageBox.Show(USBCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
+                                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
                 return;
+            }
+            else
+            {
+                toolStripStatusLabel_CAN.Text = "CAN : true";
             }
 
             if (s19.Count == 0)

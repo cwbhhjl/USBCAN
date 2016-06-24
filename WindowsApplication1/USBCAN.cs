@@ -87,7 +87,7 @@ namespace USBCAN
         /// <summary>
         /// 错误码定义
         /// </summary>
-        static Dictionary<uint, string> ERR = new Dictionary<uint, string>()
+        public static Dictionary<uint, string> ERR = new Dictionary<uint, string>()
         {
             {0x00000001, "CAN控制器内部FIFO溢出" },
             {0x00000002, "CAN控制器错误报警" },

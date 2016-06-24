@@ -15,7 +15,7 @@ namespace USBCAN
         [DllImport("controlcan.dll")]
         private static extern uint VCI_ReadBoardInfo(uint DeviceType, uint DeviceInd, ref VCI_BOARD_INFO pInfo);
         [DllImport("controlcan.dll")]
-        private static extern uint VCI_ReadErrInfo(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_ERR_INFO pErrInfo);
+        private static extern uint VCI_ReadErrInfo(uint DeviceType, uint DeviceInd, int CANInd, ref VCI_ERR_INFO pErrInfo);
         [DllImport("controlcan.dll")]
         private static extern uint VCI_ReadCANStatus(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_STATUS pCANStatus);
         [DllImport("controlcan.dll")]
@@ -101,7 +101,7 @@ namespace USBCAN
             {
                 if (VCI_OpenDevice(deviceType, deviceIndex, 0) == 0)
                 {
-                    VCI_ReadErrInfo(deviceType, deviceIndex, canIndex, ref errorInfo);
+                    VCI_ReadErrInfo(deviceType, deviceIndex, -1, ref errorInfo);
                     return false;
                 }
  
@@ -222,7 +222,7 @@ namespace USBCAN
 
             if (VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1) != 1)
             {
-                VCI_ReadErrInfo(deviceType, deviceIndex, canIndex, ref errorInfo);
+                VCI_ReadErrInfo(deviceType, deviceIndex, (int)canIndex, ref errorInfo);
                 return -5;
             }
 
