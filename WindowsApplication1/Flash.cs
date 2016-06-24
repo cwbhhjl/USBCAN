@@ -138,6 +138,7 @@ namespace USBCAN
 
             processIndex = 0;
             CanControl.canClearBuffer();
+            CanLog.makeLog();
             updata(0);
         }
 
