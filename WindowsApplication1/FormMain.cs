@@ -24,14 +24,17 @@ namespace USBCAN
             {
                 toolStripStatusLabel_CAN.Text = "CAN : true";
             }
-            else if(USBCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
+            else if (USBCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
             {
                 MessageBox.Show(USBCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-            
-            FileBox.Items.Add(flashDriverDefaultPath);
-            s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
+
+            if (System.IO.File.Exists(Flash.DriverName))
+            {
+                FileBox.Items.Add(flashDriverDefaultPath);
+                s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
+            }
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -113,8 +116,16 @@ namespace USBCAN
                     switch (flashDriverConfig)
                     {
                         case "true":
-                            FileBox.Items.Insert(0, flashDriverDefaultPath);
-                            s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
+                            if (System.IO.File.Exists(Flash.DriverName))
+                            {
+                                FileBox.Items.Insert(0, flashDriverDefaultPath);
+                                s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
+                            }
+                            else
+                            {
+                                MessageBox.Show("未在当前目录下发现FlashDriver，请手动添加", "错误",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            }
                             break;
                         case "false":
                             break;
@@ -142,7 +153,8 @@ namespace USBCAN
             }
             else
             {
-                if (FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName)
+                if ((FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName) 
+                    && System.IO.File.Exists(Flash.DriverName))
                 {
                     FileBox.Items.Insert(0, flashDriverDefaultPath);
                     s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
@@ -322,6 +334,7 @@ namespace USBCAN
                         if (CanControl.canConnect())
                         {
                             toolStripStatusLabel_CAN.Text = "CAN : true";
+                            textBox_Version_Click(textBox_Version, new EventArgs());
                         }
                     }
                     break;
