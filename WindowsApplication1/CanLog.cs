@@ -4,17 +4,17 @@ using System.Text;
 
 namespace USBCAN
 {
-    public class CanLog
+    internal class CanLog
     {
         private StreamWriter log = null;
         private StringBuilder logStr;
 
-        public CanLog()
+        internal CanLog()
         {
             logStr = new StringBuilder();
         }
 
-        unsafe public void recordLog(VCI_CAN_OBJ obj)
+        unsafe internal void recordLog(VCI_CAN_OBJ obj)
         {
             logStr.Append("帧ID:0x" + Convert.ToString((int)obj.ID, 16));
             //logStr.Append("  帧格式:");
@@ -40,13 +40,14 @@ namespace USBCAN
             logStr.Append(Environment.NewLine);
         }
 
-        public void makeLog()
+        internal void makeLog()
         {
-            if (logStr.Length == 0)
+            if (logStr.Length != 0)
             {
                 log = new StreamWriter(Environment.CurrentDirectory + "Can" + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + "-" + DateTime.Now.Second.ToString() + ".log", true);
                 log.WriteLine(logStr);
                 log.Close();
+                logStr.Clear();
             }
         }
     }

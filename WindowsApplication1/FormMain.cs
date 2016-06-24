@@ -291,6 +291,7 @@ namespace USBCAN
                         button_LoadS19.Enabled = false;
                         comboBox_Config.Enabled = false;
                         toolStripMenuI_Start.Enabled = false;
+                        checkBox_Log.Enabled = false;
                         break;
                     case 0:
                         textBox_Version.Enabled = true;
@@ -298,6 +299,7 @@ namespace USBCAN
                         button_LoadS19.Enabled = true;
                         comboBox_Config.Enabled = true;
                         toolStripMenuI_Start.Enabled = true;
+                        checkBox_Log.Enabled = true;
                         textBox_Version.Text = flash.readVersion();
                         break;
                     default:
@@ -345,6 +347,11 @@ namespace USBCAN
         private void toolStripMenuItem_Reset_Click(object sender, EventArgs e)
         {
             toolStripStatusLabel_CAN.Text = CanControl.canReInit() == 1 ? "CAN : true" : "CAN : false";
+        }
+
+        private void checkBox_Log_Click(object sender, EventArgs e)
+        {
+            CanControl.log = checkBox_Log.Checked ? true : false;
         }
     }
 

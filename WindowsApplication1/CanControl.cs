@@ -35,6 +35,8 @@ namespace USBCAN
         [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
         private static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
 
+        public static bool log = false;
+
         public static uint deviceType = (uint)USBCAN.HardwareType.VCI_USBCAN2;
         private static bool isOpen = false;
         public static uint deviceIndex = 0;
