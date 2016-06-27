@@ -130,6 +130,12 @@ namespace USBCAN
                         case "false":
                             break;
                         default:
+                            if (!System.IO.File.Exists(flashDriverConfig))
+                            {
+                                MessageBox.Show("未发现指定文件，请确认路径是否正确", "错误",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                break;
+                            }
                             if (FileBox.Items.Count == 0 || (FileBox.Items[0].ToString() != flashDriverConfig && ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName))
                             {
                                 FileBox.Items.Insert(0, flashDriverConfig);
