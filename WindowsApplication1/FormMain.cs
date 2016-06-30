@@ -12,6 +12,7 @@ namespace USBCAN
         HexS19 s19 = new HexS19();
         FileBoxItem flashDriverDefaultPath = new FileBoxItem(Flash.DriverName);
         System.Collections.Generic.List<string> fileList = new System.Collections.Generic.List<string>();
+        private string sha1 = null;
 
         public FormMain()
         {
@@ -30,7 +31,8 @@ namespace USBCAN
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
-            if (System.IO.File.Exists(Flash.DriverName))
+            sha1 = BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(System.IO.File.OpenRead(Flash.DriverName)));
+            if (System.IO.File.Exists(Flash.DriverName) && sha1.Equals(Flash.flashSha1))
             {
                 FileBox.Items.Add(flashDriverDefaultPath);
                 s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
@@ -40,7 +42,6 @@ namespace USBCAN
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             CanControl.canClose();
-            //CanControl.canLog.makeLog();
         }
 
         private void button_Flash_Click(object sender, EventArgs e)

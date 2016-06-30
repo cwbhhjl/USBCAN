@@ -66,6 +66,7 @@ namespace USBCAN
         private ulong dataCounter = 0;
 
         private static string driverName = "FlashDriver_S12GX_V1.0.s19";
+        internal static string flashSha1 = "23-F7-A2-AA-F5-AC-72-21-71-8D-58-62-0E-FE-B9-1E-A2-43-46-C7";
 
         public static string DriverName
         {
