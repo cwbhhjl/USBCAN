@@ -24,6 +24,10 @@ namespace USBCAN
         private List<S19Block[]> s19Files = new List<S19Block[]>();
         private Queue<S19Block[]> s19FilesGhost;
 
+        public delegate void Updata(int cmd, string s, int index = 0);
+        public event Updata updata;
+        private int cmd;
+
         internal int Count
         {
             get
@@ -65,10 +69,17 @@ namespace USBCAN
                 }
                 lock (s19Files)
                 {
-                    int r = readFile(files.Dequeue());
+                    string f = files.Dequeue();
+                    int r = readFile(f);
                     if (r == 1)
                     {
                         lineToBlock();
+                        switch (cmd)
+                        {
+                            case 1:
+                                updata(cmd, f);
+                                break;
+                        }
                     }
                 }
             }
@@ -90,6 +101,7 @@ namespace USBCAN
 
         internal void syncFilesWithUI(int cmd,int index, string[] files = null)
         {
+            this.cmd = cmd;
             switch (cmd)
             {
                 case -1:
@@ -103,7 +115,6 @@ namespace USBCAN
                     addFile(files);
                     wakeUpHexThread();
 
-                    Thread.Sleep(1);
                     lock (s19Files)
                     {
                         if (s19Files.Count != 1)

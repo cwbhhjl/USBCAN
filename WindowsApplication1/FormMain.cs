@@ -21,6 +21,7 @@ namespace USBCAN
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            s19.updata += new HexS19.Updata(updataFileBox);
             if (CanControl.canConnect())
             {
                 toolStripStatusLabel_CAN.Text = "CAN : true";
@@ -34,7 +35,6 @@ namespace USBCAN
             sha1 = BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(System.IO.File.OpenRead(Flash.DriverName)));
             if (System.IO.File.Exists(Flash.DriverName) && sha1.Equals(Flash.flashSha1))
             {
-                FileBox.Items.Add(flashDriverDefaultPath);
                 s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
             }
         }
@@ -313,6 +313,25 @@ namespace USBCAN
                         break;
                 }
 
+            }));
+        }
+
+        private void updataFileBox(int cmd, string filePath, int index = 0)
+        {
+            Invoke(new MethodInvoker(delegate
+            {
+                switch (cmd)
+                {
+                    case 1:
+                        FileBox.Items.Add(new FileBoxItem(filePath));
+                        break;
+                    case 2:
+                        FileBox.Items.Insert(index, new FileBoxItem(filePath));
+                        break;
+                    case -1:
+                        FileBox.Items.RemoveAt(index);
+                        break;
+                }
             }));
         }
 
