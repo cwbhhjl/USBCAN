@@ -51,7 +51,7 @@ namespace USBCAN
             hexThread.Start();
         }
 
-        public void wakeUpHexThread()
+        private void wakeUpHexThread()
         {
             if (hexThread.ThreadState != ThreadState.Background)
             {
@@ -76,14 +76,19 @@ namespace USBCAN
                         lineToBlock();
                         switch (cmd)
                         {
-                            case 1:
-                                updata(cmd, f);
+                            case 2:
+                                if (s19Files.Count != 1)
+                                {
+                                    S19Block[] tmp = s19Files[Count - 1];
+                                    s19Files.RemoveAt(Count - 1);
+                                    s19Files.Insert(0, tmp);
+                                }
                                 break;
                         }
+                        updata(cmd, f);
                     }
                 }
             }
-
         }
 
         public void addFile(string[] files)
@@ -99,13 +104,14 @@ namespace USBCAN
             files.Enqueue(file);
         }
 
-        internal void syncFilesWithUI(int cmd,int index, string[] files = null)
+        internal void syncFilesWithUI(int cmd, int index, string[] files = null)
         {
             this.cmd = cmd;
             switch (cmd)
             {
                 case -1:
                     s19Files.RemoveAt(index);
+                    updata(-1, null, index);
                     break;
                 case 1:
                     addFile(files);
@@ -114,16 +120,6 @@ namespace USBCAN
                 case 2:
                     addFile(files);
                     wakeUpHexThread();
-
-                    lock (s19Files)
-                    {
-                        if (s19Files.Count != 1)
-                        {
-                            S19Block[] tmp = s19Files[Count - 1];
-                            s19Files.RemoveAt(Count - 1);
-                            s19Files.Insert(0, tmp);
-                        }
-                    }
                     break;
             }
         }

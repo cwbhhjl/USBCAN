@@ -119,7 +119,13 @@ namespace USBCAN
                         case "true":
                             if (System.IO.File.Exists(Flash.DriverName))
                             {
-                                FileBox.Items.Insert(0, flashDriverDefaultPath);
+                                sha1 = BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(System.IO.File.OpenRead(Flash.DriverName)));
+                                if (!sha1.Equals(Flash.flashSha1))
+                                {
+                                    MessageBox.Show("默认FlashDriver文件可能被修改，请检查", "错误",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    return;
+                                }
                                 s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
                             }
                             else
@@ -137,25 +143,47 @@ namespace USBCAN
                                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                 break;
                             }
-                            if (FileBox.Items.Count == 0 || (FileBox.Items[0].ToString() != flashDriverConfig && ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName))
+                            if (FileBox.Items.Count == 0)
                             {
-                                FileBox.Items.Insert(0, flashDriverConfig);
                                 s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
                             }
-                            else if (((FileBoxItem)FileBox.Items[0]).FilePath == Flash.DriverName)
+                            else
                             {
-                                FileBox.Items.RemoveAt(0);
-                                s19.syncFilesWithUI(-1, 0);
-                                FileBox.Items.Add(new FileBoxItem(flashDriverConfig));
-                                s19.syncFilesWithUI(1, -1, new string[1] { flashDriverConfig });
+                                if (flashDriverConfig.Contains("\\"))
+                                {
+                                    if(((FileBoxItem)FileBox.Items[0]).FilePath.ToLower()!= flashDriverConfig)
+                                    {
+                                        s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
+                                    }
+                                }
+                                else if(FileBox.Items[0].ToString().ToLower() != flashDriverConfig)
+                                {
+                                    s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
+                                }
                             }
                             break;
                     }
                 }
-                else if (flashDriverConfig == "false")
+                else
                 {
-                    FileBox.Items.RemoveAt(0);
-                    s19.syncFilesWithUI(-1, 0);
+                    switch (flashDriverConfig)
+                    {
+                        case "false":
+                            s19.syncFilesWithUI(-1, 0);
+                            break;
+                        case "true":
+                            break;
+                        default:
+                            if (!System.IO.File.Exists(flashDriverConfig))
+                            {
+                                MessageBox.Show("未发现指定文件，请确认路径是否正确", "错误",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                break;
+                            }
+                            s19.syncFilesWithUI(-1, 0);
+                            s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
+                            break;
+                    }
                 }
             }
             else
@@ -163,7 +191,6 @@ namespace USBCAN
                 if ((FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName) 
                     && System.IO.File.Exists(Flash.DriverName))
                 {
-                    FileBox.Items.Insert(0, flashDriverDefaultPath);
                     s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
                 }
             }
@@ -178,30 +205,13 @@ namespace USBCAN
 
         private void openFileDialog1_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            fileList.Clear();
-            foreach (var it in FileBox.Items)
-            {
-                fileList.Add(((FileBoxItem)it).FilePath);
-            }
             string[] files = openS19Dialog.FileNames;
-            foreach (var a in files)
+            if (!checkRepeatFiles(files))
             {
-                if (fileList.Contains(a))
-                {
-                    MessageBox.Show("含有重复文件，请重新选择", "错误",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    return;
-                }
+                return;
             }
             openS19Dialog.InitialDirectory = files[0].Substring(0, files[0].LastIndexOfAny("\\".ToCharArray()));
             s19.syncFilesWithUI(1, -1, files);
-            foreach (string s in files)
-            {
-                if (s.EndsWith(".s19") || s.EndsWith(".S19"))
-                {
-                    FileBox.Items.Add(new FileBoxItem(s));
-                }
-            }
         }
 
         private void FileBox_DragDrop(object sender, DragEventArgs e)
@@ -209,14 +219,11 @@ namespace USBCAN
             if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                s19.syncFilesWithUI(1, -1, files);
-                foreach (string s in files)
+                if (!checkRepeatFiles(files))
                 {
-                    if (s.EndsWith(".s19") || s.EndsWith(".S19"))
-                    {
-                        (sender as ListBox).Items.Add(new FileBoxItem(s));
-                    }
+                    return;
                 }
+                s19.syncFilesWithUI(1, -1, files);
             }
         }
 
@@ -239,7 +246,6 @@ namespace USBCAN
 
             if (e.Button == MouseButtons.Right)
             {
-                (sender as ListBox).Items.RemoveAt(index);
                 s19.syncFilesWithUI(-1, index);
             }
             else
@@ -378,6 +384,25 @@ namespace USBCAN
         private void checkBox_Log_Click(object sender, EventArgs e)
         {
             CanControl.log = checkBox_Log.Checked ? true : false;
+        }
+
+        private bool checkRepeatFiles(string[] files)
+        {
+            fileList.Clear();
+            foreach (var it in FileBox.Items)
+            {
+                fileList.Add(((FileBoxItem)it).FilePath);
+            }
+            foreach (var a in files)
+            {
+                if (fileList.Contains(a))
+                {
+                    MessageBox.Show("含有重复文件，请重新选择", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
