@@ -228,6 +228,8 @@ namespace USBCAN
                 return -5;
             }
 
+            CanLog.recordLog(obj);
+
             if (!waitForResponse(receiveID))
             {
                 return -2;
@@ -236,7 +238,6 @@ namespace USBCAN
             {
                 if (len <= 7)
                 {
-                    CanLog.recordLog(canID, data);
                     return 1;
                 }
             }

@@ -42,7 +42,7 @@ namespace USBCAN
         {
             if (CanControl.log && logStr.Length != 0)
             {
-                log = new StreamWriter(Environment.CurrentDirectory + "Can" + "-" + DateTime.Now.Hour.ToString() + "-" + DateTime.Now.Minute.ToString() + "-" + DateTime.Now.Second.ToString() + ".log", true);
+                log = new StreamWriter(Environment.CurrentDirectory + "\\flash" + DateTime.Now.ToString("yyyyMMdd_HHmmssff") + ".log", true);
                 log.WriteLine(logStr);
                 log.Close();
             }
