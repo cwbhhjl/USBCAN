@@ -9,14 +9,12 @@ namespace USBCAN
         private static StreamWriter log = null;
         private static StringBuilder logStr = new StringBuilder();
 
-        private static bool logFlag = false;
-
         unsafe internal static void recordLog(VCI_CAN_OBJ obj)
         {
             if (CanControl.log)
             {
-                logStr.Append("帧ID:0x" + Convert.ToString((int)obj.ID, 16));
-                logStr.Append("    数据: ");
+                logStr.Append("ID:0x" + Convert.ToString((int)obj.ID, 16));
+                logStr.Append("    data: ");
                 byte[] tmp = new byte[8]; 
                 for (byte j = 0; j < 8; j++)
                 {
@@ -31,8 +29,8 @@ namespace USBCAN
         {
             if (CanControl.log)
             {
-                logStr.Append("帧ID:0x" + Convert.ToString(id, 16));
-                logStr.Append("    数据: ");
+                logStr.Append("ID:0x" + Convert.ToString(id, 16));
+                logStr.Append("    data: ");
                 logStr.Append(BitConverter.ToString(data));
                 logStr.Append(Environment.NewLine);
             }
@@ -47,7 +45,6 @@ namespace USBCAN
                 log.Close();
             }
             logStr.Clear();
-            logFlag = false;
         }
     }
 }
