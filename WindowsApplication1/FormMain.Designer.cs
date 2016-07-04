@@ -113,6 +113,7 @@ namespace USBCAN
             // splitContainer
             // 
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitContainer.IsSplitterFixed = true;
             this.splitContainer.Location = new System.Drawing.Point(0, 28);
             this.splitContainer.Name = "splitContainer";
             // 
@@ -132,7 +133,7 @@ namespace USBCAN
             this.splitContainer.Panel2.Controls.Add(this.comboBox_Config);
             this.splitContainer.Panel2.Controls.Add(this.button_Flash);
             this.splitContainer.Size = new System.Drawing.Size(666, 416);
-            this.splitContainer.SplitterDistance = 220;
+            this.splitContainer.SplitterDistance = 221;
             this.splitContainer.TabIndex = 7;
             // 
             // groupBox_File
@@ -143,7 +144,7 @@ namespace USBCAN
             this.groupBox_File.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.groupBox_File.Location = new System.Drawing.Point(0, 47);
             this.groupBox_File.Name = "groupBox_File";
-            this.groupBox_File.Size = new System.Drawing.Size(220, 369);
+            this.groupBox_File.Size = new System.Drawing.Size(221, 369);
             this.groupBox_File.TabIndex = 9;
             this.groupBox_File.TabStop = false;
             this.groupBox_File.Text = "待烧写的文件";
@@ -157,7 +158,7 @@ namespace USBCAN
             this.FileBox.ItemHeight = 17;
             this.FileBox.Location = new System.Drawing.Point(3, 19);
             this.FileBox.Name = "FileBox";
-            this.FileBox.Size = new System.Drawing.Size(214, 347);
+            this.FileBox.Size = new System.Drawing.Size(215, 347);
             this.FileBox.TabIndex = 0;
             this.FileBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileBox_DragDrop);
             this.FileBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileBox_DragEnter);
@@ -183,7 +184,7 @@ namespace USBCAN
             this.toolStripProgressBar_Flash});
             this.statusStrip.Location = new System.Drawing.Point(0, 390);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(442, 26);
+            this.statusStrip.Size = new System.Drawing.Size(441, 26);
             this.statusStrip.SizingGrip = false;
             this.statusStrip.TabIndex = 16;
             this.statusStrip.Text = "statusStrip1";
@@ -196,8 +197,8 @@ namespace USBCAN
             this.toolStripStatusLabel_CAN.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabel_CAN.MergeAction = System.Windows.Forms.MergeAction.Replace;
             this.toolStripStatusLabel_CAN.Name = "toolStripStatusLabel_CAN";
-            this.toolStripStatusLabel_CAN.Size = new System.Drawing.Size(86, 21);
-            this.toolStripStatusLabel_CAN.Text = "CAN：未连接";
+            this.toolStripStatusLabel_CAN.Size = new System.Drawing.Size(79, 21);
+            this.toolStripStatusLabel_CAN.Text = "CAN：False";
             // 
             // toolStripStatusLabel_Error
             // 
@@ -207,12 +208,12 @@ namespace USBCAN
             this.toolStripStatusLabel_Error.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabel_Error.Margin = new System.Windows.Forms.Padding(10, 3, 0, 2);
             this.toolStripStatusLabel_Error.Name = "toolStripStatusLabel_Error";
-            this.toolStripStatusLabel_Error.Size = new System.Drawing.Size(60, 21);
-            this.toolStripStatusLabel_Error.Text = "错误：无";
+            this.toolStripStatusLabel_Error.Size = new System.Drawing.Size(84, 21);
+            this.toolStripStatusLabel_Error.Text = "错误：未跟踪";
             // 
             // toolStripStatusLabel_Flash
             // 
-            this.toolStripStatusLabel_Flash.Margin = new System.Windows.Forms.Padding(20, 3, 0, 2);
+            this.toolStripStatusLabel_Flash.Margin = new System.Windows.Forms.Padding(17, 3, 0, 2);
             this.toolStripStatusLabel_Flash.Name = "toolStripStatusLabel_Flash";
             this.toolStripStatusLabel_Flash.Size = new System.Drawing.Size(56, 21);
             this.toolStripStatusLabel_Flash.Text = "刷写进度";
@@ -305,36 +306,37 @@ namespace USBCAN
             // ToolStripMenuItem
             // 
             this.ToolStripMenuItem.Name = "ToolStripMenuItem";
-            this.ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItem.Text = "加载文件";
             this.ToolStripMenuItem.Click += new System.EventHandler(this.button_LoadS19_Click);
             // 
             // toolStripMenuItem_Flash
             // 
             this.toolStripMenuItem_Flash.Name = "toolStripMenuItem_Flash";
-            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_Flash.Text = "开始烧写";
             this.toolStripMenuItem_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // ToolStripMenuItem_Version
             // 
             this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
-            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(136, 22);
+            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItem_Version.Text = "读取版本号";
             this.ToolStripMenuItem_Version.Click += new System.EventHandler(this.textBox_Version_Click);
             // 
             // toolStripMenuItem_Reset
             // 
             this.toolStripMenuItem_Reset.Name = "toolStripMenuItem_Reset";
-            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_Reset.Text = "连接重置";
             this.toolStripMenuItem_Reset.Click += new System.EventHandler(this.toolStripMenuItem_Reset_Click);
             // 
             // toolStripMenuItem_FileReset
             // 
             this.toolStripMenuItem_FileReset.Name = "toolStripMenuItem_FileReset";
-            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(136, 22);
+            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItem_FileReset.Text = "文件重置";
+            this.toolStripMenuItem_FileReset.Click += new System.EventHandler(this.toolStripMenuItem_FileReset_Click);
             // 
             // toolStripMenuItem_About
             // 

@@ -346,6 +346,9 @@ namespace USBCAN
                     case -1:
                         FileBox.Items.RemoveAt(index);
                         break;
+                    case -2:
+                        FileBox.Items.Clear();
+                        break;
                 }
             }));
         }
@@ -412,6 +415,11 @@ namespace USBCAN
                 }
             }
             return true;
+        }
+
+        private void toolStripMenuItem_FileReset_Click(object sender, EventArgs e)
+        {
+            s19.syncFilesWithUI(-2, 0);
         }
     }
 

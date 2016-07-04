@@ -109,6 +109,10 @@ namespace USBCAN
             this.cmd = cmd;
             switch (cmd)
             {
+                case -2:
+                    s19Files.Clear();
+                    updata(-2, null);
+                    break;
                 case -1:
                     s19Files.RemoveAt(index);
                     updata(-1, null, index);
