@@ -188,9 +188,16 @@ namespace USBCAN
             }
             else
             {
-                if ((FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName) 
+                if ((FileBox.Items.Count == 0 || ((FileBoxItem)FileBox.Items[0]).FilePath != Flash.DriverName)
                     && System.IO.File.Exists(Flash.DriverName))
                 {
+                    sha1 = BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(System.IO.File.OpenRead(Flash.DriverName)));
+                    if (!sha1.Equals(Flash.flashSha1))
+                    {
+                        MessageBox.Show("默认FlashDriver文件可能被修改，请检查", "错误",
+                                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        return;
+                    }
                     s19.syncFilesWithUI(2, 0, new string[1] { Flash.DriverName });
                 }
             }
