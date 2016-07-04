@@ -228,6 +228,8 @@ namespace USBCAN
                 return -5;
             }
 
+            CanLog.recordLog(obj);
+
             if (!waitForResponse(receiveID))
             {
                 return -2;
@@ -268,6 +270,7 @@ namespace USBCAN
                         try
                         {
                             VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+                            CanLog.recordLog(obj);
                         }
                         catch (Exception)
                         {
@@ -355,6 +358,7 @@ namespace USBCAN
 
             res = 0;
             Marshal.FreeHGlobal(pt);
+            CanLog.recordLog(canId, rev);
             return rev;
         }
 

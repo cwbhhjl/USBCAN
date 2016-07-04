@@ -320,6 +320,8 @@ namespace USBCAN
                         comboBox_Config.Enabled = true;
                         toolStripMenuI_Start.Enabled = true;
                         checkBox_Log.Enabled = true;
+                        checkBox_Log.Checked = false;
+                        CanControl.log = false;
                         textBox_Version.Text = flash.readVersion();
                         break;
                     default:
