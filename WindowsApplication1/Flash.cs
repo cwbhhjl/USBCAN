@@ -100,7 +100,7 @@ namespace USBCAN
             {
                 sec = new Security(securityAccess[2]);
             }
-            
+
             canCtl = CanControl.getCanControl();
             this.s19 = s19;
         }
@@ -426,8 +426,8 @@ namespace USBCAN
             {
                 string ver = CanControl.Rev[6] == 0x55 ?
                     Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) :
-                    Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) 
-                    + "." + Convert.ToString(CanControl.Rev[6], 16);
+                    Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16)
+                    + "." + Convert.ToString(CanControl.Rev[6] >> 4, 16) + Convert.ToString(CanControl.Rev[6] & 0x0F, 16);
                 return ver;
             }
 
