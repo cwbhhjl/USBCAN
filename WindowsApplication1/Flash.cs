@@ -14,6 +14,8 @@ namespace USBCAN
         public delegate void Updata(int cmd, string msg = null, int procssValue = 0, string msg2 = null);
         public event Updata updata;
 
+        public string car = "";
+
         private uint physicalID;
         private uint functionID;
         private uint receiveID;
@@ -332,7 +334,7 @@ namespace USBCAN
                             for (int c = 0; c < 4; c++)
                             {
                                 keepAlive();
-                                Delay(2800);
+                                Delay(40);
                             }
                             break;
 
@@ -387,6 +389,21 @@ namespace USBCAN
                     }
                     break;
 
+                case SI.DSCSI + 0x40:
+                    if(car == "S300" && CanControl.Rev[2] == 0x02)
+                    {
+                        byte[] tmp = { 0x10, 0x02 };
+                        int i = 10;
+                        while(i > 0)
+                        {
+                            CanControl.sendFrame(physicalID, receiveID, tmp);
+                            Delay(30);
+                            i--;
+                        }
+                        handleCan();
+                    }
+                    break;
+
                 default:
                     if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
                     {
@@ -434,8 +451,18 @@ namespace USBCAN
             return "fail";
         }
 
+        private bool keepAliveForS300()
+        {
+            return false;
+        }
+
         private bool keepAlive()
         {
+            if(car == "S300")
+            {
+                CanControl.sendFrame(physicalID, receiveID, canStringToByte(flashProcess["ProgrammingSession"].ToString()));
+                return true;
+            }
             if (carSelected != null)
             {
                 CanControl.sendFrame(physicalID, receiveID, canStringToByte(flashProcess["PresentTester"].ToString()));

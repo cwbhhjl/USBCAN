@@ -107,6 +107,7 @@ namespace USBCAN
             }
 
             flash = new Flash(carSelected, s19);
+            flash.car = car;
             flash.updata += new Flash.Updata(updataUI);
 
             if (carSelected["FlashDriver"] != null)

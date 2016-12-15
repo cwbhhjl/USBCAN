@@ -43,8 +43,11 @@ namespace USBCAN
         public static uint canIndex = 0;
 
         private static byte[] rev = new byte[8];
+        public static byte[] revFirst = new byte[8];
+        private static byte[] FlowControl = { 0x30, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
         public static VCI_CAN_OBJ obj = new VCI_CAN_OBJ();
+        public static VCI_CAN_OBJ flowControl = new VCI_CAN_OBJ();
         public static VCI_ERR_INFO errorInfo = new VCI_ERR_INFO();
         public static VCI_BOARD_INFO boardInfo = new VCI_BOARD_INFO();
 
@@ -236,8 +239,33 @@ namespace USBCAN
             }
             else
             {
-                if (len <= 7)
+                if (len <= 7  && ((rev[0] & 0xF0) >> 4) != N_PCI.FF.N_PCItype)
                 {
+                    return 1;
+                }
+                else if(len <= 7 && ((rev[0] & 0xF0) >> 4) == N_PCI.FF.N_PCItype)
+                {
+                    rev.CopyTo(revFirst, 0);
+                    flowControl = obj;
+                    fixed(byte *pData = flowControl.Data)
+                    {
+                        for(int i = 0; i < 8; i++)
+                        {
+                            pData[i] = FlowControl[i];
+                        }
+                    }
+                    if (VCI_Transmit(deviceType, deviceIndex, canIndex, ref flowControl, 1) != 1)
+                    {
+                        VCI_ReadErrInfo(deviceType, deviceIndex, (int)canIndex, ref errorInfo);
+                        return -5;
+                    }
+
+                    CanLog.recordLog(flowControl);
+
+                    if (!waitForResponse(receiveID))
+                    {
+                        return -2;
+                    }
                     return 1;
                 }
             }

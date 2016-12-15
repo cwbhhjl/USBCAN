@@ -25,6 +25,10 @@
         /// </summary>
         public const byte NRSI = 0x7F;
         /// <summary>
+        /// Diagnostic session control service identifier
+        /// </summary>
+        public const byte DSCSI = 0x10;
+        /// <summary>
         /// ECU reset service identifier
         /// </summary>
         public const byte ERSI = 0x11;
