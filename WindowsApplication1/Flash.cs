@@ -67,6 +67,8 @@ namespace USBCAN
         private ulong dataNum = 0;
         private ulong dataCounter = 0;
 
+        private int s300Flag = 0;
+
         private static string driverName = "FlashDriver_S12GX_V1.0.s19";
         internal static string flashSha1 = "23-F7-A2-AA-F5-AC-72-21-71-8D-58-62-0E-FE-B9-1E-A2-43-46-C7";
 
@@ -322,7 +324,7 @@ namespace USBCAN
                             {
                                 updata(1, processStr + "...wait");
                             }
-                            while (CanControl.canLastReceive(receiveID) == null || CanControl.Rev[1] == SI.NRSI)
+                            while (CanControl.canLastReceive(receiveID) == null)
                             {
                                 Delay(10);
                             }
@@ -390,7 +392,7 @@ namespace USBCAN
                     break;
 
                 case SI.DSCSI + 0x40:
-                    if(car == "S300" && CanControl.Rev[2] == 0x02)
+                    if(car == "S300" && s300Flag == 0 && CanControl.Rev[2] == 0x02)
                     {
                         byte[] tmp = { 0x10, 0x02 };
                         int i = 10;
@@ -400,7 +402,12 @@ namespace USBCAN
                             Delay(30);
                             i--;
                         }
+                        s300Flag = 1;
                         handleCan();
+                    }
+                    else
+                    {
+                        goto default;
                     }
                     break;
 
@@ -458,11 +465,11 @@ namespace USBCAN
 
         private bool keepAlive()
         {
-            if(car == "S300")
-            {
-                CanControl.sendFrame(physicalID, receiveID, canStringToByte(flashProcess["ProgrammingSession"].ToString()));
-                return true;
-            }
+            //if(car == "S300")
+            //{
+            //    CanControl.sendFrame(physicalID, receiveID, canStringToByte(flashProcess["ProgrammingSession"].ToString()));
+            //    return true;
+            //}
             if (carSelected != null)
             {
                 CanControl.sendFrame(physicalID, receiveID, canStringToByte(flashProcess["PresentTester"].ToString()));
