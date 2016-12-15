@@ -1,4 +1,6 @@
-﻿namespace USBCAN
+﻿using System.Collections.Generic;
+
+namespace USBCAN
 {
     /// <summary>
     /// Negative response codes
@@ -6,9 +8,49 @@
     public struct NRC
     {
         /// <summary>
+        /// serviceNotSupported
+        /// </summary>
+        public const byte SNS = 0x11;
+        /// <summary>
+        /// subFunctionNotSupported
+        /// </summary>
+        public const byte SFNS = 0x12;
+        /// <summary>
+        /// incorrectMessageLengthOrInvalidFormat
+        /// </summary>
+        public const byte IMLOIF = 0x13;
+        /// <summary>
+        /// responseTooLong
+        /// </summary>
+        public const byte RTL = 0x14;
+        /// <summary>
+        /// busyRepeatRequest
+        /// </summary>
+        public const byte BRR = 0x21;
+        /// <summary>
+        /// conditionsNotCorrect
+        /// </summary>
+        public const byte CNC = 0x22;
+        /// <summary>
+        /// requestSequenceError
+        /// </summary>
+        public const byte RSE = 0x24;
+        /// <summary>
+        /// invalidKey
+        /// </summary>
+        public const byte IK = 0x35;
+        /// <summary>
         /// requiredTimeDelayNotExpired
         /// </summary>
         public const byte RTDNE = 0x37;
+        /// <summary>
+        /// generalProgrammingFailure
+        /// </summary>
+        public const byte GPF = 0x72;
+        /// <summary>
+        /// wrongBlockSequenceCounter
+        /// </summary>
+        public const byte WBSC = 0x73;
         /// <summary>
         /// requestCorrectlyReceived-ResponsePending
         /// </summary>
@@ -87,6 +129,41 @@
             }
         }
         
-    } 
+    }
 
+    public class CanUDSFrame
+    {
+        public int length { get; }
+        private Queue<byte[]> multiFrames { get; }
+        public Queue<byte[]> allFrames { get; }
+
+        public int framesCount
+        {
+            get
+            {
+                return multiFrames.Count;
+
+            }
+        }
+
+        public byte[] nextFrame()
+        {
+            if(multiFrames.Count == 0)
+            {
+                return null;
+            }
+            return multiFrames.Dequeue();
+        }
+
+        public CanUDSFrame(byte[] data)
+        {
+            length = data.Length;
+            multiFrames = dataArrayToCanContent(data);
+        }
+
+        private Queue<byte[]>dataArrayToCanContent(byte[] data)
+        {
+            return null;
+        }
+    }
 }
