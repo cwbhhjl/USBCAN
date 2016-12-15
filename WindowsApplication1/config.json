@@ -1,0 +1,15 @@
+﻿{
+    "configVersion": 0.1,
+
+    "device": "USBCAN2",
+
+    "USBCAN2": {
+        "deviceType": 4,
+        "deviceIndex": 0,
+        "channel": 0,
+        "timing0": "0x00",
+        "timing1": "0x1C"
+    },
+
+    "cars": [ "E32", "E33", "N330", "S300" ]
+}
