@@ -84,7 +84,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security.cs" />
-    <Compile Include="UDS.cs" />
+    <Compile Include="UDS\UDS.cs" />
     <Compile Include="USBCAN.cs" />
     <EmbeddedResource Include="FormMain.resx">
       <SubType>Designer</SubType>

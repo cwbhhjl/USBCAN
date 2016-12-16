@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace USBCAN
+namespace USBCAN.UDS
 {
     /// <summary>
     /// Negative response codes
@@ -134,10 +134,16 @@ namespace USBCAN
 
     public class CanUDSFrame
     {
-        public int length { get; }
+        //public int length { get; }
         private Queue<byte[]> multiFrames { get; }
+        /// <summary>
+        /// 获取原始数据的所有 CAN 帧队列
+        /// </summary>
         public Queue<byte[]> allFrames { get; }
 
+        /// <summary>
+        /// 剩余的CAN帧数
+        /// </summary>
         public int framesCount
         {
             get
@@ -146,6 +152,10 @@ namespace USBCAN
             }
         }
 
+        /// <summary>
+        /// 获取下一个 CAN 帧
+        /// </summary>
+        /// <returns>CAN帧字节数组</returns>
         public byte[] nextFrame()
         {
             if(multiFrames.Count == 0)
@@ -155,9 +165,12 @@ namespace USBCAN
             return multiFrames.Dequeue();
         }
 
+        /// <summary>
+        /// 初始化 CanUDSFrame 实例，将传入的原始数据字节数组转为符合 ISO 15363 的 CAN 帧字节数组队列
+        /// </summary>
         public CanUDSFrame(byte[] data)
         {
-            length = data.Length;
+            //length = data.Length;
             multiFrames = dataArrayToCanContent(data);
             allFrames = new Queue<byte[]>(multiFrames);
         }
