@@ -131,12 +131,12 @@ namespace USBCAN
             uint wLeft31Bits;
             uint keyInt;
             byte counter, i, DB1, DB2, DB3;
-            uint middle;
+            int middle;
 
             uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
 
             wSubSeed = seedInt;
-            middle = (MASK & 0x00001000) >> 11 | ((MASK & 0x00400000) >> 22);
+            middle = (int)((MASK & 0x00001000) >> 11 | ((MASK & 0x00400000) >> 22));
 
             switch (middle)
             {
