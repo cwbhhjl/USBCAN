@@ -110,6 +110,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="json\config.json" />
+    <None Include="json\car\N330.json" />
     <None Include="json\process.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

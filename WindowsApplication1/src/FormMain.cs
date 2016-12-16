@@ -17,6 +17,27 @@ namespace USBCAN
         public FormMain()
         {
             InitializeComponent();
+            //string json;
+            //using (StreamReader sr = new StreamReader("config.json"))
+            //{
+            //    json = sr.ReadToEnd();
+            //}
+            //JsonConvert.DeserializeObject(json);
+            //JObject o = JObject.Parse(json);
+            //JToken jt = o["process"];
+            //string[] sa = JsonConvert.DeserializeObject<string[]>(jt.ToString());
+            //using (StreamReader sr = new StreamReader("process.json"))
+            //{
+            //    json = sr.ReadToEnd();
+            //}
+            //o = JObject.Parse(json);
+            //jt = o[sa[0]];
+            //Type t = Type.GetType("JsonConvert");
+            //Type d = Type.GetType(sa[0]);
+            //MethodInfo mi = t.GetMethod("DeserializeObject").MakeGenericMethod(d);
+            //UDSDiagnosticControl ms = JsonConvert.DeserializeObject<UDSDiagnosticControl>(jt.ToString());
+            //////var ms = mi.Invoke(Activator.CreateInstance(t), new object[] { jt.ToString() });
+            //byte a = ((UDSMessage)ms).ServiceId;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -151,12 +172,12 @@ namespace USBCAN
                             {
                                 if (flashDriverConfig.Contains("\\"))
                                 {
-                                    if(((FileBoxItem)FileBox.Items[0]).FilePath.ToLower()!= flashDriverConfig)
+                                    if (((FileBoxItem)FileBox.Items[0]).FilePath.ToLower() != flashDriverConfig)
                                     {
                                         s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
                                     }
                                 }
-                                else if(FileBox.Items[0].ToString().ToLower() != flashDriverConfig)
+                                else if (FileBox.Items[0].ToString().ToLower() != flashDriverConfig)
                                 {
                                     s19.syncFilesWithUI(2, 0, new string[1] { flashDriverConfig });
                                 }

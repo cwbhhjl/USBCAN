@@ -7,45 +7,46 @@ namespace USBCAN.UDS
 {
     public class UDSMessage
     {
-        internal byte ServiceId;
-        internal byte SubFunction;
-        private byte idTmp;
+        public byte ServiceId;
+        public byte SubFunction;
 
-        internal byte[] data = null;
+        protected string strServiceId;
+        protected string strSubFunction;
+        protected string strContent;
+
+        public byte[] data = null;
 
         public string serviceId
         {
-            get
-            {
-                return serviceId;
-            }
             set
             {
-                serviceId = value;
-                idTmp = Convert.ToByte(serviceId, 16);
+                strServiceId = value;
+                ServiceId = Convert.ToByte(strServiceId, 16);
             }
         }
 
         public string subFunction
         {
-            get
-            {
-                return subFunction;
-            }
             set
             {
-                subFunction = value;
-                SubFunction = Convert.ToByte(subFunction, 16);
+                strSubFunction = value;
+                SubFunction = Convert.ToByte(strSubFunction, 16);
             }
         }
 
-        public string content { get; set; }
+        public string content
+        {
+            set
+            {
+                strContent = value;
+            }
+        }
 
         public byte[] getContent()
         {
             if (data == null)
             {
-                data = messageToArray(content);
+                data = messageToArray(strContent);
             }
             return data;
         }
