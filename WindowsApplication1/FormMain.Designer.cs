@@ -251,7 +251,7 @@ namespace USBCAN
             this.textBox_Version.Name = "textBox_Version";
             this.textBox_Version.ReadOnly = true;
             this.textBox_Version.ShortcutsEnabled = false;
-            this.textBox_Version.Size = new System.Drawing.Size(74, 21);
+            this.textBox_Version.Size = new System.Drawing.Size(83, 21);
             this.textBox_Version.TabIndex = 12;
             this.textBox_Version.TabStop = false;
             this.textBox_Version.Click += new System.EventHandler(this.textBox_Version_Click);
@@ -306,35 +306,35 @@ namespace USBCAN
             // ToolStripMenuItem
             // 
             this.ToolStripMenuItem.Name = "ToolStripMenuItem";
-            this.ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.ToolStripMenuItem.Text = "加载文件";
             this.ToolStripMenuItem.Click += new System.EventHandler(this.button_LoadS19_Click);
             // 
             // toolStripMenuItem_Flash
             // 
             this.toolStripMenuItem_Flash.Name = "toolStripMenuItem_Flash";
-            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Flash.Size = new System.Drawing.Size(136, 22);
             this.toolStripMenuItem_Flash.Text = "开始烧写";
             this.toolStripMenuItem_Flash.Click += new System.EventHandler(this.button_Flash_Click);
             // 
             // ToolStripMenuItem_Version
             // 
             this.ToolStripMenuItem_Version.Name = "ToolStripMenuItem_Version";
-            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem_Version.Size = new System.Drawing.Size(136, 22);
             this.ToolStripMenuItem_Version.Text = "读取版本号";
             this.ToolStripMenuItem_Version.Click += new System.EventHandler(this.textBox_Version_Click);
             // 
             // toolStripMenuItem_Reset
             // 
             this.toolStripMenuItem_Reset.Name = "toolStripMenuItem_Reset";
-            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_Reset.Size = new System.Drawing.Size(136, 22);
             this.toolStripMenuItem_Reset.Text = "连接重置";
             this.toolStripMenuItem_Reset.Click += new System.EventHandler(this.toolStripMenuItem_Reset_Click);
             // 
             // toolStripMenuItem_FileReset
             // 
             this.toolStripMenuItem_FileReset.Name = "toolStripMenuItem_FileReset";
-            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItem_FileReset.Size = new System.Drawing.Size(136, 22);
             this.toolStripMenuItem_FileReset.Text = "文件重置";
             this.toolStripMenuItem_FileReset.Click += new System.EventHandler(this.toolStripMenuItem_FileReset_Click);
             // 

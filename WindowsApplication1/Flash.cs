@@ -294,6 +294,25 @@ namespace USBCAN
                     mainSendData.AddRange(s19File[s19BlockIndex].DataLength);
                     break;
 
+                case "WriteDataByIdentifier-RepairShopCode":
+                    byte[] repairShopCode = System.Text.Encoding.ASCII.GetBytes("sanhua atc");
+                    mainSendData.AddRange(repairShopCode);
+                    break;
+
+                case "WriteDataByIdentifier-ProgrammingDate":
+                    string[] time = DateTime.Now.ToShortDateString().Split('/');
+                    string[] timeBcd = new string[4];
+                    timeBcd[0] = time[0].Substring(0, 2);
+                    timeBcd[1] = time[0].Substring(2, 2);
+                    timeBcd[2] = time[1];timeBcd[3] = time[2];
+                    List<byte> byteTmp = new List<byte>();
+                    foreach (string i in timeBcd)
+                    {
+                        byteTmp.Add(Convert.ToByte(i, 16));
+                    }
+                    mainSendData.AddRange(byteTmp);
+                    break;
+
                 default:
                     break;
             }
@@ -448,7 +467,13 @@ namespace USBCAN
 
             if (car == "S300")
             {
-
+                if (CanControl.revFirst[2] == SI.RDBISI + 0x40)
+                {
+                    string ver = (char)CanControl.revFirst[5] + Convert.ToString(CanControl.revFirst[6], 16) + Convert.ToString(CanControl.revFirst[5], 16)
+                        + Convert.ToString(CanControl.Rev[1], 16) + Convert.ToString(CanControl.Rev[2], 16) + Convert.ToString(CanControl.Rev[3], 16)
+                        + Convert.ToString(CanControl.Rev[4], 16);
+                    return ver;
+                }
             }
             else
             {
