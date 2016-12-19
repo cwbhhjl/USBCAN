@@ -133,10 +133,10 @@ namespace USBCAN
             byte counter, i, DB1, DB2, DB3;
             int middle;
 
-            uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
+            uint seedInt =((uint)(seed[0] << 24) + (uint)(seed[1] << 16) + (uint)(seed[2] << 8) + seed[3]);
 
             wSubSeed = seedInt;
-            middle = (int)((MASK & 0x00001000) >> 11 | ((MASK & 0x00400000) >> 22));
+            middle = (int)(((MASK & 0x00001000) >> 11) | ((MASK & 0x00400000) >> 22));
 
             switch (middle)
             {
@@ -170,7 +170,7 @@ namespace USBCAN
                 wLastBit = (wMiddle & 0x00000001);
                 wSubSeed = wSubSeed << 1;
                 wLeft31Bits = wSubSeed & 0xFFFFFFFE;
-                wSubSeed = wLeft31Bits | wLeft31Bits;
+                wSubSeed = wLeft31Bits | wLastBit;
             }
 
             if ((MASK & 0x00000002) != 0)

@@ -283,6 +283,41 @@ namespace USBCAN
                     BS = rev[1];
                     STmin = rev[2];
 
+                    if (BS == 0)
+                    {
+                        while (true)
+                        {
+                            fixed (byte* pData = obj.Data)
+                            {
+                                pData[0] = (byte)(0x20 | SN);
+                                for (int n = 0; n < 7; n++)
+                                {
+                                    pData[n + 1] = index < len ? data[index] : (byte)0xFF;
+                                    index++;
+                                }
+                            }
+
+                            try
+                            {
+                                VCI_Transmit(deviceType, deviceIndex, canIndex, ref obj, 1);
+                                CanLog.recordLog(obj);
+                            }
+                            catch (Exception)
+                            {
+                                return -6;
+                            }
+
+                            if (index >= len)
+                            {
+                                break;
+                            }
+
+                            SN++;
+                            SN = SN > 0x0F ? (byte)0 : SN;
+
+                        }
+                    }
+
                     for (byte j = 0; j < BS; j++)
                     {
                         fixed (byte* pData = obj.Data)

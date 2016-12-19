@@ -446,13 +446,20 @@ namespace USBCAN
             byte[] tmp = canStringToByte(carSelected["SoftwareVersion"].ToString());
             CanControl.sendFrame(physicalID, receiveID, tmp);
 
-            if (SI.RDBISI + 0x40 == CanControl.Rev[1])
+            if (car == "S300")
             {
-                string ver = CanControl.Rev[6] == 0x55 ?
-                    Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) :
-                    Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16)
-                    + "." + Convert.ToString(CanControl.Rev[6] >> 4, 16) + Convert.ToString(CanControl.Rev[6] & 0x0F, 16);
-                return ver;
+
+            }
+            else
+            {
+                if (SI.RDBISI + 0x40 == CanControl.Rev[1])
+                {
+                    string ver = CanControl.Rev[6] == 0x55 ?
+                        Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) :
+                        Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16)
+                        + "." + Convert.ToString(CanControl.Rev[6] >> 4, 16) + Convert.ToString(CanControl.Rev[6] & 0x0F, 16);
+                    return ver;
+                }
             }
 
             return "fail";
