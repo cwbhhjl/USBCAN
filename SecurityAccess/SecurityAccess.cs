@@ -20,15 +20,8 @@ namespace SecurityAccess
 
         private static byte[] securityAlgorithm_0(uint MASK, byte[] seed)
         {
-            uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
-            uint keyInt = (seedInt ^ MASK) + MASK;
-
-            byte[] key = new byte[4];
-            for (int i = 0; i < 4; i++)
-            {
-                key[i] = (byte)(keyInt >> (8 * (3 - i)));
-            }
-            return key;
+            uint key = (byteArrayToUint32(seed) ^ MASK) + MASK;
+            return uint32ToByteArray(key);
         }
 
         private static uint securityAlgorithm_1(uint MASK, uint seed)
@@ -50,14 +43,7 @@ namespace SecurityAccess
 
         private static byte[] securityAlgorithm_1(uint MASK, byte[] seed)
         {
-            uint seedInt = (uint)((seed[0] << 24) + (seed[1] << 16) + (seed[2] << 8) + seed[3]);
-            uint keyInt = securityAlgorithm_1(MASK, seedInt);
-            byte[] key = new byte[4];
-            for (int i = 0; i < 4; i++)
-            {
-                key[i] = (byte)(keyInt >> (8 * (3 - i)));
-            }
-            return key;
+            return uint32ToByteArray(securityAlgorithm_1(MASK, byteArrayToUint32(seed)));
         }
 
         private static byte[] securityAlgorithm_2(byte[] seed)
@@ -77,6 +63,21 @@ namespace SecurityAccess
             key[2] = (byte)(((Cal[1] & 0xFC) >> 2) | (Cal[0] & 0xC0));
             key[3] = (byte)(((Cal[0] & 0x0F) << 4) | (Cal[3] & 0x0F));
             return key;
+        }
+
+        private static byte[] uint32ToByteArray(uint uintData)
+        {
+            byte[] arrayData = new byte[4];
+            for (int i = 0; i < 4; i++)
+            {
+                arrayData[i] = (byte)(uintData >> (8 * (3 - i)));
+            }
+            return arrayData;
+        }
+
+        private static uint byteArrayToUint32(byte[] arrayData)
+        {
+            return ((uint)arrayData[0] << 24) + (uint)(arrayData[1] << 16) + (uint)(arrayData[2] << 8) + arrayData[3];
         }
     }
 }

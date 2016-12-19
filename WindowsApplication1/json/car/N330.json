@@ -3,5 +3,7 @@
     "functionID": "7DF",
     "receiveID": "749",
     "flashSequence": "Sequence1",
-    "SecurityAccessMask": "A5CEFDB6"
+    "securityAccessMask": "A5CEFDB6",
+    "securityAccessType": [ "03", "04" ],
+    "didSoftwareVersion": "systemSupplierECUSoftwareVersionNumber"
 }
