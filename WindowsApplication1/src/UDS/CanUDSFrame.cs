@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace USBCAN.UDS
 {
@@ -50,27 +49,20 @@ namespace USBCAN.UDS
 
         private byte[] makeSingleFrame(byte[] data)
         {
-            byte[] tmp = new byte[8];
+            byte[] singleFrame = Enumerable.Repeat((byte)0xFF, 8).ToArray();
             byte len = (byte)data.Length;
-            tmp[0] = len;
-            for (int i = 1; i < 8; i++)
-            {
-                tmp[i] = (i - 1) < len ? data[i - 1] : (byte)0xFF;
-            }
-            return tmp;
+            singleFrame[0] = len;
+            Array.Copy(data, 0, singleFrame, 1, len);
+            return singleFrame;
         }
 
         private byte[] makeFirstFrame(byte[] data)
         {
-            byte[] tmp = new byte[8];
-            int len = data.Length;
-            tmp[0] = (byte)(((N_PCI.FF.N_PCItype << 4) & 0xF0) | (len >> 8) & 0x0F);
-            tmp[1] = (byte)(len & 0xFF);
-            for (int n = 0; n < 6; n++)
-            {
-                tmp[n + 2] = data[n];
-            }
-            return tmp;
+            byte[] firstFrame = new byte[8];
+            firstFrame[0] = (byte)(((N_PCI.FF.N_PCItype << 4) & 0xF0) | (data.Length >> 8) & 0x0F);
+            firstFrame[1] = (byte)(data.Length & 0xFF);
+            Array.Copy(data, 0, firstFrame, 2, 6);
+            return firstFrame;
         }
 
         private byte[] makeConsecutiveFrame(byte[] data, int index)
@@ -95,8 +87,8 @@ namespace USBCAN.UDS
                     throw e;
                 }
 
-                int framesNum = calcFramesNum(len);
-                //byte[][] tmp = new byte[framesNum][];
+                int remainder;
+                int framesNum = calcFramesNum(len, out remainder);
 
                 tmpQ.Enqueue(makeFirstFrame(data));
 
@@ -105,34 +97,43 @@ namespace USBCAN.UDS
                 for (int i = 1; i < framesNum; i++)
                 {
                     byte[] tmp = new byte[8];
-                    SN++;
-                    if (SN > 0x0F)
+                    if ((++SN) > 0x0F)
                     {
                         SN = 0;
                     }
                     tmp[0] = (byte)(((N_PCI.CF.N_PCItype << 4) & 0xF0) | SN);
-                    for (int j = 1; j < tmp.Length; j++)
+                    if (i < framesNum - 1 || remainder == 0)
                     {
-                        tmp[j] = index < len ? data[index] : (byte)0xFF;
-                        index++;
+                        for (int j = 1; j < tmp.Length; j++, index++)
+                        {
+                            tmp[j] = data[index];
+                        }
                     }
-
+                    else
+                    {
+                        tmp = Enumerable.Repeat((byte)0xFF, 8).ToArray();
+                        tmp[0] = (byte)(((N_PCI.CF.N_PCItype << 4) & 0xF0) | SN);
+                        Array.Copy(data, index, tmp, 1, remainder);
+                    }
                     tmpQ.Enqueue(tmp);
                 }
                 return tmpQ;
             }
         }
 
-        private int calcFramesNum(int length)
+        private int calcFramesNum(int length, out int remainder)
         {
             if (length <= 7)
             {
+                remainder = length;
                 return 1;
             }
             else
             {
                 length -= 6;
-                return (int)Math.Ceiling(((double)length) / 7) + 1;
+                remainder = length % 7;
+                int num = length / 7;
+                return remainder > 0 ? num + 2 : num + 1;
             }
         }
     }
