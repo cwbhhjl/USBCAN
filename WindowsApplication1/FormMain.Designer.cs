@@ -72,7 +72,7 @@ namespace USBCAN
             // 
             label_car.AutoSize = true;
             label_car.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            label_car.Location = new System.Drawing.Point(11, 6);
+            label_car.Location = new System.Drawing.Point(3, 8);
             label_car.Name = "label_car";
             label_car.Size = new System.Drawing.Size(65, 20);
             label_car.TabIndex = 13;
@@ -92,10 +92,11 @@ namespace USBCAN
             // comboBox_Config
             // 
             this.comboBox_Config.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_Config.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.comboBox_Config.FormattingEnabled = true;
-            this.comboBox_Config.Location = new System.Drawing.Point(82, 6);
+            this.comboBox_Config.Location = new System.Drawing.Point(74, 5);
             this.comboBox_Config.Name = "comboBox_Config";
-            this.comboBox_Config.Size = new System.Drawing.Size(81, 20);
+            this.comboBox_Config.Size = new System.Drawing.Size(81, 25);
             this.comboBox_Config.TabIndex = 9;
             this.comboBox_Config.SelectedIndexChanged += new System.EventHandler(this.comboBox_Config_SelectedIndexChanged);
             this.comboBox_Config.Click += new System.EventHandler(this.comboBox_Config_Click);
@@ -237,7 +238,7 @@ namespace USBCAN
             // 
             this.label_Version.AutoSize = true;
             this.label_Version.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label_Version.Location = new System.Drawing.Point(179, 6);
+            this.label_Version.Location = new System.Drawing.Point(171, 8);
             this.label_Version.Name = "label_Version";
             this.label_Version.Size = new System.Drawing.Size(51, 20);
             this.label_Version.TabIndex = 14;
@@ -246,12 +247,13 @@ namespace USBCAN
             // textBox_Version
             // 
             this.textBox_Version.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.textBox_Version.Font = new System.Drawing.Font("微软雅黑", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.textBox_Version.ImeMode = System.Windows.Forms.ImeMode.Disable;
-            this.textBox_Version.Location = new System.Drawing.Point(236, 6);
+            this.textBox_Version.Location = new System.Drawing.Point(228, 6);
             this.textBox_Version.Name = "textBox_Version";
             this.textBox_Version.ReadOnly = true;
             this.textBox_Version.ShortcutsEnabled = false;
-            this.textBox_Version.Size = new System.Drawing.Size(83, 21);
+            this.textBox_Version.Size = new System.Drawing.Size(89, 22);
             this.textBox_Version.TabIndex = 12;
             this.textBox_Version.TabStop = false;
             this.textBox_Version.Click += new System.EventHandler(this.textBox_Version_Click);

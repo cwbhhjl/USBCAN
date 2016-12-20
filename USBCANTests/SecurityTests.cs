@@ -20,6 +20,7 @@ namespace USBCAN.Tests
             //Assert.AreEqual(re[1], key[1]);
             //Assert.AreEqual(re[2], key[2]);
             //Assert.AreEqual(re[3], key[3]);
+            //byte[] b = BitConverter.GetBytes(0x12345678).Reverse().ToArray();
         }
     }
 }

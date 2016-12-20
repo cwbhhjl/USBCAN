@@ -451,26 +451,22 @@ namespace USBCAN
             byte[] tmp = canStringToByte(carSelected["SoftwareVersion"].ToString());
             CanControl.sendFrame(physicalID, receiveID, tmp);
 
-            if (car == "S300")
+            if (car == "S300" && CanControl.revFirst[2] == SI.RDBISI + 0x40)
             {
-                if (CanControl.revFirst[2] == SI.RDBISI + 0x40)
-                {
-                    string ver = (char)CanControl.revFirst[5] + Convert.ToString(CanControl.revFirst[6], 16) + Convert.ToString(CanControl.revFirst[5], 16)
-                        + Convert.ToString(CanControl.Rev[1], 16) + Convert.ToString(CanControl.Rev[2], 16) + Convert.ToString(CanControl.Rev[3], 16)
-                        + Convert.ToString(CanControl.Rev[4], 16);
-                    return ver;
-                }
+                byte[] verData = new byte[6];
+                Array.Copy(CanControl.revFirst, 6, verData, 0, 2);
+                Array.Copy(CanControl.Rev, 1, verData, 2, 4);
+                string ver = ((char)CanControl.revFirst[5]).ToString();
+                Array.ForEach(verData, v => { ver += v.ToString("X2"); });
+                return ver;
             }
-            else
+            else if (SI.RDBISI + 0x40 == CanControl.Rev[1])
             {
-                if (SI.RDBISI + 0x40 == CanControl.Rev[1])
-                {
-                    string ver = CanControl.Rev[6] == 0x55 ?
+                string ver = CanControl.Rev[6] == 0x55 ?
                         Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16) :
                         Convert.ToString(CanControl.Rev[4], 16) + "." + Convert.ToString(CanControl.Rev[5], 16)
                         + "." + Convert.ToString(CanControl.Rev[6] >> 4, 16) + Convert.ToString(CanControl.Rev[6] & 0x0F, 16);
-                    return ver;
-                }
+                return ver;
             }
 
             return "fail";
