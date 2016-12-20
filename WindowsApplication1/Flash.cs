@@ -11,8 +11,8 @@ namespace USBCAN
 {
     class Flash
     {
-        public delegate void Updata(int cmd, string msg = null, int procssValue = 0, string msg2 = null);
-        public event Updata updata;
+        public delegate void Update(FormMain.UpdateUI cmd, string msg = null, int procssValue = 0, string msg2 = null);
+        public event Update update;
 
         public string car = "";
 
@@ -130,7 +130,7 @@ namespace USBCAN
                 s19.getS19File();
             }
 
-            updata(-1);
+            update(FormMain.UpdateUI.InitUI);
 
             dataNum = (ulong)sequence.Keys.Count + s19.getS19DataNum();
             dataCounter = 0;
@@ -144,7 +144,7 @@ namespace USBCAN
             processIndex = 0;
             CanControl.canClearBuffer();
             CanLog.makeLog();
-            updata(0);
+            update(FormMain.UpdateUI.FinishFlash);
         }
 
         void sendStart(object obj)
@@ -172,7 +172,7 @@ namespace USBCAN
                     if (sendResult < 0)
                     {
                         flashFlag = false;
-                        updata(5, processStr + "...fail", 0, canCtl.sendError[sendResult]);
+                        update(FormMain.UpdateUI.ErrorMessageShow, processStr + "...fail", 0, canCtl.sendError[sendResult]);
                     }
 
                     sendFlag = false;
@@ -215,7 +215,7 @@ namespace USBCAN
             catch (NullReferenceException)
             {
                 flashFlag = false;
-                updata(2, "刷写完成");
+                update(FormMain.UpdateUI.MessageShow, "刷写完成");
                 return;
             }
 
@@ -240,11 +240,8 @@ namespace USBCAN
                     break;
 
                 case "KeySend":
-                    byte[] seed = new byte[4];
-                    Array.Copy(CanControl.Rev, 3, seed, 0, 4);
-                    byte[] key = sec.seedToKey(seed);
                     mainSendData.Add(securityAccess[1]);
-                    mainSendData.AddRange(key);
+                    mainSendData.AddRange(seedToKey());
                     break;
 
                 case "DownloadRequest":
@@ -295,22 +292,11 @@ namespace USBCAN
                     break;
 
                 case "WriteDataByIdentifier-RepairShopCode":
-                    byte[] repairShopCode = System.Text.Encoding.ASCII.GetBytes("sanhua atc");
-                    mainSendData.AddRange(repairShopCode);
+                    mainSendData.AddRange(System.Text.Encoding.ASCII.GetBytes("sanhua atc"));
                     break;
 
                 case "WriteDataByIdentifier-ProgrammingDate":
-                    string[] time = DateTime.Now.ToShortDateString().Split('/');
-                    string[] timeBcd = new string[4];
-                    timeBcd[0] = time[0].Substring(0, 2);
-                    timeBcd[1] = time[0].Substring(2, 2);
-                    timeBcd[2] = time[1];timeBcd[3] = time[2];
-                    List<byte> byteTmp = new List<byte>();
-                    foreach (string i in timeBcd)
-                    {
-                        byteTmp.Add(Convert.ToByte(i, 16));
-                    }
-                    mainSendData.AddRange(byteTmp);
+                    mainSendData.AddRange(programmingDate());
                     break;
 
                 default:
@@ -328,7 +314,7 @@ namespace USBCAN
                 dataCounter = dataCounter + (ulong)mainSendData.Count - 2;
             }
 
-            updata(4, "", (int)(dataCounter * 100 / dataNum));
+            update(FormMain.UpdateUI.ProgreeBarSet, null, (int)(dataCounter * 100 / dataNum));
         }
 
         private void handleCan()
@@ -341,7 +327,7 @@ namespace USBCAN
                         case NRC.RCRRP:
                             if (processStr != "DataTransfer")
                             {
-                                updata(1, processStr + "...wait");
+                                update(FormMain.UpdateUI.UpdateListBox, processStr + "...wait");
                             }
                             while (CanControl.canLastReceive(receiveID) == null)
                             {
@@ -351,7 +337,7 @@ namespace USBCAN
                             break;
 
                         case NRC.RTDNE:
-                            updata(1, processStr + "...keep alive");
+                            update(FormMain.UpdateUI.UpdateListBox, processStr + "...keep alive");
                             for (int c = 0; c < 4; c++)
                             {
                                 keepAlive();
@@ -361,7 +347,7 @@ namespace USBCAN
 
                         default:
                             flashFlag = false;
-                            updata(5, processStr + "...fail", 0, "刷写失败: " + BitConverter.ToString(CanControl.Rev));
+                            update(FormMain.UpdateUI.ErrorMessageShow, processStr + "...fail", 0, "刷写失败: " + BitConverter.ToString(CanControl.Rev));
                             break;
                     }
                     break;
@@ -373,7 +359,7 @@ namespace USBCAN
                     {
                         blCacheLength += CanControl.Rev[3 + i] * (int)Math.Pow(0x100, lengthFormatIdentifier - i - 1);
                     }
-                    updata(1, "sending file...");
+                    update(FormMain.UpdateUI.UpdateListBox, "sending file...");
                     processIndex++;
                     break;
 
@@ -390,7 +376,7 @@ namespace USBCAN
                     {
                         s19File = null;
                         s19BlockIndex = 0;
-                        updata(1, "sending file...finish");
+                        update(FormMain.UpdateUI.UpdateListBox, "sending file...finish");
                         processIndex++;
                     }
                     else
@@ -405,7 +391,7 @@ namespace USBCAN
                     if (CanControl.Rev[2] == 0x01)
                     {
                         Delay(550);
-                        updata(1, processStr + "...ok");
+                        update(FormMain.UpdateUI.UpdateListBox, processStr + "...ok");
                         processIndex++;
                     }
                     break;
@@ -433,12 +419,12 @@ namespace USBCAN
                 default:
                     if (ServiceIdentifier + 0x40 == CanControl.Rev[1])
                     {
-                        updata(1, processStr + "...ok");
+                        update(FormMain.UpdateUI.UpdateListBox, processStr + "...ok");
                         processIndex++;
                     }
                     else
                     {
-                        updata(5, processStr + "...fail", 0, "刷写失败");
+                        update(FormMain.UpdateUI.ErrorMessageShow, processStr + "...fail", 0, "刷写失败");
                         flashFlag = false;
                     }
                     break;
@@ -488,6 +474,25 @@ namespace USBCAN
             }
 
             return "fail";
+        }
+
+        private IEnumerable<byte> programmingDate()
+        {
+            string[] time = DateTime.Now.ToShortDateString().Split('/');
+            string[] timeBcd = new string[4];
+            timeBcd[0] = time[0].Substring(0, 2);
+            timeBcd[1] = time[0].Substring(2, 2);
+            timeBcd[2] = time[1]; timeBcd[3] = time[2];
+            List<byte> byteTmp = new List<byte>();
+            Array.ForEach(timeBcd, t => { byteTmp.Add(Convert.ToByte(t, 16)); });
+            return byteTmp;
+        }
+
+        private IEnumerable<byte> seedToKey()
+        {
+            byte[] seed = new byte[4];
+            Array.Copy(CanControl.Rev, 3, seed, 0, 4);
+            return sec.seedToKey(seed);
         }
 
         private bool keepAliveForS300()

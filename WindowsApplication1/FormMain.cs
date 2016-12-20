@@ -108,7 +108,7 @@ namespace USBCAN
 
             flash = new Flash(carSelected, s19);
             flash.car = car;
-            flash.updata += new Flash.Updata(updataUI);
+            flash.update += new Flash.Update(updateUI);
 
             if (carSelected["FlashDriver"] != null)
             {
@@ -275,35 +275,46 @@ namespace USBCAN
             }
         }
 
-        private void updataUI(int cmd, string msg = null, int processValue = 0, string msg2 = null)
+        public enum UpdateUI : int
+        {
+            InitUI = -1,
+            FinishFlash = 0,
+            UpdateListBox = 1,
+            MessageShow,
+            ProgressBarIncrement,
+            ProgreeBarSet,
+            ErrorMessageShow,
+        }
+
+        private void updateUI(UpdateUI cmd, string msg = null, int processValue = 0, string msg2 = null)
         {
             Invoke(new MethodInvoker(delegate
             {
                 switch (cmd)
                 {
-                    case 1:
+                    case UpdateUI.UpdateListBox:
                         listBox.Items.Insert(listBox.Items.Count, msg);
                         listBox.SelectedIndex = listBox.Items.Count - 1;
                         listBox.Refresh();
                         break;
-                    case 2:
+                    case UpdateUI.MessageShow:
                         MessageBox.Show(msg, "INFO",
                             MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                         break;
-                    case 3:
+                    case UpdateUI.ProgressBarIncrement:
                         toolStripProgressBar_Flash.Increment(processValue);
                         break;
-                    case 4:
+                    case UpdateUI.ProgreeBarSet:
                         toolStripProgressBar_Flash.Value = processValue > 100 ? 100 : processValue;
                         break;
-                    case 5:
+                    case UpdateUI.ErrorMessageShow:
                         listBox.Items.Insert(listBox.Items.Count, msg);
                         listBox.SelectedIndex = listBox.Items.Count - 1;
                         listBox.Refresh();
                         MessageBox.Show(msg2, "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         break;
-                    case -1:
+                    case UpdateUI.InitUI:
                         listBox.Items.Clear();
                         toolStripProgressBar_Flash.Value = 0;
                         textBox_Version.Text = flash.readVersion();
@@ -314,7 +325,7 @@ namespace USBCAN
                         toolStripMenuI_Start.Enabled = false;
                         checkBox_Log.Enabled = false;
                         break;
-                    case 0:
+                    case UpdateUI.FinishFlash:
                         textBox_Version.Enabled = true;
                         FileBox.Enabled = true;
                         button_LoadS19.Enabled = true;
