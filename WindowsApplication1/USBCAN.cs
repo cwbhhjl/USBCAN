@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace USBCAN
@@ -81,9 +82,107 @@ namespace USBCAN
         public byte Mode;
     }
 
-
-    public static class USBCAN
+    public class USBCAN
     {
+        private static class NativeMethods
+        {
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_OpenDevice(uint DeviceType, uint DeviceInd, uint Reserved);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_CloseDevice(uint DeviceType, uint DeviceInd);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_InitCAN(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_INIT_CONFIG pInitConfig);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_ReadBoardInfo(uint DeviceType, uint DeviceInd, ref VCI_BOARD_INFO pInfo);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_ReadErrInfo(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_ERR_INFO pErrInfo);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_ReadCANStatus(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_STATUS pCANStatus);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_GetReference(uint DeviceType, uint DeviceInd, uint CANInd, uint RefType, ref byte pData);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_SetReference(uint DeviceType, uint DeviceInd, uint CANInd, uint RefType, ref byte pData);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_GetReceiveNum(uint DeviceType, uint DeviceInd, uint CANInd);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_ClearBuffer(uint DeviceType, uint DeviceInd, uint CANInd);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_StartCAN(uint DeviceType, uint DeviceInd, uint CANInd);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_ResetCAN(uint DeviceType, uint DeviceInd, uint CANInd);
+            [DllImport("controlcan.dll")]
+            internal static extern uint VCI_Transmit(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_OBJ pSend, uint Len);
+            [DllImport("controlcan.dll", CharSet = CharSet.Ansi)]
+            internal static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
+        }
+
+        public class Can
+        {
+            private USBCAN usbcan;
+
+            public uint canIndex { get; }
+            public bool isInit { get; private set; }
+            public uint ReceiveNum
+            {
+                get
+                {
+                    return NativeMethods.VCI_GetReceiveNum((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex);
+                }
+            }
+
+            internal Can(USBCAN usbcan, uint canIndex)
+            {
+                this.canIndex = canIndex;
+                this.usbcan = usbcan;
+                isInit = false;
+            }
+
+            public bool InitCan(ref VCI_INIT_CONFIG initConfig)
+            {
+                bool result = (NativeMethods.VCI_InitCAN((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref initConfig) == 1);
+                if (result)
+                {
+                    isInit = true;
+                }
+                return result;
+            }
+
+            public bool ReadErrInfo(ref VCI_ERR_INFO errInfo)
+            {
+                return (NativeMethods.VCI_ReadErrInfo((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref errInfo) == 1);
+            }
+
+            public bool ReadCANStatus(ref VCI_CAN_STATUS canStatus)
+            {
+                return (NativeMethods.VCI_ReadCANStatus((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref canStatus) == 1);
+            }
+
+            public bool ClearBuffer()
+            {
+                return (NativeMethods.VCI_ClearBuffer((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex) == 1);
+            }
+
+            public bool StartCan()
+            {
+                return (NativeMethods.VCI_StartCAN((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex) == 1);
+            }
+
+            public bool ResetCan()
+            {
+                return (NativeMethods.VCI_ResetCAN((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex) == 1);
+            }
+
+            public bool Send(ref VCI_CAN_OBJ send)
+            {
+                return (NativeMethods.VCI_Transmit((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref send, 1) == 1);
+            }
+
+            public uint Receive(out IntPtr pt, int waitTime)
+            {
+                pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * 50);
+                return NativeMethods.VCI_Receive((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, pt, 50, 100);
+            }
+        }
         /// <summary>
         /// 错误码定义
         /// </summary>
@@ -131,6 +230,52 @@ namespace USBCAN
             VCI_PCI5020U = 22,
             VCI_EG20T_CAN = 23,
             VCI_PCIE9221 = 24
+        }
+
+        public HardwareType deviceType { get; }
+        public uint deviceIndex { get; }
+        public Dictionary<uint, Can> canList { get; }
+        public bool isOpen { get; private set; }
+
+        public VCI_BOARD_INFO info = new VCI_BOARD_INFO();
+
+        public USBCAN(HardwareType deviceType, uint deviceIndex)
+        {
+            this.deviceType = deviceType;
+            this.deviceIndex = deviceIndex;
+            isOpen = false;
+            canList = new Dictionary<uint, Can>();
+        }
+
+        public bool OpenDevice()
+        {
+            bool result = (NativeMethods.VCI_OpenDevice((uint)deviceType, deviceIndex, 0u) == 1);
+            if (result)
+            {
+                isOpen = true;
+            }
+            return result;
+        }
+
+        public bool CloseDevice()
+        {
+            bool result = (NativeMethods.VCI_CloseDevice((uint)deviceType, deviceIndex) == 1);
+            if (result)
+            {
+                isOpen = false;
+            }
+            return result;
+        }
+        
+        public void AddCan(uint canIndex)
+        {
+            canList.Add(canIndex, new Can(this, canIndex));
+        }
+
+        public bool ReadBoardInfo()
+        {
+            uint result = NativeMethods.VCI_ReadBoardInfo((uint)deviceType, deviceIndex, ref info);
+            return result == 1;
         }
     }
 

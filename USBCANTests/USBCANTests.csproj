@@ -54,6 +54,7 @@
     <Compile Include="CRC32Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecurityTests.cs" />
+    <Compile Include="USBCANTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WindowsApplication1\USBCAN.csproj">
