@@ -11,5 +11,10 @@
         "timing1": "0x1C"
     },
 
-    "cars": [ "E32", "E33", "N330", "S300" ]
+    "cars": [ "E32", "E33", "N330", "S300" ],
+
+    "sequence": {
+        "sequence1": [ "extendedDiagnosticSession_F" ],
+        "sequence2": [ "extendedDiagnosticSession_F" ]
+    }
 }

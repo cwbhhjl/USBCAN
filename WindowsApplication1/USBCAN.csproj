@@ -74,6 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Burn\FlashConfig.cs" />
     <Compile Include="src\CanControl.cs" />
     <Compile Include="src\Burn\Car.cs" />
     <Compile Include="src\UDS\CanUDSFrame.cs" />
