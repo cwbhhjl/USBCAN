@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using USBCAN.UDS;
 
-namespace USBCAN
+namespace USBCAN.Burn
 {
     class Flash
     {
@@ -239,7 +240,9 @@ namespace USBCAN
                 case "KeySend":
                     byte[] seed = new byte[4];
                     Array.Copy(CanControl.Rev, 3, seed, 0, 4);
-                    byte[] key = sec.seedToKey(seed);
+                    Assembly asm = Assembly.LoadFrom("SecurityAccess.dll");
+                    SecurityAccess.SecurityAccess se = (SecurityAccess.SecurityAccess)asm.CreateInstance("SecurityAcess.SecurityAccess");
+                    byte[] key = se.seedToKey(Convert.ToUInt32(carSelected["SecurityAccessMask"].ToString(), 16), seed);
                     mainSendData.Add(securityAccess[1]);
                     mainSendData.AddRange(key);
                     break;

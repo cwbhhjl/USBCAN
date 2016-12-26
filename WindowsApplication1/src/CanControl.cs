@@ -287,7 +287,7 @@ namespace USBCAN
                         SN = SN > 0x0F ? (byte)0 : SN;
                     }
 
-                    Flash.Delay(STmin);
+                    Burn.Flash.Delay(STmin);
                     goto case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.WT;
 
                 case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.WT:
