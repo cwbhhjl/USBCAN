@@ -9,6 +9,7 @@ namespace USBCAN.UDS
     {
         public byte ServiceId;
         public byte SubFunction;
+        public byte[] Content;
 
         protected string strServiceId;
         protected string strSubFunction;
@@ -39,6 +40,7 @@ namespace USBCAN.UDS
             set
             {
                 strContent = value;
+                Content = messageToArray(strContent);
             }
         }
 

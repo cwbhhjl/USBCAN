@@ -2,6 +2,10 @@
 using System.Windows.Forms;
 using System.Configuration;
 using System.Collections;
+using USBCAN.Burn;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace USBCAN
 {
@@ -18,10 +22,11 @@ namespace USBCAN
         {
             InitializeComponent();
             //string json;
-            //using (StreamReader sr = new StreamReader("config.json"))
+            //using (StreamReader sr = new StreamReader("json/car/N330.json"))
             //{
             //    json = sr.ReadToEnd();
             //}
+            //Car c = JsonConvert.DeserializeObject<Car>(JObject.Parse(json).ToString());
             //JsonConvert.DeserializeObject(json);
             //JObject o = JObject.Parse(json);
             //JToken jt = o["process"];
@@ -36,7 +41,7 @@ namespace USBCAN
             //Type d = Type.GetType(sa[0]);
             //MethodInfo mi = t.GetMethod("DeserializeObject").MakeGenericMethod(d);
             //UDSDiagnosticControl ms = JsonConvert.DeserializeObject<UDSDiagnosticControl>(jt.ToString());
-            //////var ms = mi.Invoke(Activator.CreateInstance(t), new object[] { jt.ToString() });
+            ////var ms = mi.Invoke(Activator.CreateInstance(t), new object[] { jt.ToString() });
             //byte a = ((UDSMessage)ms).ServiceId;
         }
 
