@@ -119,6 +119,7 @@ namespace USBCAN.Device
         public class Can
         {
             private ZLGCAN usbcan;
+            private VCI_INIT_CONFIG initConfig;
 
             public uint canIndex { get; }
             public bool isInit { get; private set; }
@@ -130,15 +131,29 @@ namespace USBCAN.Device
                 }
             }
 
+            public uint AccCode { get { return initConfig.AccCode; } }
+            public uint AccMask { get { return initConfig.AccMask; } }
+            public byte Timing0 { get { return initConfig.Timing0; } }
+            public byte Timing1 { get { return initConfig.Timing1; } }
+            public byte Filter { get { return initConfig.Filter; } }
+            public byte Mode { get { return initConfig.Mode; } }
+
             internal Can(ZLGCAN usbcan, uint canIndex)
             {
                 this.canIndex = canIndex;
                 this.usbcan = usbcan;
                 isInit = false;
+                initConfig = new VCI_INIT_CONFIG();
             }
 
-            public bool InitCan(ref VCI_INIT_CONFIG initConfig)
+            public bool InitCan(byte timing0, byte timing1, uint accCode = 0, uint accMask = 0xFFFFFFFF, byte filter = 1, byte mode = 0)
             {
+                initConfig.AccCode = accCode;
+                initConfig.AccMask = accMask;
+                initConfig.Timing0 = timing0;
+                initConfig.Timing1 = timing1;
+                initConfig.Filter = filter;
+                initConfig.Mode = mode;
                 bool result = (NativeMethods.VCI_InitCAN((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref initConfig) == 1);
                 if (result)
                 {
@@ -274,7 +289,7 @@ namespace USBCAN.Device
             }
             return result;
         }
-        
+
         public void AddCan(uint canIndex)
         {
             canList.Add(canIndex, new Can(this, canIndex));

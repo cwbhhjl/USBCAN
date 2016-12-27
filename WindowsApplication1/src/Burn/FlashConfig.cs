@@ -71,9 +71,9 @@ namespace USBCAN.Burn
 
     public class ZLGCANJson
     {
-        public int deviceType { get; set; }
-        public int deviceIndex { get; set; }
-        public int channel { get; set; }
+        public uint deviceType { get; set; }
+        public uint deviceIndex { get; set; }
+        public uint channel { get; set; }
         public string timing0 { get; set; }
         public string timing1 { get; set; }
     }
