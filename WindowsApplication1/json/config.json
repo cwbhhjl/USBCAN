@@ -19,8 +19,38 @@
             "eraseMirrorMemoryDTCs",
             "dtcSetOff_F",
             "disableRxAndTx-normalCommunicationMessages_F",
-            "programmingSession"
+            "programmingSession",
+            "requestSeed",
+            "sendKey",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "checkRoutine",
+            "eraseMemory",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "checkRoutine",
+            "checkProgrammingDependencies",
+            "hardReset",
+            "defaultSession_F",
+            "clearDiagnosticInformation"
         ],
-        "sequence2": [ "extendedDiagnosticSession_F" ]
+        "sequence2": [
+            "extendedDiagnosticSession_F",
+            "dtcSetOff_F",
+            "disableRxAndTx-normalCommunicationMessages_F",
+            "programmingSession",
+            "requestSeed",
+            "sendKey",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "checkProgrammingDependencies",
+            "hardReset_F"
+        ]
     }
 }
