@@ -14,7 +14,13 @@
     "cars": [ "E32", "E33", "N330", "S300" ],
 
     "sequence": {
-        "sequence1": [ "extendedDiagnosticSession_F" ],
+        "sequence1": [
+            "extendedDiagnosticSession_F",
+            "eraseMirrorMemoryDTCs",
+            "dtcSetOff_F",
+            "disableRxAndTx-normalCommunicationMessages_F",
+            "programmingSession"
+        ],
         "sequence2": [ "extendedDiagnosticSession_F" ]
     }
 }

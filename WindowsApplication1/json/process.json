@@ -1,4 +1,10 @@
 {
+    "systemSupplierECUSoftwareVersionNumber": {
+        "serviceId": "22",
+        "dataIdentifier": [ "F1", "95" ],
+        "content": "22 F1 95"
+    },
+
     "testerPresent": {
         "serviceId": "3E",
         "subFunction": "00",

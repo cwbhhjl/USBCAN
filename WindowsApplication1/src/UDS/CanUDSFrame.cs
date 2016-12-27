@@ -6,6 +6,7 @@ namespace USBCAN.UDS
 {
     public class CanUDSFrame
     {
+        public uint id { get; }
         //public int length { get; }
         private Queue<byte[]> multiFrames { get; }
         /// <summary>
@@ -40,8 +41,9 @@ namespace USBCAN.UDS
         /// <summary>
         /// 初始化 CanUDSFrame 实例，将传入的原始数据字节数组转为符合 ISO 15363 的 CAN 帧字节数组队列
         /// </summary>
-        public CanUDSFrame(byte[] data)
+        public CanUDSFrame(uint id, byte[] data)
         {
+            this.id = id;
             //length = data.Length;
             multiFrames = dataArrayToCanContent(data);
             allFrames = new Queue<byte[]>(multiFrames);
