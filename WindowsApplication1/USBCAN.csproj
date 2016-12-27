@@ -74,6 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Burn\DeviceControl.cs" />
     <Compile Include="src\Burn\FlashConfig.cs" />
     <Compile Include="src\CanControl.cs" />
     <Compile Include="src\Burn\Car.cs" />
@@ -93,7 +94,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Security.cs" />
     <Compile Include="src\UDS\UDS.cs" />
-    <Compile Include="src\USBCAN.cs" />
+    <Compile Include="src\Device\USBCAN.cs" />
     <EmbeddedResource Include="src\FormMain.resx">
       <SubType>Designer</SubType>
       <DependentUpon>FormMain.cs</DependentUpon>

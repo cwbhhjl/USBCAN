@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace USBCAN
+namespace USBCAN.Device
 {
     /// <summary>
     /// ZLGCAN系列接口卡信息的数据类型
@@ -82,7 +82,7 @@ namespace USBCAN
         public byte Mode;
     }
 
-    public class USBCAN
+    public class ZLGCAN
     {
         private static class NativeMethods
         {
@@ -118,7 +118,7 @@ namespace USBCAN
 
         public class Can
         {
-            private USBCAN usbcan;
+            private ZLGCAN usbcan;
 
             public uint canIndex { get; }
             public bool isInit { get; private set; }
@@ -130,7 +130,7 @@ namespace USBCAN
                 }
             }
 
-            internal Can(USBCAN usbcan, uint canIndex)
+            internal Can(ZLGCAN usbcan, uint canIndex)
             {
                 this.canIndex = canIndex;
                 this.usbcan = usbcan;
@@ -237,9 +237,17 @@ namespace USBCAN
         public Dictionary<uint, Can> canList { get; }
         public bool isOpen { get; private set; }
 
-        public VCI_BOARD_INFO info = new VCI_BOARD_INFO();
+        public VCI_BOARD_INFO Info
+        {
+            get
+            {
+                return info;
+            }
+        }
 
-        public USBCAN(HardwareType deviceType, uint deviceIndex)
+        private VCI_BOARD_INFO info = new VCI_BOARD_INFO();
+
+        public ZLGCAN(HardwareType deviceType, uint deviceIndex)
         {
             this.deviceType = deviceType;
             this.deviceIndex = deviceIndex;

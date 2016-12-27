@@ -6,6 +6,7 @@ using USBCAN.Burn;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using USBCAN.Device;
 
 namespace USBCAN
 {
@@ -52,9 +53,9 @@ namespace USBCAN
             {
                 toolStripStatusLabel_CAN.Text = "CAN : true";
             }
-            else if (USBCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
+            else if (ZLGCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
             {
-                MessageBox.Show(USBCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
+                MessageBox.Show(ZLGCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
@@ -77,9 +78,9 @@ namespace USBCAN
                 MessageBox.Show("打开设备失败,请检查设备已连接并没有被其他程序占用", "错误",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                if (USBCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
+                if (ZLGCAN.ERR.ContainsKey(CanControl.errorInfo.ErrCode))
                 {
-                    MessageBox.Show(USBCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
+                    MessageBox.Show(ZLGCAN.ERR[CanControl.errorInfo.ErrCode], "错误",
                                 MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 return;

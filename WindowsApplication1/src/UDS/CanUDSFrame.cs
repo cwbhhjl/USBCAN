@@ -44,7 +44,6 @@ namespace USBCAN.UDS
         public CanUDSFrame(uint id, byte[] data)
         {
             this.id = id;
-            //length = data.Length;
             multiFrames = dataArrayToCanContent(data);
             allFrames = new Queue<byte[]>(multiFrames);
         }

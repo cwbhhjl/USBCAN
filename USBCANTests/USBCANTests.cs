@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using USBCAN.Device;
 
 namespace USBCAN.Tests
 {
@@ -13,7 +14,7 @@ namespace USBCAN.Tests
         [TestMethod()]
         public void USBCANTest()
         {
-            USBCAN usbCan = new USBCAN(USBCAN.HardwareType.VCI_USBCAN2, 0);
+            ZLGCAN usbCan = new ZLGCAN(ZLGCAN.HardwareType.VCI_USBCAN2, 0);
             Assert.AreEqual(true, usbCan.OpenDevice());
             Assert.AreEqual(true, usbCan.isOpen);
             usbCan.ReadBoardInfo();

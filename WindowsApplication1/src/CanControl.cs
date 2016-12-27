@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using USBCAN.Device;
 using USBCAN.UDS;
 
 namespace USBCAN
@@ -38,7 +39,7 @@ namespace USBCAN
 
         public static bool log = false;
 
-        public static uint deviceType = (uint)USBCAN.HardwareType.VCI_USBCAN2;
+        public static uint deviceType = (uint)ZLGCAN.HardwareType.VCI_USBCAN2;
         private static bool isOpen = false;
         public static uint deviceIndex = 0;
         public static uint canIndex = 0;
