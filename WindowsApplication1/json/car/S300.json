@@ -1,0 +1,11 @@
+﻿{
+    "physicalID": "7B2",
+    "functionID": "7DF",
+    "receiveID": "7BA",
+    "didSoftwareVersion": "systemSupplierECUSoftwareVersionNumber",
+    "flashSequence": "sequence2",
+    "SecurityAccessType": ["03","04"],
+    "SecurityAccessMask": "A5CEFDB6",
+    "SecurityAccessLibraryPath": "SecurityAccess.dll",
+    "hasFlashDriver": true
+}

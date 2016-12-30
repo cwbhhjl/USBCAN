@@ -113,6 +113,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="json\car\S300.json" />
     <None Include="json\config.json" />
     <None Include="json\car\N330.json" />
     <None Include="json\process.json" />

@@ -24,8 +24,6 @@ namespace USBCAN.Burn
             private set;
         }
 
-        public string ErrString { get; private set; }
-
         public string ReadError()
         {
             uint errCode;
@@ -66,6 +64,32 @@ namespace USBCAN.Burn
             }
         }
 
+        public bool Close()
+        {
+            if(zlgDevice.CloseDevice())
+            {
+                IsConnect = false;
+                return true;
+            }
+            return false;
+        }
+
+        public void DetectDeviceChange()
+        {
+            if (!IsConnect)
+            {
+                Connect();
+            }
+            else if (!zlgDevice.ReadBoardInfo())
+            {
+                if (!Connect())
+                {
+                    Close();
+                    IsConnect = false;
+                }
+            } 
+        }
+
         public DeviceControl(ZLGCANJson zlgcan)
         {
             zlgDevice = new ZLGCAN((ZLGCAN.HardwareType)zlgcan.deviceType, zlgcan.deviceIndex);
@@ -101,7 +125,7 @@ namespace USBCAN.Burn
 
         public Queue<byte[]> ReceiveUDSFrame(uint id)
         {
-            Queue<byte[]> rawData = WaitForResponse(id);
+            Queue<byte[]> rawData = GetResponse(id);
             Queue<byte[]> messageQueue = new Queue<byte[]>();
 
             if (rawData == null)
@@ -127,7 +151,7 @@ namespace USBCAN.Burn
                     byte[] allData = new byte[FF_DL];
                     Array.Copy(data, 2, allData, 0, 6);
                     SendByteArray(CanUDSFrame.FlowControl);
-                    if(WaitConsecutiveFrame(id, FF_DL, allData))
+                    if(GetConsecutiveFrame(id, FF_DL, allData))
                     {
                         messageQueue.Enqueue(allData);
                         return messageQueue;
@@ -142,7 +166,7 @@ namespace USBCAN.Burn
         {
             byte[] data; bool result;
             uint id = frame.id;
-            data = WaitFlowControl(id);
+            data = GetFlowControl(id);
 
             if (data == null)
             {
@@ -171,7 +195,7 @@ namespace USBCAN.Burn
                     }
                     goto case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.WT;
                 case (N_PCI.FC.N_PCItype << 4) | N_PCI.FC.FS.WT:
-                    data = WaitFlowControl(id);
+                    data = GetFlowControl(id);
                     if (data == null)
                     {
                         return false;
@@ -239,7 +263,7 @@ namespace USBCAN.Burn
             return null;
         }
 
-        private Queue<byte[]> WaitForResponse(uint id, uint waitTime = 80)
+        private Queue<byte[]> GetResponse(uint id, uint waitTime = 80)
         {
             Queue<byte[]> data;
             int start = Environment.TickCount;
@@ -254,7 +278,7 @@ namespace USBCAN.Burn
             return null;
         }
 
-        private bool WaitConsecutiveFrame(uint id, int FF_DL, byte[] all)
+        private bool GetConsecutiveFrame(uint id, int FF_DL, byte[] all)
         {
             byte SN = 1;
             int index = 6;
@@ -278,7 +302,7 @@ namespace USBCAN.Burn
             return true;
         }
 
-        private byte[] WaitFlowControl(uint id)
+        private byte[] GetFlowControl(uint id)
         {
             byte[] data;
             int start = Environment.TickCount;

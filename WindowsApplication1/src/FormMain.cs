@@ -4,8 +4,6 @@ using System.Configuration;
 using System.Collections;
 using USBCAN.Burn;
 using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using USBCAN.Device;
 
 namespace USBCAN
@@ -18,6 +16,11 @@ namespace USBCAN
         FileBoxItem flashDriverDefaultPath = new FileBoxItem(Flash.DriverName);
         System.Collections.Generic.List<string> fileList = new System.Collections.Generic.List<string>();
         private string sha1 = null;
+
+        DeviceControl dc;
+        ZLGCANJson zlgCan;
+        ConfigJson config;
+        Car carConfig;
 
         public FormMain()
         {
@@ -46,8 +49,11 @@ namespace USBCAN
             //byte a = ((UDSMessage)ms).ServiceId;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FormMain_Load(object sender, EventArgs e)
         {
+            config = FlashConfig.ParseConfig("json/config.json", out zlgCan);
+            comboBox_Config.Items.AddRange(config.cars);
+
             s19.updata += new HexS19.Updata(updataFileBox);
             if (CanControl.canConnect())
             {
@@ -59,7 +65,7 @@ namespace USBCAN
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
-            sha1 = BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(System.IO.File.OpenRead(Flash.DriverName)));
+            sha1 = BitConverter.ToString(new System.Security.Cryptography.SHA1CryptoServiceProvider().ComputeHash(File.OpenRead(Flash.DriverName)));
             if (System.IO.File.Exists(Flash.DriverName) && sha1.Equals(Flash.flashSha1))
             {
                 s19.syncFilesWithUI(1, -1, new string[1] { Flash.DriverName });
@@ -110,18 +116,36 @@ namespace USBCAN
         private void comboBox_Config_Click(object sender, EventArgs e)
         {
             flash = null;
-            comboBox_Config.Items.Clear();
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            int confnum = config.GetSectionGroup("CarConfig").Sections.Count;
-            for (int index = 0; index < confnum; index++)
-            {
-                comboBox_Config.Items.Add(config.GetSectionGroup("CarConfig").Sections.GetKey(index));
-            }
+            //comboBox_Config.Items.Clear();
+            //Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            //int confnum = config.GetSectionGroup("CarConfig").Sections.Count;
+            //for (int index = 0; index < confnum; index++)
+            //{
+            //    comboBox_Config.Items.Add(config.GetSectionGroup("CarConfig").Sections.GetKey(index));
+            //}
         }
 
         private void comboBox_Config_SelectedIndexChanged(object sender, EventArgs e)
         {
             string car = (string)comboBox_Config.SelectedItem;
+            try
+            {
+                carConfig = FlashConfig.ParseCar(car, "json/process.json", config);
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("无法找到配置文件，请检查", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            //无法找到车辆json配置文件时
+            catch (ArgumentException)
+            {
+                MessageBox.Show("配置文件参数缺失，请检查", "错误",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            
             try
             {
                 carSelected = (IDictionary)ConfigurationManager.GetSection("CarConfig/" + car);

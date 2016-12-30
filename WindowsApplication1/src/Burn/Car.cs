@@ -22,6 +22,12 @@ namespace USBCAN.Burn
 
         internal Car(CarJson carJson)
         {
+            if (carJson.physicalID == null || carJson.functionID == null || carJson.receiveID == null 
+                || carJson.SecurityAccessLibraryPath == null || carJson.SecurityAccessMask == null 
+                || carJson.SecurityAccessType == null )
+            {
+                throw new ArgumentException();
+            }
             physicalID = Convert.ToUInt32(carJson.physicalID, 16);
             functionID = Convert.ToUInt32(carJson.functionID, 16);
             receiveID = Convert.ToUInt32(carJson.receiveID, 16);
