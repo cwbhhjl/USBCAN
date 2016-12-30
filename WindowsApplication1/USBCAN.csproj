@@ -74,6 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Burn\DataControl.cs" />
     <Compile Include="src\Burn\DeviceControl.cs" />
     <Compile Include="src\Burn\FlashConfig.cs" />
     <Compile Include="src\CanControl.cs" />

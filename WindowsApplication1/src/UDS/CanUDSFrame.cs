@@ -6,6 +6,8 @@ namespace USBCAN.UDS
 {
     public class CanUDSFrame
     {
+        public static byte[] FlowControl = new byte[8] { 0x30, 0x00, 0x01, 0x55, 0x55, 0x55, 0x55, 0x55 };
+
         public uint id { get; }
         //public int length { get; }
         private Queue<byte[]> multiFrames { get; }

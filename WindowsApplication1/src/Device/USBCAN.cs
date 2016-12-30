@@ -95,7 +95,7 @@ namespace USBCAN.Device
             [DllImport("controlcan.dll")]
             internal static extern uint VCI_ReadBoardInfo(uint DeviceType, uint DeviceInd, ref VCI_BOARD_INFO pInfo);
             [DllImport("controlcan.dll")]
-            internal static extern uint VCI_ReadErrInfo(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_ERR_INFO pErrInfo);
+            internal static extern uint VCI_ReadErrInfo(uint DeviceType, uint DeviceInd, int CANInd, ref VCI_ERR_INFO pErrInfo);
             [DllImport("controlcan.dll")]
             internal static extern uint VCI_ReadCANStatus(uint DeviceType, uint DeviceInd, uint CANInd, ref VCI_CAN_STATUS pCANStatus);
             [DllImport("controlcan.dll")]
@@ -120,6 +120,7 @@ namespace USBCAN.Device
         {
             private ZLGCAN usbcan;
             private VCI_INIT_CONFIG initConfig;
+            private VCI_ERR_INFO err;
 
             public uint canIndex { get; }
             public bool isInit { get; private set; }
@@ -144,6 +145,7 @@ namespace USBCAN.Device
                 this.usbcan = usbcan;
                 isInit = false;
                 initConfig = new VCI_INIT_CONFIG();
+                err = new VCI_ERR_INFO();
             }
 
             public bool InitCan(byte timing0, byte timing1, uint accCode = 0, uint accMask = 0xFFFFFFFF, byte filter = 1, byte mode = 0)
@@ -162,12 +164,14 @@ namespace USBCAN.Device
                 return result;
             }
 
-            public bool ReadErrInfo(ref VCI_ERR_INFO errInfo)
+            public bool ReadErrInfo(out uint errCode)
             {
-                return (NativeMethods.VCI_ReadErrInfo((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref errInfo) == 1);
+                bool result = (NativeMethods.VCI_ReadErrInfo((uint)usbcan.deviceType, usbcan.deviceIndex, (int)canIndex, ref err) == 1);
+                errCode = err.ErrCode;
+                return result;
             }
 
-            public bool ReadCANStatus(ref VCI_CAN_STATUS canStatus)
+            private bool ReadCANStatus(ref VCI_CAN_STATUS canStatus)
             {
                 return (NativeMethods.VCI_ReadCANStatus((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref canStatus) == 1);
             }
@@ -192,10 +196,10 @@ namespace USBCAN.Device
                 return (NativeMethods.VCI_Transmit((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, ref send, 1) == 1);
             }
 
-            public uint Receive(out IntPtr pt, int waitTime)
+            public uint Receive(out IntPtr pt, int waitTime = 100)
             {
                 pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * 50);
-                return NativeMethods.VCI_Receive((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, pt, 50, 100);
+                return NativeMethods.VCI_Receive((uint)usbcan.deviceType, usbcan.deviceIndex, canIndex, pt, 50, waitTime);
             }
         }
         /// <summary>
@@ -261,6 +265,7 @@ namespace USBCAN.Device
         }
 
         private VCI_BOARD_INFO info = new VCI_BOARD_INFO();
+        private VCI_ERR_INFO err = new VCI_ERR_INFO();
 
         public ZLGCAN(HardwareType deviceType, uint deviceIndex)
         {
@@ -299,6 +304,13 @@ namespace USBCAN.Device
         {
             uint result = NativeMethods.VCI_ReadBoardInfo((uint)deviceType, deviceIndex, ref info);
             return result == 1;
+        }
+
+        public bool ReadErrInfo(out uint errCode)
+        {
+            bool result = (NativeMethods.VCI_ReadErrInfo((uint)deviceType, deviceIndex, -1, ref err) == 1);
+            errCode = err.ErrCode;
+            return result;
         }
     }
 
