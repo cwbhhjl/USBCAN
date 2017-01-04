@@ -17,10 +17,11 @@ namespace USBCAN
         System.Collections.Generic.List<string> fileList = new System.Collections.Generic.List<string>();
         private string sha1 = null;
 
-        DeviceControl dc;
+        //DeviceControl dc;
         ZLGCANJson zlgCan;
         ConfigJson config;
         Car carConfig;
+        FlashControl flashControl;
 
         public FormMain()
         {
@@ -49,10 +50,20 @@ namespace USBCAN
             //byte a = ((UDSMessage)ms).ServiceId;
         }
 
+        void ComboBoxItemsAddRange(string[] range)
+        {
+            Invoke(new MethodInvoker(delegate
+            {
+                comboBox_Config.Items.AddRange(range);
+            }));
+            
+        }
+
         private void FormMain_Load(object sender, EventArgs e)
         {
-            config = FlashConfig.ParseConfig("json/config.json", out zlgCan);
-            comboBox_Config.Items.AddRange(config.cars);
+            flashControl = new FlashControl();
+            flashControl.comboBoxItemsAddRange += new FlashControl.ComboBoxItemsAddRange(ComboBoxItemsAddRange);
+            flashControl.MainStart();
 
             s19.updata += new HexS19.Updata(updataFileBox);
             if (CanControl.canConnect())
@@ -128,23 +139,27 @@ namespace USBCAN
         private void comboBox_Config_SelectedIndexChanged(object sender, EventArgs e)
         {
             string car = (string)comboBox_Config.SelectedItem;
-            try
+            lock (flashControl.CarSelected)
             {
-                carConfig = FlashConfig.ParseCar(car, "json/process.json", config);
+                flashControl.CarSelected = car;
             }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show("无法找到配置文件，请检查", "错误",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
+            //try
+            //{
+            //    carConfig = FlashConfig.ParseCar(car, "json/process.json", config);
+            //}
+            //catch (FileNotFoundException)
+            //{
+            //    MessageBox.Show("无法找到配置文件，请检查", "错误",
+            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //    return;
+            //}
             //无法找到车辆json配置文件时
-            catch (ArgumentException)
-            {
-                MessageBox.Show("配置文件参数缺失，请检查", "错误",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
+            //catch (ArgumentException)
+            //{
+            //    MessageBox.Show("配置文件参数缺失，请检查", "错误",
+            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //    return;
+            //}
             
             try
             {
