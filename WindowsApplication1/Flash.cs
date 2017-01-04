@@ -474,13 +474,14 @@ namespace USBCAN
 
         private IEnumerable<byte> programmingDate()
         {
-            string[] time = DateTime.Now.ToShortDateString().Split('/');
-            string[] timeBcd = new string[4];
-            timeBcd[0] = time[0].Substring(0, 2);
-            timeBcd[1] = time[0].Substring(2, 2);
-            timeBcd[2] = time[1]; timeBcd[3] = time[2];
+            int[] dateInt = new int[4];
+            DateTime now = DateTime.Now;
+            dateInt[0] = now.Year / 100;
+            dateInt[1] = now.Year % 100;
+            dateInt[2] = now.Month;
+            dateInt[3] = now.Day;
             List<byte> byteTmp = new List<byte>();
-            Array.ForEach(timeBcd, t => { byteTmp.Add(Convert.ToByte(t, 16)); });
+            Array.ForEach(dateInt, t => { byteTmp.Add(Convert.ToByte(t.ToString(), 16)); });
             return byteTmp;
         }
 
