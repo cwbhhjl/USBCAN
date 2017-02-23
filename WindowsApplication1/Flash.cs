@@ -397,11 +397,11 @@ namespace USBCAN
                     break;
 
                 case SI.DSCSI + 0x40:
-                    if(car == "S300" && s300Flag == 0 && CanControl.Rev[2] == 0x02)
+                    if (car == "S300" && s300Flag == 0 && CanControl.Rev[2] == 0x02)
                     {
                         byte[] tmp = { 0x10, 0x02 };
                         int i = 10;
-                        while(i > 0)
+                        while (i > 0)
                         {
                             CanControl.sendFrame(physicalID, receiveID, tmp);
                             Delay(30);
@@ -470,6 +470,85 @@ namespace USBCAN
             }
 
             return "fail";
+        }
+
+        private string s300Did(byte[] data, int receiveNum)
+        {
+            CanControl.sendFrame(physicalID, receiveID, data);
+            if (receiveNum <= 4)
+            {
+                if (CanControl.Rev[1] == SI.RDBISI + 0x40)
+                {
+                    if (CanControl.Rev[3] == 0x99)
+                    {
+                        byte[] verData = new byte[4];
+                        Array.Copy(CanControl.Rev, 4, verData, 0, 4);
+                        string ver = "";
+                        Array.ForEach(verData, v => { ver += v.ToString("X2"); });
+                        return ver;
+                    }
+                }
+            }
+            else
+            {
+                if (CanControl.revFirst[2] == SI.RDBISI + 0x40)
+                {
+                    if (receiveNum <= 10)
+                    {
+                        if (CanControl.revFirst[4] == 0x83 || CanControl.revFirst[4] == 0x84 || CanControl.revFirst[4] == 0x8E
+                            || CanControl.revFirst[4] == 0x91 || CanControl.revFirst[4] == 0xA0 || CanControl.revFirst[4] == 0xA1)
+                        {
+                            byte[] verData = new byte[6];
+                            Array.Copy(CanControl.revFirst, 6, verData, 0, 2);
+                            Array.Copy(CanControl.Rev, 1, verData, 2, 4);
+                            string ver = ((char)CanControl.revFirst[5]).ToString();
+                            Array.ForEach(verData, v => { ver += v.ToString("X2"); });
+                            return ver;
+                        }
+                        else if (CanControl.revFirst[4] == 0x8A)
+                        {
+                            byte[] verData = new byte[5];
+                            Array.Copy(CanControl.revFirst, 5, verData, 0, 3);
+                            Array.Copy(CanControl.Rev, 1, verData, 3, 2);
+                            string ver = "";
+                            Array.ForEach(verData, v => { ver += ((char)v); });
+                            return ver;
+                        }
+                    }
+                }
+            }
+            
+            return "null";
+        }
+
+        public void readDID()
+        {
+            if (car != "S300")
+            {
+                return;
+            }
+
+            string v;
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0x83 }, 7);
+            update(FormMain.UpdateUI.UpdateListBox, "ECU Bootloader Software Number: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0x8E }, 7);
+            update(FormMain.UpdateUI.UpdateListBox, "ECU Assembly Number: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0x91 }, 7);
+            update(FormMain.UpdateUI.UpdateListBox, "ECU Hardware Number: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0xA0 }, 7);
+            update(FormMain.UpdateUI.UpdateListBox, "Vihicle Network Number: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0xA1 }, 7);
+            update(FormMain.UpdateUI.UpdateListBox, "ECU Calibration Software 1 Number: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0x8A }, 7);
+            update(FormMain.UpdateUI.UpdateListBox, "System Supplier Identifer: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0x99 }, 4);
+            update(FormMain.UpdateUI.UpdateListBox, "Programming Date: " + v);
         }
 
         private IEnumerable<byte> programmingDate()

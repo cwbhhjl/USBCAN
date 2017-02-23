@@ -268,6 +268,7 @@ namespace USBCAN
             if (flash != null)
             {
                 textBox_Version.Text = flash.readVersion();
+                flash.readDID();
             }
             else
             {
