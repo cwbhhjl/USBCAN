@@ -169,7 +169,12 @@ namespace USBCAN
 
                     sendCan();
 
-                    if (sendResult < 0)
+                    if (sendResult < 0 && car == "S300")
+                    {
+                        processIndex++;
+                        continue;
+                    }
+                    else if (sendResult < 0)
                     {
                         flashFlag = false;
                         update(FormMain.UpdateUI.ErrorMessageShow, processStr + "...fail", 0, canCtl.sendError[sendResult]);
@@ -293,7 +298,10 @@ namespace USBCAN
                     break;
 
                 case "WriteDataByIdentifier-RepairShopCode":
-                    mainSendData.AddRange(System.Text.Encoding.ASCII.GetBytes("sanhua atc"));
+                    if (mainSendData.Count == 3)
+                    {
+                        mainSendData.AddRange(System.Text.Encoding.ASCII.GetBytes("sanhua atc"));
+                    }
                     break;
 
                 case "WriteDataByIdentifier-ProgrammingDate":
@@ -515,6 +523,15 @@ namespace USBCAN
                             Array.ForEach(verData, v => { ver += ((char)v); });
                             return ver;
                         }
+                        else if (CanControl.revFirst[4] == 0x98)
+                        {
+                            byte[] verData = new byte[10];
+                            Array.Copy(CanControl.revFirst, 5, verData, 0, 3);
+                            Array.Copy(CanControl.Rev, 1, verData, 3, 7);
+                            string ver = "";
+                            Array.ForEach(verData, v => { ver += ((char)v); });
+                            return ver;
+                        }
                     }
                 }
             }
@@ -547,6 +564,9 @@ namespace USBCAN
 
             v = s300Did(new byte[3] { 0x22, 0xF1, 0x8A }, 7);
             update(FormMain.UpdateUI.UpdateListBox, "System Supplier Identifer: " + v);
+
+            v = s300Did(new byte[3] { 0x22, 0xF1, 0x98 }, 10);
+            update(FormMain.UpdateUI.UpdateListBox, "Repair Shop Code: " + v);
 
             v = s300Did(new byte[3] { 0x22, 0xF1, 0x99 }, 4);
             update(FormMain.UpdateUI.UpdateListBox, "Programming Date: " + v);
