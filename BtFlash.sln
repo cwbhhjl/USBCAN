@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBCANTests", "USBCANTests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityAccess", "SecurityAccess\SecurityAccess.csproj", "{0970E703-9F09-41F1-8BED-488919BAE330}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Device", "Device\Device.csproj", "{42AB69E7-F0FE-41D8-9920-71D0F952F18F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0970E703-9F09-41F1-8BED-488919BAE330}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0970E703-9F09-41F1-8BED-488919BAE330}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0970E703-9F09-41F1-8BED-488919BAE330}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42AB69E7-F0FE-41D8-9920-71D0F952F18F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42AB69E7-F0FE-41D8-9920-71D0F952F18F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42AB69E7-F0FE-41D8-9920-71D0F952F18F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42AB69E7-F0FE-41D8-9920-71D0F952F18F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
