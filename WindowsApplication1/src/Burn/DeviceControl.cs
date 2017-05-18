@@ -94,7 +94,7 @@ namespace USBCAN.Burn
         {
             zlgDevice = new ZLGCAN((ZLGCAN.HardwareType)zlgcan.deviceType, zlgcan.deviceIndex);
             zlgDevice.AddCan(zlgcan.channel);
-            zlgChannel = zlgDevice.canList[zlgcan.channel];
+            zlgChannel = zlgDevice.CanList[zlgcan.channel];
             timing = new byte[2] { Convert.ToByte(zlgcan.timing0, 16), Convert.ToByte(zlgcan.timing1, 16) };
             IsConnect = false;
             zlgObj = new VCI_CAN_OBJ() { SendType = 0, RemoteFlag = 0, ExternFlag = 0, DataLen = 8 };

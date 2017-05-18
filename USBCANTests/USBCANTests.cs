@@ -20,7 +20,7 @@ namespace USBCAN.Tests
             flag = usbCan.OpenDevice();
             uint errcode;
             flag = usbCan.ReadErrInfo(out errcode);
-            Assert.AreEqual(true, usbCan.isOpen);
+            Assert.AreEqual(true, usbCan.IsOpen);
             flag = usbCan.ReadBoardInfo();
             usbCan.AddCan(0);
             //VCI_INIT_CONFIG config = new VCI_INIT_CONFIG();
@@ -30,10 +30,10 @@ namespace USBCAN.Tests
             //config.Timing1 = 28;
             //config.Filter = 1;
             //config.Mode = 0;
-            usbCan.canList[0].InitCan(0,28);
-            Assert.AreEqual(true, usbCan.canList[0].isInit);
+            usbCan.CanList[0].InitCan(0,28);
+            Assert.AreEqual(true, usbCan.CanList[0].IsInit);
             usbCan.CloseDevice();
-            Assert.AreEqual(false, usbCan.isOpen);
+            Assert.AreEqual(false, usbCan.IsOpen);
         }
     }
 }
