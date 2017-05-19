@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace BtFlash.Device
+namespace BtFlash.Device.ZLG
 {
     /// <summary>
     /// ZLGCAN系列接口卡信息的数据类型
