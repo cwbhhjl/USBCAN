@@ -1,0 +1,146 @@
+{
+    "systemSupplierECUSoftwareVersionNumber": {
+        "serviceId": "22",
+        "dataIdentifier": [ "F1", "95" ],
+        "content": "22 F1 95"
+    },
+
+    "testerPresent": {
+        "serviceId": "3E",
+        "subFunction": "00",
+        "content": "3E 00"
+    },
+
+    "defaultSession": {
+        "serviceId": "10",
+        "subFunction": "01",
+        "content": "10 01"
+    },
+
+    "programmingSession": {
+        "serviceId": "10",
+        "subFunction": "02",
+        "content": "10 02"
+    },
+
+    "extendedDiagnosticSession": {
+        "serviceId": "10",
+        "subFunction": "03",
+        "content": "10 03"
+    },
+
+    "hardReset": {
+        "serviceId": "11",
+        "subFunction": "01",
+        "content": "11 01"
+    },
+
+    "dtcSetOn": {
+        "serviceId": "85",
+        "subFunction": "01",
+        "dtcSettingControlOptionRecord": null,
+        "content": "85 01"
+    },
+
+    "dtcSetOff": {
+        "serviceId": "85",
+        "subFunction": "02",
+        "dtcSettingControlOptionRecord": null,
+        "content": "85 02"
+    },
+
+    "enableRxAndTx-normalCommunicationMessages": {
+        "serviceId": "28",
+        "subFunction": "00",
+        "communicationType": "01",
+        "content": "28 00 01"
+    },
+
+    "disableRxAndTx-normalCommunicationMessages": {
+        "serviceId": "28",
+        "subFunction": "03",
+        "communicationType": "01",
+        "content": "28 03 01"
+    },
+
+    "disableRxAndTx-all": {
+        "serviceId": "28",
+        "subFunction": "03",
+        "communicationType": "03",
+        "content": "28 03 03"
+    },
+
+    "requestSeed": {
+        "serviceId": "27",
+        "subFunction": "03",
+        "securityAccessDataRecord": [ ],
+        "content": "27 03"
+    },
+
+    "sendKey": {
+        "serviceId": "27",
+        "subFunction": "04",
+        "securityKey": [ ],
+        "content": "27 04"
+    },
+
+    "requestDownload": {
+        "serviceId": "34",
+        "dataFormatIdentifier": "00",
+        "addressAndLengthFormatIdentifier": "44",
+        "memoryAddress": [ ],
+        "memorySize": [ ],
+        "content": "34 00 44"
+    },
+
+    "transferData": {
+        "serviceId": "36",
+        "blockSequenceCounter": null,
+        "transferRequestParameterRecord": null,
+        "content": "36"
+    },
+
+    "requestTransferExit": {
+        "serviceId": "37",
+        "transferRequestParameterRecord": null,
+        "content": "37"
+    },
+
+    "checkRoutine": {
+        "serviceId": "31",
+        "subFunction": "01",
+        "routineIdentifier": [ "F0", "01" ],
+        "routineControlOptionRecord": null,
+        "content": "31 01 F0 01"
+    },
+
+    "eraseMemory": {
+        "serviceId": "31",
+        "subFunction": "01",
+        "routineIdentifier": [ "FF", "00" ],
+        "routineControlOptionRecord": null,
+        "content": "31 01 FF 00"
+    },
+
+    "checkProgrammingDependencies": {
+        "serviceId": "31",
+        "subFunction": "01",
+        "routineIdentifier": [ "FF", "01" ],
+        "routineControlOptionRecord": null,
+        "content": "31 01 FF 01"
+    },
+
+    "eraseMirrorMemoryDTCs": {
+        "serviceId": "31",
+        "subFunction": "01",
+        "routineIdentifier": [ "FF", "02" ],
+        "routineControlOptionRecord": null,
+        "content": "31 01 FF 02"
+    },
+
+    "clearDiagnosticInformation": {
+        "serviceId": "14",
+        "groupOfDTC": [ "FF", "FF", "FF" ],
+        "content": "14 FF FF FF"
+    }
+}

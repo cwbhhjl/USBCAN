@@ -1,0 +1,56 @@
+﻿{
+    "configVersion": 0.1,
+
+    "device": "USBCAN2",
+
+    "USBCAN2": {
+        "deviceType": 4,
+        "deviceIndex": 0,
+        "channel": 0,
+        "timing0": "0x00",
+        "timing1": "0x1C"
+    },
+
+    "cars": [ "E32", "E33", "N330", "S300" ],
+
+    "sequence": {
+        "sequence1": [
+            "extendedDiagnosticSession_F",
+            "eraseMirrorMemoryDTCs",
+            "dtcSetOff_F",
+            "disableRxAndTx-normalCommunicationMessages_F",
+            "programmingSession",
+            "requestSeed",
+            "sendKey",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "checkRoutine",
+            "eraseMemory",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "checkRoutine",
+            "checkProgrammingDependencies",
+            "hardReset",
+            "defaultSession_F",
+            "clearDiagnosticInformation"
+        ],
+        "sequence2": [
+            "extendedDiagnosticSession_F",
+            "dtcSetOff_F",
+            "disableRxAndTx-normalCommunicationMessages_F",
+            "programmingSession",
+            "requestSeed",
+            "sendKey",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "requestDownload",
+            "transferData",
+            "requestTransferExit",
+            "checkProgrammingDependencies",
+            "hardReset_F"
+        ]
+    }
+}
