@@ -53,6 +53,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="HexS19Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZlgDeviceTests.cs" />
   </ItemGroup>

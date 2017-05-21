@@ -70,7 +70,7 @@ namespace BtFlash.Device.ZLG.Tests
             if (UsbUtil.HasUsbDevice("Description", "ZLG USBCAN"))
             {
                 Assert.IsTrue(zlg.OpenDevice());
-                Assert.IsTrue(zlg.ReadErrInfo(out code));
+                Assert.IsTrue(zlg.ReadErrorInfo(out code));
                 Assert.IsTrue(zlg.CloseDevice());
             }
         }

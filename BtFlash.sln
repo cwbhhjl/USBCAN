@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBCAN", "WindowsApplication1\USBCAN.csproj", "{97A53E49-9547-4C26-99EC-AA8CB1C46AA3}"
 EndProject
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UDS", "UDS\UDS.csproj", "{E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flash", "Flash\Flash.csproj", "{AE16D4C5-679C-493D-B13E-A49EDA957F5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceTests", "DeviceTests\DeviceTests.csproj", "{B492995E-8284-4279-AC2A-4A3518DDAC80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "DeviceTests\Tests.csproj", "{B492995E-8284-4279-AC2A-4A3518DDAC80}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Util", "Util\Util.csproj", "{2161A646-6182-49CD-ADA0-E8F3A90D7B06}"
 EndProject

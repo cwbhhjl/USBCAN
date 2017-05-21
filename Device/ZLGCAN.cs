@@ -80,7 +80,7 @@ namespace BtFlash.Device.ZLG
 
         public uint ReceiveNum
         {
-            get{ return NativeMethods.VCI_GetReceiveNum((uint)usbcan.DeviceType, usbcan.DeviceIndex, Index); }
+            get { return NativeMethods.VCI_GetReceiveNum((uint)usbcan.DeviceType, usbcan.DeviceIndex, Index); }
         }
 
         public VCI_INIT_CONFIG Config { get { return initConfig; } }
@@ -105,14 +105,14 @@ namespace BtFlash.Device.ZLG
             return result;
         }
 
-        public bool ReadErrInfo(out uint errCode)
+        public bool ReadErrorInfo(out uint errCode)
         {
             bool result = (NativeMethods.VCI_ReadErrInfo((uint)usbcan.DeviceType, usbcan.DeviceIndex, (int)Index, ref err) == 1);
             errCode = err.ErrCode;
             return result;
         }
 
-        private bool ReadCANStatus(ref VCI_CAN_STATUS canStatus)
+        private bool ReadStatus(ref VCI_CAN_STATUS canStatus)
         {
             return (NativeMethods.VCI_ReadCANStatus((uint)usbcan.DeviceType, usbcan.DeviceIndex, Index, ref canStatus) == 1);
         }
@@ -178,13 +178,34 @@ namespace BtFlash.Device.ZLG
 
         private VCI_ERR_INFO err = new VCI_ERR_INFO();
 
+        private bool opened = false;
+
         public HardwareType DeviceType { get; }
 
         public uint DeviceIndex { get; }
 
         private Dictionary<uint, ZlgCan> CanList { get; }
 
-        private bool IsOpen { get; set; }
+        private bool HasOpen()
+        {
+            if (!opened)
+            {
+                return false;
+            }
+            else
+            {
+                VCI_BOARD_INFO info = new VCI_BOARD_INFO();
+                if (ReadBoardInfo(ref info))
+                {
+                    return true;
+                }
+                else
+                {
+                    CloseDevice();
+                    return false;
+                }
+            }
+        }
 
         public string GetError(uint code)
         {
@@ -195,7 +216,6 @@ namespace BtFlash.Device.ZLG
         {
             DeviceType = deviceType;
             DeviceIndex = deviceIndex;
-            IsOpen = false;
             CanList = new Dictionary<uint, ZlgCan>();
         }
 
@@ -204,7 +224,7 @@ namespace BtFlash.Device.ZLG
             bool result = (NativeMethods.VCI_OpenDevice((uint)DeviceType, DeviceIndex, 0u) == 1);
             if (result)
             {
-                IsOpen = true;
+                opened = true;
             }
             return result;
         }
@@ -214,7 +234,7 @@ namespace BtFlash.Device.ZLG
             bool result = (NativeMethods.VCI_CloseDevice((uint)DeviceType, DeviceIndex) == 1);
             if (result)
             {
-                IsOpen = false;
+                opened = false;
             }
             return result;
         }
@@ -244,7 +264,7 @@ namespace BtFlash.Device.ZLG
             return result == 1;
         }
 
-        public bool ReadErrInfo(out uint errCode)
+        public bool ReadErrorInfo(out uint errCode)
         {
             bool result = (NativeMethods.VCI_ReadErrInfo((uint)DeviceType, DeviceIndex, -1, ref err) == 1);
             errCode = err.ErrCode;
