@@ -5,36 +5,21 @@ using System.Text;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace BtFlash.Util
 {
-    [Serializable]
-    public sealed class BadChecksumException : ApplicationException
+    public static class HexS19
     {
-        public BadChecksumException() : base() { }
-
-        public BadChecksumException(string msg) : base(msg) { }
-
-        public BadChecksumException(string msg, Exception inner) : base(msg, inner) { }
-
-        private BadChecksumException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-    }
-
-    public class HexS19
-    {
-        private static readonly byte S1AddressLen = 2;
-        private static readonly byte S2AddressLen = 3;
-        private static readonly byte S3AddressLen = 4;
-        private static readonly byte S5AddressLen = 2;
-
         private static readonly Dictionary<string, byte> AddressTypeLength = new Dictionary<string, byte>
         {
             {"S0", 0 },{"S1", 2 },{"S2", 3 },{"S3", 4 },{"S7", 0 },{"S8", 0 },{"S9", 0 }
         };
 
-        public IEnumerable<S19Block> ConvertS19(string path)
+        public static IEnumerable<S19Block> ConvertS19(string path)
         {
-            var lines = ConvertFileToLines(path).Select(l => ConvertDataStrToS19Line(l)).ToArray();
+            var lines = ConvertFileToLines(path).Select(l => ConvertDataStrToS19Line(l)).ToList();
+            lines.RemoveAll(i => i == null);
 
             List<S19Block> s19Blocks = new List<S19Block>();
             List<byte> s19BlockData = new List<byte>();
@@ -43,24 +28,26 @@ namespace BtFlash.Util
             byte[] currentBlockLengthByte = new byte[4];
             S19Line currentBlockFirstLine = lines[0];
 
-            for (int lineNum = 0; lineNum < lines.Length; lineNum++)
+            for (int lineNum = 0; lineNum < lines.Count; lineNum++)
             {
+                if (lines[lineNum] == null) continue;
+
                 s19BlockData.AddRange(lines[lineNum].Data);
 
-                checked { currentBlockLength += lines[lineNum].Data.Length; }
+                checked { currentBlockLength += lines[lineNum].Data.Count; }
 
-                if (lineNum + 1 == lines.Length || lines[lineNum].lineAddressAll + lines[lineNum].Data.Length != lines[lineNum + 1].lineAddressAll)
+                if (lineNum + 1 == lines.Count || lines[lineNum].AddressUInt + lines[lineNum].Data.Count != lines[lineNum + 1].AddressUInt)
                 {
                     for (int i = 0; i < 4; i++)
                     {
                         currentBlockLengthByte[3 - i] = (byte)((currentBlockLength & (0xff * (uint)Math.Pow(0x100, i))) >> 8 * i);
                     }
 
-                    s19Blocks.Add(new S19Block(currentBlockFirstLine.lineAddress, currentBlockLengthByte, s19BlockData.ToArray()));
+                    s19Blocks.Add(new S19Block(currentBlockFirstLine.Address, s19BlockData.AsReadOnly(), Array.AsReadOnly(currentBlockLengthByte)));
 
-                    if (lineNum + 1 == lines.Length)
+                    if (lineNum + 1 == lines.Count)
                     {
-                        break; 
+                        break;
                     }
                     currentBlockFirstLine = lines[lineNum + 1];
                     s19BlockData.Clear();
@@ -71,7 +58,7 @@ namespace BtFlash.Util
             return s19Blocks;
         }
 
-        private IEnumerable<string> ConvertFileToLines(string path)
+        private static IEnumerable<string> ConvertFileToLines(string path)
         {
             List<string> strLines = new List<string>();
 
@@ -87,7 +74,7 @@ namespace BtFlash.Util
             return strLines;
         }
 
-        private S19Line ConvertDataStrToS19Line(string line)
+        private static S19Line ConvertDataStrToS19Line(string line)
         {
             var list = Regex.Matches(line, @"\w\w").Cast<Match>().Select(m => m.Value).ToList();
             byte addressLength = AddressTypeLength[list[0]];
@@ -101,60 +88,53 @@ namespace BtFlash.Util
 
             if ((0xFF - (byte)data.Sum(d => d)) != rawChecksum) throw new BadChecksumException();
 
-            list.RemoveAt(0);
-            return new S19Line(data.GetRange(0, addressLength).ToArray(), data.GetRange(addressLength, data.Count).ToArray());
+            data.RemoveAt(0);
+            return new S19Line(data.GetRange(0, addressLength).ToArray(), data.GetRange(addressLength, data.Count - addressLength).ToArray());
         }
     }
 
-    class S19Line
+    internal class S19Line
     {
-        public byte[] lineAddress = { 0, 0, 0, 0 };
-        public uint lineAddressAll;
-        public byte[] Data;
+        public ReadOnlyCollection<byte> Address { get; }
 
-        public S19Line(byte[] address, byte[] data)
+        public ReadOnlyCollection<byte> Data { get; }
+
+        public uint AddressUInt { get; private set; }
+
+        internal S19Line(IEnumerable<byte> address, IEnumerable<byte> data)
         {
-            Array.Copy(address, 0, lineAddress, 4 - address.Length, address.Length);
-            Data = data;
+            Address = address.ToList().AsReadOnly();
+            Data = data.ToList().AsReadOnly();
+            int i = 0;
+            address.Reverse().ToList().ForEach(n => { AddressUInt += n * (uint)Math.Pow(0x100, i); i++; });
         }
     }
 
     public class S19Block
     {
-        private byte[] startAddress = new byte[4];
-        private byte[] dataLength = new byte[4];
-        private byte[] data;
+        public ReadOnlyCollection<byte> Address { get; }
 
-        public byte[] StartAddress
+        public ReadOnlyCollection<byte> Length { get; }
+
+        public ReadOnlyCollection<byte> Data { get; }
+
+        public S19Block(IEnumerable<byte> address, IEnumerable<byte> data, IEnumerable<byte> dataLength)
         {
-            get
-            {
-                return startAddress;
-            }
+            Address = address.ToList().AsReadOnly();
+            Data = data.ToList().AsReadOnly();
+            Length = dataLength.ToList().AsReadOnly();
         }
+    }
 
-        public byte[] DataLength
-        {
-            get
-            {
-                return dataLength;
-            }
-        }
+    [Serializable]
+    public sealed class BadChecksumException : ApplicationException
+    {
+        public BadChecksumException() : base() { }
 
-        public byte[] Data
-        {
-            get
-            {
-                return data;
-            }
-        }
+        public BadChecksumException(string msg) : base(msg) { }
 
-        public S19Block(byte[] startAddress, byte[] dataLength, byte[] data)
-        {
-            startAddress.CopyTo(this.startAddress, 0);
-            dataLength.CopyTo(this.dataLength, 0);
-            this.data = data;
-        }
+        public BadChecksumException(string msg, Exception inner) : base(msg, inner) { }
 
+        private BadChecksumException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }
