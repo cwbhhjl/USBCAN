@@ -6,7 +6,105 @@ using System.Runtime.InteropServices;
 
 namespace BtFlash.Device.Neo
 {
-    public class icsNeoDll
+    internal static class NativeMethods
+    {
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoFindNeoDevices(uint DeviceTypes, ref NeoDevice pNeoDevice, ref int pNumDevices);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoOpenNeoDevice(ref NeoDevice pNeoDevice, ref int hObject, ref byte bNetworkIDs, int bConfigRead, int bSyncToPC);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoClosePort(int hObject, ref int pNumberOfErrors);
+        [DllImport("icsneo40.dll")]
+        public static extern void icsneoFreeObject(int hObject);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoOpenPortEx(int lPortNumber, int lPortType, int lDriverType, int lIPAddressMSB, int lIPAddressLSBOrBaudRate, int bConfigRead, ref byte bNetworkID, ref int hObject);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetMessages(int hObject, ref icsSpyMessage pMsg, ref int pNumberOfMessages, ref int pNumberOfErrors);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoTxMessages(int hObject, ref icsSpyMessageJ1850 pMsg, int lNetworkID, int lNumMessages);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoTxMessages(int hObject, ref icsSpyMessage pMsg, int lNetworkID, int lNumMessages);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoWaitForRxMessagesWithTimeOut(int hObject, uint iTimeOut);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoEnableNetworkRXQueue(int hObject, int iEnable);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetTimeStampForMsg(int hObject, ref icsSpyMessage pMsg, ref double pTimeStamp);
+        [DllImport("icsneo40.dll")]
+        public static extern void icsneoGetISO15765Status(int hObject, int lNetwork, int lClearTxStatus, int lClearRxStatus, ref int lTxStatus, ref int lRxStatus);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetConfiguration(int hObject, ref byte pData, ref int lNumBytes);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoSendConfiguration(int hObject, ref byte pData, int lNumBytes);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetFireSettings(int hObject, ref SFireSettings pSettings, int iNumBytes);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoSetFireSettings(int hObject, ref SFireSettings pSettings, int iNumBytes, int bSaveToEEPROM);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetYellowSettings(int hObject, ref sYellowSettings pSettings, int iNumBytes);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoSetYellowSettings(int hObject, ref sYellowSettings pSettings, int iNumBytes, int bSaveToEEPROM);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetVCAN3Settings(int hObject, ref SVCAN3Settings pSettings, int iNumBytes);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoSetVCAN3Settings(int hObject, ref SVCAN3Settings pSettings, int iNumBytes, int bSaveToEEPROM);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoSetBitRate(int hObject, int BitRate, int NetworkID);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetDeviceParameters(int hObject, ref char pParameter, ref char pValues, short ValuesLength);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoSetDeviceParameters(int hObject, ref char pParmValue, ref int pErrorIndex, int bSaveToEEPROM);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetLastAPIError(int hObject, ref uint pErrorNumber);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetErrorMessages(int hObject, ref int pErrorMsgs, ref int pNumberOfErrors);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetErrorInfo(int iErrorNumber, StringBuilder sErrorDescriptionShort, StringBuilder sErrorDescriptionLong, ref int iMaxLengthShort, ref int iMaxLengthLong, ref int lErrorSeverity, ref int lRestartNeeded);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoValidateHObject(int hObject);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoGetDLLVersion();
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoStartSockServer(int hObject, int iPort);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoStopSockServer(int hObject);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptStart(int hObject, int iLocation);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptStop(int hObject);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptLoad(int hObject, ref byte bin, uint len_bytes, int iLocation);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptClear(int hObject, int iLocation);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptStartFBlock(int hObject, uint fb_index);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptGetFBlockStatus(int hObject, uint fb_index, ref int piRunStatus);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptStopFBlock(int hObject, uint fb_index);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptGetScriptStatus(int hObject, ref int piStatus);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptReadAppSignal(int hObject, uint iIndex, ref double dValue);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptWriteAppSignal(int hObject, uint iIndex, double dValue);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptReadRxMessage(int hObject, uint iIndex, ref icsSpyMessage pRxMessageMask, ref icsSpyMessage pRxMessageValue);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptReadTxMessage(int hObject, uint iIndex, ref icsSpyMessage pTxMessage);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptWriteRxMessage(int hObject, uint iIndex, ref icsSpyMessage pRxMessageMask, ref icsSpyMessage pRxMessageValue);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoScriptWriteTxMessage(int hObject, uint iIndex, ref icsSpyMessage pTxMessage);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoOpenPort(int lPortNumber, int lPortType, int lDriverType, ref byte bNetworkID, ref byte bSCPIDs, ref int hObject);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoEnableNetworkCom(int hObject, int Enable);
+        [DllImport("icsneo40.dll")]
+        public static extern int icsneoFindAllCOMDevices(int lDriverType, int lGetSerialNumbers, int lStopAtFirst, int lUSBCommOnly, ref int p_lDeviceTypes, ref int p_lComPorts, ref int p_lSerialNumbers, ref int lNumDevices);
+    }
+
+    public class IcsNeo
     {
         public const double NEOVI_TIMEHARDWARE2_SCALING = 0.1048576;
         public const double NEOVI_TIMEHARDWARE_SCALING = 0.0000016;
@@ -15,134 +113,34 @@ namespace BtFlash.Device.Neo
         public const double NEOVIPRO_VCAN_TIMEHARDWARE_SCALING = 0.000001;
 
         // med speed CAN
-        public const Int16 NEO_CFG_MPIC_MS_CAN_CNF1 = 512 + 22;
-        public const Int16 NEO_CFG_MPIC_MS_CAN_CNF2 = 512 + 21;
-        public const Int16 NEO_CFG_MPIC_MS_CAN_CNF3 = 512 + 20;
+        public const short NEO_CFG_MPIC_MS_CAN_CNF1 = 512 + 22;
+        public const short NEO_CFG_MPIC_MS_CAN_CNF2 = 512 + 21;
+        public const short NEO_CFG_MPIC_MS_CAN_CNF3 = 512 + 20;
 
-        public const Int16 NEO_CFG_MPIC_SW_CAN_CNF1 = 512 + 34;
-        public const Int16 NEO_CFG_MPIC_SW_CAN_CNF2 = 512 + 33;
-        public const Int16 NEO_CFG_MPIC_SW_CAN_CNF3 = 512 + 32;
+        public const short NEO_CFG_MPIC_SW_CAN_CNF1 = 512 + 34;
+        public const short NEO_CFG_MPIC_SW_CAN_CNF2 = 512 + 33;
+        public const short NEO_CFG_MPIC_SW_CAN_CNF3 = 512 + 32;
 
-        public const Int16 NEO_CFG_MPIC_LSFT_CAN_CNF1 = 512 + 46;
-        public const Int16 NEO_CFG_MPIC_LSFT_CAN_CNF2 = 512 + 45;
-        public const Int16 NEO_CFG_MPIC_LSFT_CAN_CNF3 = 512 + 44;
+        public const short NEO_CFG_MPIC_LSFT_CAN_CNF1 = 512 + 46;
+        public const short NEO_CFG_MPIC_LSFT_CAN_CNF2 = 512 + 45;
+        public const short NEO_CFG_MPIC_LSFT_CAN_CNF3 = 512 + 44;
 
         // Protocols
-        public const Int16 SPY_PROTOCOL_CUSTOM = 0;
-        public const Int16 SPY_PROTOCOL_CAN = 1;
-        public const Int16 SPY_PROTOCOL_GMLAN = 2;
-        public const Int16 SPY_PROTOCOL_J1850VPW = 3;
-        public const Int16 SPY_PROTOCOL_J1850PWM = 4;
-        public const Int16 SPY_PROTOCOL_ISO9141 = 5;
-        public const Int16 SPY_PROTOCOL_Keyword2000 = 6;
-        public const Int16 SPY_PROTOCOL_GM_ALDL_UART = 7;
-        public const Int16 SPY_PROTOCOL_CHRYSLER_CCD = 8;
-        public const Int16 SPY_PROTOCOL_CHRYSLER_SCI = 9;
-        public const Int16 SPY_PROTOCOL_FORD_UBP = 10;
-        public const Int16 SPY_PROTOCOL_BEAN = 11;
-        public const Int16 SPY_PROTOCOL_LIN = 12;
+        public const short SPY_PROTOCOL_CUSTOM = 0;
+        public const short SPY_PROTOCOL_CAN = 1;
+        public const short SPY_PROTOCOL_GMLAN = 2;
+        public const short SPY_PROTOCOL_J1850VPW = 3;
+        public const short SPY_PROTOCOL_J1850PWM = 4;
+        public const short SPY_PROTOCOL_ISO9141 = 5;
+        public const short SPY_PROTOCOL_Keyword2000 = 6;
+        public const short SPY_PROTOCOL_GM_ALDL_UART = 7;
+        public const short SPY_PROTOCOL_CHRYSLER_CCD = 8;
+        public const short SPY_PROTOCOL_CHRYSLER_SCI = 9;
+        public const short SPY_PROTOCOL_FORD_UBP = 10;
+        public const short SPY_PROTOCOL_BEAN = 11;
+        public const short SPY_PROTOCOL_LIN = 12;
 
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoFindNeoDevices(UInt32 DeviceTypes, ref NeoDevice pNeoDevice, ref Int32 pNumDevices);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoOpenNeoDevice(ref NeoDevice pNeoDevice, ref Int32 hObject, ref byte bNetworkIDs, Int32 bConfigRead, Int32 bSyncToPC);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoClosePort(Int32 hObject, ref Int32 pNumberOfErrors);
-        [DllImport("icsneo40.dll")]
-        public static extern void icsneoFreeObject(Int32 hObject);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoOpenPortEx(Int32 lPortNumber, Int32 lPortType, Int32 lDriverType, Int32 lIPAddressMSB, Int32 lIPAddressLSBOrBaudRate, Int32 bConfigRead, ref byte bNetworkID, ref Int32 hObject);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetMessages(Int32 hObject, ref icsSpyMessage pMsg, ref Int32 pNumberOfMessages, ref Int32 pNumberOfErrors);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoTxMessages(Int32 hObject, ref icsSpyMessageJ1850 pMsg, Int32 lNetworkID, Int32 lNumMessages);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoTxMessages(Int32 hObject, ref icsSpyMessage pMsg, Int32 lNetworkID, Int32 lNumMessages);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoWaitForRxMessagesWithTimeOut(Int32 hObject, UInt32 iTimeOut);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoEnableNetworkRXQueue(Int32 hObject, Int32 iEnable);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetTimeStampForMsg(Int32 hObject, ref icsSpyMessage pMsg, ref double pTimeStamp);
-        [DllImport("icsneo40.dll")]
-        public static extern void icsneoGetISO15765Status(Int32 hObject, Int32 lNetwork, Int32 lClearTxStatus, Int32 lClearRxStatus, ref Int32 lTxStatus, ref Int32 lRxStatus);
-        //[DllImport("icsneo40.dll")]
-        //public static extern void icsneoSetISO15765RxParameters(Int32 hObject, Int32 lNetwork, Int32 lEnable, ref spyFilterLong pFF_CFMsgFilter, ref icsSpyMessage pTxMsg, Int32 lCFTimeOutMs, Int32 lFlowCBlockSize,Int32 lUsesExtendedAddressing, Int32 lUseHardwareIfPresent);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetConfiguration(Int32 hObject, ref byte pData, ref Int32 lNumBytes);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoSendConfiguration(Int32 hObject, ref byte pData, Int32 lNumBytes);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetFireSettings(Int32 hObject, ref SFireSettings pSettings, Int32 iNumBytes);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoSetFireSettings(Int32 hObject, ref SFireSettings pSettings, Int32 iNumBytes, Int32 bSaveToEEPROM);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetYellowSettings(Int32 hObject, ref sYellowSettings pSettings, Int32 iNumBytes);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoSetYellowSettings(Int32 hObject, ref sYellowSettings pSettings, Int32 iNumBytes, Int32 bSaveToEEPROM);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetVCAN3Settings(Int32 hObject, ref SVCAN3Settings pSettings, Int32 iNumBytes);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoSetVCAN3Settings(Int32 hObject, ref SVCAN3Settings pSettings, Int32 iNumBytes, Int32 bSaveToEEPROM);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoSetBitRate(Int32 hObject, Int32 BitRate, Int32 NetworkID);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetDeviceParameters(Int32 hObject, ref char pParameter, ref char pValues, Int16 ValuesLength);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoSetDeviceParameters(Int32 hObject, ref char pParmValue, ref Int32 pErrorIndex, Int32 bSaveToEEPROM);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetLastAPIError(Int32 hObject, ref UInt32 pErrorNumber);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetErrorMessages(Int32 hObject, ref Int32 pErrorMsgs, ref Int32 pNumberOfErrors);
-        [DllImport("icsneo40.dll")]
-        public static extern int icsneoGetErrorInfo(int iErrorNumber, StringBuilder sErrorDescriptionShort, StringBuilder sErrorDescriptionLong, ref int iMaxLengthShort, ref int iMaxLengthLong, ref int lErrorSeverity, ref int lRestartNeeded);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoValidateHObject(Int32 hObject);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoGetDLLVersion();
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoStartSockServer(Int32 hObject, Int32 iPort);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoStopSockServer(Int32 hObject);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptStart(Int32 hObject, Int32 iLocation);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptStop(Int32 hObject);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptLoad(Int32 hObject, ref byte bin, UInt32 len_bytes, Int32 iLocation);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptClear(Int32 hObject, Int32 iLocation);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptStartFBlock(Int32 hObject, UInt32 fb_index);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptGetFBlockStatus(Int32 hObject, UInt32 fb_index, ref Int32 piRunStatus);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptStopFBlock(Int32 hObject, UInt32 fb_index);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptGetScriptStatus(Int32 hObject, ref Int32 piStatus);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptReadAppSignal(Int32 hObject, UInt32 iIndex, ref double dValue);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptWriteAppSignal(Int32 hObject, UInt32 iIndex, double dValue);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptReadRxMessage(Int32 hObject, UInt32 iIndex, ref icsSpyMessage pRxMessageMask, ref icsSpyMessage pRxMessageValue);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptReadTxMessage(Int32 hObject, UInt32 iIndex, ref icsSpyMessage pTxMessage);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptWriteRxMessage(Int32 hObject, UInt32 iIndex, ref icsSpyMessage pRxMessageMask, ref icsSpyMessage pRxMessageValue);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoScriptWriteTxMessage(Int32 hObject, UInt32 iIndex, ref icsSpyMessage pTxMessage);
-        //[DllImport("icsneo40.dll")]
-        //public static extern Int32 icsneoScriptReadISO15765_2_TxMessage(Int32 hObject, UInt32 iIndex, stCM_ISO157652_ref TxMessage pTxMessage);
-        //[DllImport("icsneo40.dll")]
-        //public static extern Int32 icsneoScriptWriteISO15765_2_TxMessage(Int32 hObject, UInt32 iIndex,  stCM_ISO157652_ref TxMessage pTxMessage);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoOpenPort(Int32 lPortNumber, Int32 lPortType, Int32 lDriverType, ref byte bNetworkID, ref byte bSCPIDs, ref Int32 hObject);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoEnableNetworkCom(Int32 hObject, Int32 Enable);
-        [DllImport("icsneo40.dll")]
-        public static extern Int32 icsneoFindAllCOMDevices(Int32 lDriverType, Int32 lGetSerialNumbers, Int32 lStopAtFirst, Int32 lUSBCommOnly, ref Int32 p_lDeviceTypes, ref Int32 p_lComPorts, ref Int32 p_lSerialNumbers, ref Int32 lNumDevices);
-
+        
         public static double icsneoGetTimeStamp(long TimeHardware, long TimeHardware2)
         {
             return NEOVI_TIMEHARDWARE2_SCALING * TimeHardware2 + NEOVI_TIMEHARDWARE_SCALING * TimeHardware;
@@ -237,35 +235,35 @@ namespace BtFlash.Device.Neo
             try
             {
                 //Convert text string to unsigned Int32eger
-                uiDecimal = checked((uint)System.Convert.ToUInt32(sInput));
+                uiDecimal = checked(Convert.ToUInt32(sInput));
             }
-            catch (System.OverflowException)
+            catch (OverflowException)
             {
                 sOut = "Overflow";
                 return sOut;
             }
             //Format unsigned Int32eger value to hex 
-            sOut = String.Format("{0:x2}", uiDecimal);
+            sOut = string.Format("{0:x2}", uiDecimal);
             return sOut;
         }
 
-        public static Int32 ConvertFromHex(string num)
+        public static int ConvertFromHex(string num)
         {
             //To hold our converted unsigned Int32eger32 value
             uint uiHex = 0;
             try
             {
                 // Convert hex string to unsigned Int32eger
-                uiHex = System.Convert.ToUInt32(num, 16);
+                uiHex = Convert.ToUInt32(num, 16);
             }
-            catch (System.OverflowException)
+            catch (OverflowException)
             {
                 //
             }
             return Convert.ToInt32(uiHex);
         }
 
-        public static Int32 GetNetworkIDfromString(ref string NetworkName)
+        public static int GetNetworkIDfromString(ref string NetworkName)
         {
             switch (NetworkName)
             {
@@ -307,7 +305,7 @@ namespace BtFlash.Device.Neo
             return (-1);
         }
 
-        public static string GetStringForNetworkID(Int16 lNetworkID)
+        public static string GetStringForNetworkID(short lNetworkID)
         {
             string sTempOutput = "N/A";
             switch (lNetworkID)

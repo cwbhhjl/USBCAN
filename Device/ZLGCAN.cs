@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace BtFlash.Device.ZLG
 {
@@ -70,7 +71,7 @@ namespace BtFlash.Device.ZLG
         internal static extern uint VCI_Receive(uint DeviceType, uint DeviceInd, uint CANInd, IntPtr pReceive, uint Len, int WaitTime);
     }
 
-    public class ZlgCan
+    public class ZlgCan : ICan
     {
         private ZlgDevice usbcan;
         private VCI_INIT_CONFIG initConfig;
@@ -137,7 +138,7 @@ namespace BtFlash.Device.ZLG
             return (NativeMethods.VCI_Transmit((uint)usbcan.DeviceType, usbcan.DeviceIndex, Index, ref send, 1) == 1);
         }
 
-        public IEnumerable<VCI_CAN_OBJ> Receive(int size = 50, int waitTime = 100)
+        public List<VCI_CAN_OBJ> Receive(int size = 50, int waitTime = 100)
         {
             IntPtr pt = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VCI_CAN_OBJ)) * size);
             List<VCI_CAN_OBJ> list = new List<VCI_CAN_OBJ>();
@@ -150,6 +151,39 @@ namespace BtFlash.Device.ZLG
 
             Marshal.FreeHGlobal(pt);
             return list;
+        }
+
+        unsafe public bool Send(CanMessage msg)
+        {
+            VCI_CAN_OBJ obj = new VCI_CAN_OBJ()
+            {
+                ID = msg.ID,
+                DataLen = (byte)msg.Data.Count,
+                ExternFlag = (byte)(msg.IsExtern ? 1 : 0),
+                RemoteFlag = (byte)(msg.IsRemote ? 1 : 0),
+                SendType = 0
+            };
+            for (int i = 0; i < obj.DataLen; i++)
+            {
+                obj.Data[i] = msg.Data[i];
+            }
+            return Send(ref obj);
+        }
+
+        unsafe private CanMessage VciToCanMsg(VCI_CAN_OBJ obj)
+        {
+            byte[] data = new byte[obj.DataLen];
+            for (int i = 0; i < obj.DataLen; i++)
+            {
+                data[i] = obj.Data[i];
+            }
+            return new CanMessage(obj.ID, data, Convert.ToBoolean(obj.RemoteFlag), Convert.ToBoolean(obj.ExternFlag));
+        }
+
+        public List<CanMessage> Receive()
+        {
+            List<VCI_CAN_OBJ> re = Receive(50, 100);
+            return re.Select(x => VciToCanMsg(x)).ToList();
         }
     }
 

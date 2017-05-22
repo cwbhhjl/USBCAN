@@ -16,7 +16,7 @@ namespace BtFlash.Util
             {"S0", 0 },{"S1", 2 },{"S2", 3 },{"S3", 4 },{"S7", 0 },{"S8", 0 },{"S9", 0 }
         };
 
-        public static IEnumerable<S19Block> ConvertS19(string path)
+        public static List<S19Block> ConvertS19(string path)
         {
             var lines = ConvertFileToLines(path).Select(l => ConvertDataStrToS19Line(l)).ToList();
             lines.RemoveAll(i => i == null);
@@ -58,7 +58,7 @@ namespace BtFlash.Util
             return s19Blocks;
         }
 
-        private static IEnumerable<string> ConvertFileToLines(string path)
+        private static List<string> ConvertFileToLines(string path)
         {
             List<string> strLines = new List<string>();
 
