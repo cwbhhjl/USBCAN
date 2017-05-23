@@ -11,28 +11,22 @@ namespace BtFlash.UDS
 
         public uint ID { get; }
 
-        private Queue<IList<byte>> MultiFrames { get; }
+        private Queue<List<byte>> MultiFrames { get; }
         /// <summary>
         /// 获取原始数据的所有 CAN 帧队列
         /// </summary>
-        public Queue<IList<byte>> AllFrames { get; }
+        public Queue<List<byte>> AllFrames { get; }
 
         /// <summary>
         /// 剩余的CAN帧数
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return MultiFrames.Count;
-            }
-        }
+        public int Count { get { return MultiFrames.Count; } }
 
         /// <summary>
         /// 获取下一个 CAN 帧
         /// </summary>
         /// <returns>CAN帧字节数组</returns>
-        public IList<byte> NextFrame()
+        public List<byte> NextFrame()
         {
             return MultiFrames?.Dequeue();
         }
@@ -44,7 +38,7 @@ namespace BtFlash.UDS
         {
             ID = id;
             MultiFrames = ToCanContent(data);
-            AllFrames = new Queue<IList<byte>>(MultiFrames);
+            AllFrames = new Queue<List<byte>>(MultiFrames);
         }
 
         private List<byte> ToSingleFrame(IList<byte> data)
@@ -65,7 +59,7 @@ namespace BtFlash.UDS
             return frame;
         }
 
-        private Queue<IList<byte>> ToMultiFrames(IList<byte> data)
+        private Queue<List<byte>> ToMultiFrames(IList<byte> data)
         {
             int count = data.Count;
             if (count < 8)
@@ -81,50 +75,25 @@ namespace BtFlash.UDS
             frame.Insert(0, (byte)(data.Count & 0xFF));
             frame.Insert(0, (byte)(((N_PCI.FF.N_PCItype << 4) & 0xF0) | (data.Count >> 8) & 0x0F));
 
-            Queue<IList<byte>> frames = new Queue<IList<byte>>();
+            Queue<List<byte>> frames = new Queue<List<byte>>();
             frames.Enqueue(frame);
-            //data. http://bbs.csdn.net/topics/390836815
-            int remainder;
-            int framesNum = CalcFramesNum(count, out remainder);
-            int index = 6;
-            byte SN = 0;
-            for (int i = 1; i < framesNum; i++)
+
+            for (int i = 0, SN = 0; i * 7 + 6 < data.Count; i++, SN++)
             {
-                byte[] tmpp = new byte[8];
-                if ((++SN) > 0x0F)
-                {
-                    SN = 0;
-                }
-                tmpp[0] = (byte)(((N_PCI.CF.N_PCItype << 4) & 0xF0) | SN);
-                if (i < framesNum - 1 || remainder == 0)
-                {
-                    for (int j = 1; j < 8; j++, index++)
-                    {
-                        tmpp[j] = data[index];
-                    }
-                }
-                else
-                {
-                    tmpp = Enumerable.Repeat((byte)0xFF, 8).ToArray();
-                    tmpp[0] = (byte)(((N_PCI.CF.N_PCItype << 4) & 0xF0) | SN);
-                    Array.Copy(data.ToArray(), index, tmpp, 1, remainder);
-                }
-                frames.Enqueue(tmpp);
+                List<byte> cList = new List<byte>();
+                cList.Add((byte)((SN + 1) & 0x0F));
+                cList.AddRange(data.Take(i * 7 + 13).Skip(i * 7 + 6));
+                frames.Enqueue(cList);
             }
 
             return frames;
         }
 
-        private byte[] makeConsecutiveFrame(byte[] data, int index)
-        {
-            return null;
-        }
-
-        private Queue<IList<byte>> ToCanContent(IList<byte> data)
+        private Queue<List<byte>> ToCanContent(IList<byte> data)
         {
             if (data.Count <= 7)
             {
-                Queue<IList<byte>> tmp = new Queue<IList<byte>>();
+                Queue<List<byte>> tmp = new Queue<List<byte>>();
                 tmp.Enqueue(ToSingleFrame(data));
                 return tmp;
             }
