@@ -34,14 +34,14 @@ namespace BtFlash.UDS
         /// <summary>
         /// 初始化 CanUDSFrame 实例，将传入的原始数据字节数组转为符合 ISO 15363 的 CAN 帧字节数组队列
         /// </summary>
-        public UDSFrame(uint id, IList<byte> data)
+        public UDSFrame(uint id, ICollection<byte> data)
         {
             ID = id;
             MultiFrames = ToCanContent(data);
             AllFrames = new Queue<List<byte>>(MultiFrames);
         }
 
-        private List<byte> ToSingleFrame(IList<byte> data)
+        private List<byte> ToSingleFrame(ICollection<byte> data)
         {
             if (data.Count > 7)
             {
@@ -49,17 +49,17 @@ namespace BtFlash.UDS
             }
 
             List<byte> frame = data.ToList();
-            frame.Insert(0, (byte)data.Count);
+            frame.Insert(0, (byte)frame.Count);
 
-            for (int i = data.Count; i < 8; i++)
+            for (int i = frame.Count; i < 8; i++)
             {
-                data.Add(0xFF);
+                frame.Add(0xFF);
             }
 
             return frame;
         }
 
-        private Queue<List<byte>> ToMultiFrames(IList<byte> data)
+        private Queue<List<byte>> ToMultiFrames(ICollection<byte> data)
         {
             int count = data.Count;
             if (count < 8)
@@ -72,24 +72,27 @@ namespace BtFlash.UDS
             }
 
             List<byte> frame = data.Take(6).ToList();
-            frame.Insert(0, (byte)(data.Count & 0xFF));
-            frame.Insert(0, (byte)(((N_PCI.FF.N_PCItype << 4) & 0xF0) | (data.Count >> 8) & 0x0F));
-
+            frame.Insert(0, (byte)(count & 0xFF));
+            frame.Insert(0, (byte)(((N_PCI.FF.N_PCItype << 4) & 0xF0) | (count >> 8) & 0x0F));
             Queue<List<byte>> frames = new Queue<List<byte>>();
             frames.Enqueue(frame);
 
-            for (int i = 0, SN = 0; i * 7 + 6 < data.Count; i++, SN++)
+            for (int i = 0, SN = 0; i * 7 + 6 < count; i++, SN++)
             {
-                List<byte> cList = new List<byte>();
-                cList.Add((byte)((SN + 1) & 0x0F));
+                List<byte> cList = new List<byte>
+                {
+                    (byte)((SN + 1) & 0x0F | (N_PCI.CF.N_PCItype << 4))
+                };
                 cList.AddRange(data.Take(i * 7 + 13).Skip(i * 7 + 6));
                 frames.Enqueue(cList);
             }
+            var last = frames.Last();
+            last.AddRange(Enumerable.Repeat<byte>(0xFF, 8 - last.Count));
 
             return frames;
         }
 
-        private Queue<List<byte>> ToCanContent(IList<byte> data)
+        private Queue<List<byte>> ToCanContent(ICollection<byte> data)
         {
             if (data.Count <= 7)
             {
